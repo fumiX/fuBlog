@@ -4,7 +4,7 @@
       <div class="wrapper">
         <nav>
           <RouterLink to="/">Home</RouterLink>
-          | 
+          |
           <RouterLink to="/posts">alle Blogposts</RouterLink>
         </nav>
       </div>
@@ -18,8 +18,6 @@
 import { RouterLink, RouterView } from "vue-router";
 </script>
 
-<style scoped>
-.wrapper {
-  text-align: center;
-}
+<style lang="scss">
+@import "./assets/scss/style.scss";
 </style>
