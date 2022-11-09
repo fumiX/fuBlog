@@ -3,6 +3,8 @@ import App from "./App.vue";
 import router from "./router";
 import { DateTime } from "luxon";
 import "./assets/scss/style.scss";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 import { fab } from "@fortawesome/free-brands-svg-icons";
@@ -17,6 +19,4 @@ app.config.globalProperties.$luxonDateTime = DateTime;
 
 app.use(router);
 
-app
-.component("fa-icon", FontAwesomeIcon)
-.mount("#app");
+app.component("fa-icon", FontAwesomeIcon).mount("#app");

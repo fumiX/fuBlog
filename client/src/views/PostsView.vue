@@ -1,49 +1,62 @@
 <template>
-  <div>
-    <div class="maintitle">
-      <h1>All Blogposts</h1>
-      <button color="#8a2be2" @click="goTo('/posts/post/form', null)">
-        <fa-icon :icon="['fas', 'add']" />
-        Neuer Post
-      </button>
+  <div class="container">
+    <div class="jumbotron mb-4 p-3 p-md-5 rounded blog-bg">
+      <div class="col-md-6 px-0">
+        <h1 class="display-2 font-italic">Blogposts</h1>
+        <!-- <p class="lead my-3">Liste aller Blogposts.</p> -->
+        <!-- <p class="lead mb-0"><a href="#" class="text-white font-weight-bold">Continue reading...</a></p> -->
+      </div>
     </div>
-    <div v-for="post in posts" :key="post._id" class="preview">
-      <h2 @click="$router.push('posts/post/' + post._id)">
-        {{ post.title }}
-      </h2>
-      <div class="description">
-        {{ post.description }}
+
+    <div class="clearfix mb-4">
+      <a class="btn btn-outline-secondary float-end" href="#" @click="goTo('/posts/post/form', null)"> <fa-icon :icon="['fas', 'add']" /> Post erstellen</a>
+    </div>
+
+    <!-- <button type="button" class="btn btn-info">Post erstellen</button> -->
+
+    <div class="row mb-2" v-for="post in posts" :key="post._id">
+      <div class="col">
+        <div class="card flex-md-row mb-4 box-shadow h-md-250">
+          <div class="card-body">
+            <!-- <strong class="d-inline-block mb-2 text-primary">Kategorie</strong> -->
+            <h3 class="mb-0">
+              <router-link :to="'posts/post/' + post._id" class="text-dark">{{ post.title }}</router-link>
+            </h3>
+            <div class="mb-1 text-muted">
+              <fa-icon :icon="['far', 'clock']" />
+              {{ $luxonDateTime.fromISO(post.createdAt).toRelativeCalendar() }}
+              <span v-if="post.createdBy"> von </span>
+              <i>{{ post.createdBy }}</i>
+            </div>
+            <p class="card-text my-4">{{ post.description }}</p>
+
+            <div class="clearfix">
+              <button class="btn btn-sm btn-outline-primary" @click="$router.push('posts/post/' + post._id)">
+                <fa-icon :icon="['fas', 'book-reader']" />
+                Lesen
+              </button>
+              <button class="btn btn-sm btn-outline-secondary float-end" @click="confirmDelete(post)">
+                <fa-icon :icon="['fas', 'trash']" />
+                Löschen
+              </button>
+              <button class="btn btn-sm btn-outline-secondary float-end mx-2" @click="confirmDelete(post)">
+                <fa-icon :icon="['fas', 'edit']" />
+                Ändern
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="info">
-        <span>
-          <fa-icon :icon="['far', 'clock']" /> Erstellt
-          {{ $luxonDateTime.fromISO(post.createdAt).toRelativeCalendar() }}
-          <span v-if="post.createdBy"> von </span>
-          {{ post.createdBy }}
-        </span>
-
-        <span v-if="post.updatedAt !== post.createdAt">
-          <fa-icon :icon="['far', 'clock']" /> Geändert
-          {{ $luxonDateTime.fromISO(post.updatedAt).toRelativeCalendar() }}
-          von
-          {{ article.updatedBy }}
-        </span>
-      </div>
-
-      <button circle color="#8a2be2" @click="confirmDelete(post)">
-        <fa-icon :icon="['fas', 'trash']" />
-        DELETE
-      </button>
-
-      <button circle color="#8a2be2" @click="goTo('/posts/post/form', post._id)">
-        <fa-icon :icon="['fas', 'edit']" />
-        edit
-      </button>
     </div>
   </div>
 </template>
 
-<style>
+<style lang="scss">
+.blog-bg {
+  background-image: url("@/assets/images/blog-bg.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+}
 </style>
 
 <script lang="ts">
@@ -95,10 +108,9 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-$text-primary: green;
 .maintitle {
   h1 {
-    color: $primary-text-color
+    color: $primary-text-color;
   }
 }
 </style>
