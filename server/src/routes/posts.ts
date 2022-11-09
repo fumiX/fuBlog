@@ -1,21 +1,12 @@
 import express, { Request, Response, Router } from "express";
-
+import { Post } from "./../../../interfaces/post";
 const router: Router = express.Router();
 
-export interface Post {
-    title: string;
-    description: string;
-    markdown: string;
-    sanitizedHtml: string;
-    createdAt: string;
-    updatedAt: string;
-    createdBy: string;
-    updatedBy: string;
-}
 
 // Posts Mock
 const POSTS: Post[] = [
     {
+        _id: "123456789",
         title: "My first Post",
         description: "Description of irst post",
         markdown: "## Post",
@@ -26,6 +17,7 @@ const POSTS: Post[] = [
         updatedBy: ""
     },
     {
+        _id: "67890",
         title: "My second Post",
         description: "Description of second post",
         markdown: "## Post 2",
