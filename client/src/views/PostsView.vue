@@ -12,8 +12,6 @@
       <a class="btn btn-outline-secondary float-end" href="#" @click="goTo('/posts/post/form', null)"> <fa-icon :icon="['fas', 'add']" /> Post erstellen</a>
     </div>
 
-    <!-- <button type="button" class="btn btn-info">Post erstellen</button> -->
-
     <div class="row mb-2" v-for="post in posts" :key="post._id">
       <div class="col">
         <div class="card flex-md-row mb-4 box-shadow h-md-250">
