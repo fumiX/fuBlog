@@ -65,7 +65,7 @@ router.post("/:id", async (req: Request, res: Response) => {
             const results = await AppDataSource.manager.getRepository(Post).create(post);
             res.status(200).send(results);
         } catch (e) {
-            res.status(500).json({error: "Fehler " + e});
+            res.status(500).json({ error: "Fehler " + e });
         }
     }
 });

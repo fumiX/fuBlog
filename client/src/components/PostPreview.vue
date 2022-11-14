@@ -5,7 +5,7 @@
         <div class="card-body">
           <!-- <strong class="d-inline-block mb-2 text-primary">Kategorie</strong> -->
           <h3 class="mb-0">
-            <router-link :to="'posts/post/' + post._id" class="text-dark">{{ post.title }}</router-link>
+            <router-link :to="'posts/post/' + post.id" class="text-dark">{{ post.title }}</router-link>
           </h3>
           <div class="mb-1 text-muted">
             <fa-icon :icon="['far', 'clock']" />
@@ -16,7 +16,7 @@
           <p class="card-text my-4">{{ post.description }}</p>
 
           <div class="clearfix">
-            <button class="btn btn-sm btn-outline-primary" @click="$router.push('posts/post/' + post._id)">
+            <button class="btn btn-sm btn-outline-primary" @click="$router.push('/posts/post/' + post.id)">
               <fa-icon :icon="['fas', 'book-reader']" />
               Lesen
             </button>
@@ -39,7 +39,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import type { Post } from "./../../../interfaces/post";
+import type { Post } from "./../../../server/src/entity/Post";
 import type { PropType } from "vue";
 
 export default defineComponent({

@@ -43,52 +43,6 @@
         </div>
       </div>
     </div>
-
-    <!-- <div class="row justify-content-md-center">
-      <div class="col col-lg-2"></div>
-      <div class="col-md-auto">
-        <div>
-          <div class="maintitle">
-            <h1>Post</h1>
-          </div>
-          <div v-if="post">
-            <h2>
-              {{ post.title }}
-            </h2>
-            <div class="description">
-              {{ post.description }}
-            </div>
-            <div v-html="post.sanitizedHtml"></div>
-            <div class="info">
-              <span>
-                <fa-icon :icon="['far', 'clock']" /> Erstellt
-                {{ $luxonDateTime.fromISO(post.createdAt).toRelativeCalendar() }}
-                <span v-if="post.createdBy"> von </span>
-                {{ post.createdBy }}
-              </span>
-
-              <span v-if="post.updatedAt !== post.createdAt">
-                <fa-icon :icon="['far', 'clock']" /> Geändert
-                {{ $luxonDateTime.fromISO(post.updatedAt).toRelativeCalendar() }}
-                von
-                {{ article.updatedBy }}
-              </span>
-            </div>
-
-            <button circle @click="confirmDelete(post)">
-              <fa-icon :icon="['fas', 'trash']" />
-              DELETE
-            </button>
-
-            <button circle @click="goTo('/posts/post/form', post._id)">
-              <fa-icon :icon="['fas', 'edit']" />
-              edit
-            </button>
-          </div>
-        </div>
-      </div>
-      <div class="col col-lg-2"></div>
-    </div> -->
   </div>
 </template>
 

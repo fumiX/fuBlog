@@ -12,7 +12,7 @@
       <a class="btn btn-outline-secondary float-end" href="#" @click="goTo('/posts/post/form', null)"> <fa-icon :icon="['fas', 'add']" /> Post erstellen</a>
     </div>
 
-    <post-preview v-for="post in posts" :key="post._id" :post="post" @deletePost="confirmDelete($event)" @changePost="changePost($event)"></post-preview>
+    <post-preview v-for="post in posts" :key="post.id" :post="post" @deletePost="confirmDelete($event)" @changePost="changePost($event)"></post-preview>
   </div>
 </template>
 
