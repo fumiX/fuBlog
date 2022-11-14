@@ -8,7 +8,7 @@ const corsWhiteList = [
 ];
 
 export const corsOptions = {
-    origin: (origin: any, callback: any) => {
+    origin: (origin: any, callback: any): void => {
         if (corsWhiteList.includes(origin) || !origin) {
             callback(null, true);
         } else {

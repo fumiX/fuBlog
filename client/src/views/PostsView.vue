@@ -12,40 +12,7 @@
       <a class="btn btn-outline-secondary float-end" href="#" @click="goTo('/posts/post/form', null)"> <fa-icon :icon="['fas', 'add']" /> Post erstellen</a>
     </div>
 
-    <div class="row mb-2" v-for="post in posts" :key="post._id">
-      <div class="col">
-        <div class="card flex-md-row mb-4 box-shadow h-md-250">
-          <div class="card-body">
-            <!-- <strong class="d-inline-block mb-2 text-primary">Kategorie</strong> -->
-            <h3 class="mb-0">
-              <router-link :to="'posts/post/' + post._id" class="text-dark">{{ post.title }}</router-link>
-            </h3>
-            <div class="mb-1 text-muted">
-              <fa-icon :icon="['far', 'clock']" />
-              {{ $luxonDateTime.fromISO(post.createdAt).toRelativeCalendar() }}
-              <span v-if="post.createdBy"> von </span>
-              <i>{{ post.createdBy }}</i>
-            </div>
-            <p class="card-text my-4">{{ post.description }}</p>
-
-            <div class="clearfix">
-              <button class="btn btn-sm btn-outline-primary" @click="$router.push('posts/post/' + post._id)">
-                <fa-icon :icon="['fas', 'book-reader']" />
-                Lesen
-              </button>
-              <button class="btn btn-sm btn-outline-secondary float-end" @click="confirmDelete(post)">
-                <fa-icon :icon="['fas', 'trash']" />
-                Löschen
-              </button>
-              <button class="btn btn-sm btn-outline-secondary float-end mx-2" @click="confirmDelete(post)">
-                <fa-icon :icon="['fas', 'edit']" />
-                Ändern
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <post-preview v-for="post in posts" :key="post._id" :post="post" @deletePost="confirmDelete($event)" @changePost="changePost($event)"></post-preview>
   </div>
 </template>
 
@@ -59,10 +26,11 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
+import PostPreview from "../components/PostPreview.vue";
 import type { Post } from "./../../../interfaces/post";
 
 export default defineComponent({
-  components: {},
+  components: { PostPreview },
   setup() {
     return {
       posts: ref<Post[]>([]),
@@ -100,6 +68,10 @@ export default defineComponent({
 
     confirmDelete(post: Post) {
       alert("TODO implement confirm dialog for " + post.title);
+    },
+
+    changePost(post: Post) {
+      alert("TODO implement change for " + post.title);
     },
   },
 });
