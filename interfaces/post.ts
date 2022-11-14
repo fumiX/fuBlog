@@ -1,4 +1,5 @@
-export type Post = {
+// TODO move entities here?
+export type _Post = {
     _id: string;
     title: string;
     description: string;

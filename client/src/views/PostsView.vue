@@ -27,7 +27,7 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import PostPreview from "../components/PostPreview.vue";
-import type { Post } from "./../../../interfaces/post";
+import type { Post } from "./../../../server/src/entity/Post";
 
 export default defineComponent({
   components: { PostPreview },
@@ -54,7 +54,7 @@ export default defineComponent({
 
     async deletePost(post: Post) {
       try {
-        const res = await fetch(`http://localhost:5000/api/posts/delete/${post._id}`);
+        const res = await fetch(`http://localhost:5000/api/posts/delete/${post.id}`);
         await res.json();
         this.loadArticles();
       } catch (e) {
