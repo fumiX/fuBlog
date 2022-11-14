@@ -105,7 +105,7 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import { useRoute } from "vue-router";
-import type { Post } from "./../../../interfaces/post";
+import type { Post } from "./../../../server/src/entity/Post";
 
 export default defineComponent({
   components: {},

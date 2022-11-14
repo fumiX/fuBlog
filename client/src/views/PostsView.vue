@@ -12,13 +12,13 @@
       <a class="btn btn-outline-secondary float-end" href="#" @click="goTo('/posts/post/form', null)"> <fa-icon :icon="['fas', 'add']" /> Post erstellen</a>
     </div>
 
-    <div class="row mb-2" v-for="post in posts" :key="post._id">
+    <div class="row mb-2" v-for="post in posts" :key="post.id">
       <div class="col">
         <div class="card flex-md-row mb-4 box-shadow h-md-250">
           <div class="card-body">
             <!-- <strong class="d-inline-block mb-2 text-primary">Kategorie</strong> -->
             <h3 class="mb-0">
-              <router-link :to="'posts/post/' + post._id" class="text-dark">{{ post.title }}</router-link>
+              <router-link :to="'posts/post/' + post.id" class="text-dark">{{ post.title }}</router-link>
             </h3>
             <div class="mb-1 text-muted">
               <fa-icon :icon="['far', 'clock']" />
@@ -29,7 +29,7 @@
             <p class="card-text my-4">{{ post.description }}</p>
 
             <div class="clearfix">
-              <button class="btn btn-sm btn-outline-primary" @click="$router.push('posts/post/' + post._id)">
+              <button class="btn btn-sm btn-outline-primary" @click="$router.push('posts/post/' + post.id)">
                 <fa-icon :icon="['fas', 'book-reader']" />
                 Lesen
               </button>
@@ -59,7 +59,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import type { Post } from "./../../../interfaces/post";
+import type { Post } from "./../../../server/src/entity/Post";
 
 export default defineComponent({
   components: {},
@@ -86,7 +86,7 @@ export default defineComponent({
 
     async deletePost(post: Post) {
       try {
-        const res = await fetch(`http://localhost:5000/api/posts/delete/${post._id}`);
+        const res = await fetch(`http://localhost:5000/api/posts/delete/${post.id}`);
         await res.json();
         this.loadArticles();
       } catch (e) {
