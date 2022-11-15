@@ -1,6 +1,13 @@
 import express, { Request, Response, Router } from "express";
 import { Post } from "../entity/Post";
 import { AppDataSource } from "../data-source";
+import { marked } from "marked";
+import { JSDOM } from "jsdom";
+import DOMPurify from "dompurify";
+
+const w = new JSDOM("").window as unknown as Window;
+const purify = DOMPurify(w);
+
 const router: Router = express.Router();
 
 // GET ALL POSTS
@@ -27,6 +34,15 @@ router.get("/:id", async (req: Request, res: Response) => {
 
 // CREATE NEW POST
 router.post("/new", async (req: Request, res: Response) => {
+
+    const config = {
+        ADD_TAGS: ["iframe"],
+        ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling"],
+    };
+
+    const rawHtml = marked.parse(req.body.markdown);
+    const sanitizedHtml = purify.sanitize(rawHtml, config);
+
     const post = {
         title: req.body.title,
         description: req.body.description,
@@ -35,11 +51,12 @@ router.post("/new", async (req: Request, res: Response) => {
         updatedBy: "",
         createdAt: new Date(),
         updatedAt: new Date(),
+        sanitizedHtml: sanitizedHtml
     };
 
     try {
         // Save post to DB
-        const results = await AppDataSource.manager.getRepository(Post).create(post);
+        const results = await AppDataSource.manager.getRepository(Post).save(post);
         res.status(200).send(results);
     } catch (e) {
         res.status(500).json({ error: "Fehler " + e });
@@ -62,7 +79,7 @@ router.post("/:id", async (req: Request, res: Response) => {
         post.updatedBy = "Current User";
 
         try {
-            const results = await AppDataSource.manager.getRepository(Post).create(post);
+            const results = await AppDataSource.manager.getRepository(Post).save(post);
             res.status(200).send(results);
         } catch (e) {
             res.status(500).json({ error: "Fehler " + e });
@@ -82,5 +99,3 @@ router.get("/delete/:id", async (req: Request, res: Response) => {
 });
 
 export default router;
-
-// module.exports = router;

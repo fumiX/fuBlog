@@ -9,10 +9,27 @@
     </div>
 
     <div class="clearfix mb-4">
-      <a class="btn btn-outline-secondary float-end" href="#" @click="goTo('/posts/post/form', null)"> <fa-icon :icon="['fas', 'add']" /> Post erstellen</a>
+      <button type="button" class="btn btn-outline-secondary float-end" @click="goTo('/posts/post/form')"><fa-icon :icon="['fas', 'add']" /> Post erstellen</button>
     </div>
 
     <post-preview v-for="post in posts" :key="post.id" :post="post" @deletePost="confirmDelete($event)" @changePost="changePost($event)"></post-preview>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteModalLabel">Post löschen</h5>
+          </div>
+          <div class="modal-body" v-if="currentPost">
+            Wollen sie <b>{{ currentPost.title }}</b> wirklich löschen ?
+          </div>
+          <div class="modal-footer" v-if="currentPost">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="deletePost(currentPost)">Löschen</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -28,12 +45,14 @@
 import { defineComponent, ref } from "vue";
 import PostPreview from "../components/PostPreview.vue";
 import type { Post } from "./../../../server/src/entity/Post";
+import { Modal } from "bootstrap";
 
 export default defineComponent({
   components: { PostPreview },
   setup() {
     return {
       posts: ref<Post[]>([]),
+      currentPost: ref<Post>(null),
     };
   },
 
@@ -56,18 +75,23 @@ export default defineComponent({
       try {
         const res = await fetch(`http://localhost:5000/api/posts/delete/${post.id}`);
         await res.json();
-        this.loadArticles();
+        this.loadPosts();
       } catch (e) {
         console.log("ERROR: ", e);
       }
     },
 
-    goTo(path: string, id?: string) {
-      alert("TODO: implement these routes " + id);
+    goTo(path: string) {
+      this.$router.push(path);
     },
 
     confirmDelete(post: Post) {
-      alert("TODO implement confirm dialog for " + post.title);
+      // alert("TODO implement confirm dialog for " + post.title);
+      console.log("DELETE POST", post);
+      this.currentPost = post;
+      const myModal = new Modal(document.getElementById("deleteModal"), {});
+      myModal.show();
+      // this.deletePost(post);
     },
 
     changePost(post: Post) {

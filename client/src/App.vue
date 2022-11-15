@@ -1,14 +1,5 @@
 <template>
   <div>
-    <!-- <header>
-      <div class="wrapper">
-        <nav>
-          <RouterLink to="/">Home</RouterLink>
-          |
-          <RouterLink to="/posts">alle Blogposts</RouterLink>
-        </nav>
-      </div>
-    </header> -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container">
         <a class="navbar-brand" href="/">fumiX Blog</a>

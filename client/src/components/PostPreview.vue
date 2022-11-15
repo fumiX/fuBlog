@@ -59,14 +59,6 @@ export default defineComponent({
     };
   },
 
-  methods: {
-    // deletePost(post: Post) {
-    //   this.$emit("deletePost", this.post);
-    // },
-    // changePost(post: Post) {
-    //   console.log("trying");
-    //   this.$emit("changePost", this.post);
-    // },
-  },
+  methods: {},
 });
 </script>
