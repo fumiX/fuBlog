@@ -92,7 +92,7 @@ export default defineComponent({
     },
 
     changePost(post: Post) {
-      alert("TODO implement change for " + post.title);
+      this.goTo(`/posts/post/form/${post.id}`);
     },
   },
 });
