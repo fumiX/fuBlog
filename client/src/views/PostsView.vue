@@ -86,12 +86,9 @@ export default defineComponent({
     },
 
     confirmDelete(post: Post) {
-      // alert("TODO implement confirm dialog for " + post.title);
-      console.log("DELETE POST", post);
       this.currentPost = post;
       const myModal = new Modal(document.getElementById("deleteModal"), {});
       myModal.show();
-      // this.deletePost(post);
     },
 
     changePost(post: Post) {
