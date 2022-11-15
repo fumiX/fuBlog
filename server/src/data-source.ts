@@ -9,10 +9,10 @@ export const AppDataSource = new DataSource({
     username: "fublog",
     password: "8!06",
     database: "fublog",
-    // TODO set this to false in the future
-    synchronize: true,
+    synchronize: false,
     logging: false,
     entities: [ Post ],
-    migrations: [],
+    migrations: ["./src/migration/*.ts"],
+    migrationsRun: true,
     subscribers: [],
 })
