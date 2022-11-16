@@ -1,19 +1,33 @@
 # fuBlog
 Blog Software
 
-
+```bash
+npm install # requires NPM >= 7, then running it once in the root directory is enough
+```
 
 ## Scripts
 ### Server
 
-- cd into server
-- `npm run dev`: start the server in dev mode
-- `npm build`: build the project
-- `npm lint`: lint all files
+#### start the server in dev mode
+```bash
+npm run dev --workspace server
+```
 
 ### Client
 
-- cd into client
-- `npm run dev`: start the vue 3 client in dev mode
-- `npm build`: build the project
-- `npm lint`: lint all files
+#### start the vue 3 client in dev mode
+```bash
+npm run dev --workspace client
+```
+
+### Client & Server
+
+#### build the project
+```bash
+npm run build --workspaces
+```
+
+#### lint all files
+```bash
+npm run lint --workspaces
+```

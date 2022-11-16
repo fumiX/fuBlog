@@ -1,0 +1,10 @@
+{
+	"name": "fu-blog",
+	"version": "0.1.0",
+	"workspaces": [
+		"client",
+		"server"
+	],
+	"author": "fumiX GmbH & Co KG",
+	"license": "Apache-2.0"
+}

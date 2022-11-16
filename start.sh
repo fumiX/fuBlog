@@ -7,6 +7,4 @@ killall node
 docker-compose up &
 
 # Start both frontend and backend dev server at once !
- cd server && npm run dev && cd .. & cd client && npm run dev
-
-
+npm run dev --workspace server & npm run dev --workspace client
