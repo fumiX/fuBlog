@@ -1,17 +1,7 @@
 import express, { Request, Response, Router } from "express";
 import { Post } from "../entity/Post";
 import { AppDataSource } from "../data-source";
-import { marked } from "marked";
-import { JSDOM } from "jsdom";
-import DOMPurify from "dompurify";
-
-const w = new JSDOM("").window as unknown as Window;
-const purify = DOMPurify(w);
-
-const purifyConfig = {
-    ADD_TAGS: ["iframe"],
-    ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling"],
-};
+import { sanitizeHtml } from "../html-converter";
 
 const router: Router = express.Router();
 
@@ -40,9 +30,6 @@ router.get("/:id", async (req: Request, res: Response) => {
 // CREATE NEW POST
 router.post("/new", async (req: Request, res: Response) => {
 
-    const rawHtml = marked.parse(req.body.markdown);
-    const sanitizedHtml = purify.sanitize(rawHtml, purifyConfig);
-
     const post = {
         title: req.body.title,
         description: req.body.description,
@@ -51,7 +38,7 @@ router.post("/new", async (req: Request, res: Response) => {
         updatedBy: "",
         createdAt: new Date(),
         updatedAt: new Date(),
-        sanitizedHtml: sanitizedHtml
+        sanitizedHtml: sanitizeHtml(req.body.markdown)
     };
 
     try {
@@ -69,9 +56,6 @@ router.post("/:id", async (req: Request, res: Response) => {
         id: +req.params.id
     });
 
-    const rawHtml = marked.parse(req.body.markdown);
-    const sanitizedHtml = purify.sanitize(rawHtml, purifyConfig);
-
     if (post === null) {
         res.status(404).json({ error: "No such post" });
     } else {
@@ -80,7 +64,7 @@ router.post("/:id", async (req: Request, res: Response) => {
         post.markdown = req.body.markdown;
         post.updatedAt = new Date()
         post.updatedBy = "Current User";
-        post.sanitizedHtml = sanitizedHtml;
+        post.sanitizedHtml = sanitizeHtml(req.body.markdown);
 
         try {
             const results = await AppDataSource.manager.getRepository(Post).save(post);

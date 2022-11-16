@@ -25,7 +25,7 @@
 
             <div v-html="post.sanitizedHtml"></div>
 
-            <div class="clearfix">
+            <div class="clearfix mt-3">
               <button class="btn btn-sm btn-outline-primary" @click="$router.push('/posts')">
                 <fa-icon :icon="['fas', 'arrow-left']" />
                 Zurück
