@@ -19,25 +19,10 @@
     </div>
 
     <div v-else>
-      <post-preview v-for="post in posts" :key="post.id" :post="post" @deletePost="confirmDelete($event)" @changePost="changePost($event)"></post-preview>
+      <post-preview v-for="post in posts" :key="post.id" :post="post" @deletePost="showConfirm($event)" @changePost="changePost($event)"></post-preview>
     </div>
 
-    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="deleteModalLabel">Post löschen</h5>
-          </div>
-          <div class="modal-body" v-if="currentPost">
-            Wollen sie <b>{{ currentPost.title }}</b> wirklich löschen ?
-          </div>
-          <div class="modal-footer" v-if="currentPost">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-            <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="deletePost(currentPost)">Löschen</button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <confirm-dialog :data="dialogData" :show="showDialog" @canceled="canceled()" @confirmed="confirmed()"></confirm-dialog>
   </div>
 </template>
 
@@ -52,15 +37,21 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import PostPreview from "../components/PostPreview.vue";
+import ConfirmDialog from "../components/ConfirmDialog.vue";
 import type { Post } from "./../../../server/src/entity/Post";
-import { Modal } from "bootstrap";
+import type { ConfirmDialogData } from "./../../../interfaces/confirmdialog";
 
 export default defineComponent({
-  components: { PostPreview },
+  components: {
+    PostPreview,
+    ConfirmDialog,
+  },
   setup() {
     return {
       loading: ref(true),
       posts: ref<Post[]>([]),
+      showDialog: ref<boolean>(false),
+      dialogData: ref<ConfirmDialogData>(null),
       currentPost: ref<Post>(null),
     };
   },
@@ -96,10 +87,23 @@ export default defineComponent({
       this.$router.push(path);
     },
 
-    confirmDelete(post: Post) {
+    showConfirm(post: Post) {
       this.currentPost = post;
-      const myModal = new Modal(document.getElementById("deleteModal"), {});
-      myModal.show();
+      this.dialogData = {
+        title: "Post löschen",
+        message: `Wilst du "${this.currentPost.title}" echt löschen ?`,
+      };
+      this.showDialog = true;
+    },
+
+    canceled() {
+      this.showDialog = false;
+    },
+
+    confirmed() {
+      this.deletePost(this.currentPost);
+      this.currentPost = null;
+      this.showDialog = false;
     },
 
     changePost(post: Post) {

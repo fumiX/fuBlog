@@ -36,7 +36,7 @@
                 <fa-icon :icon="['fas', 'arrow-left']" />
                 Zurück
               </button>
-              <button class="btn btn-sm btn-outline-secondary float-end" @click="confirmDelete(post)">
+              <button class="btn btn-sm btn-outline-secondary float-end" @click="showConfirm(post)">
                 <fa-icon :icon="['fas', 'trash']" />
                 Löschen
               </button>
@@ -49,6 +49,8 @@
         </div>
       </div>
     </div>
+
+    <confirm-dialog :data="dialogData" :show="showDialog" @canceled="canceled()" @confirmed="confirmed()"></confirm-dialog>
   </div>
 </template>
 
@@ -66,13 +68,20 @@
 import { defineComponent, ref } from "vue";
 import { useRoute } from "vue-router";
 import type { Post } from "./../../../server/src/entity/Post";
+import ConfirmDialog from "../components/ConfirmDialog.vue";
+import type { ConfirmDialogData } from "./../../../interfaces/confirmdialog";
 
 export default defineComponent({
-  components: {},
+  components: {
+    ConfirmDialog,
+  },
   setup() {
     return {
       loading: ref(true),
       post: ref<Post>(null),
+      showDialog: ref<boolean>(false),
+      currentPost: ref<Post>(null),
+      dialogData: ref<ConfirmDialogData>(null),
     };
   },
 
@@ -90,6 +99,35 @@ export default defineComponent({
     }
   },
 
-  methods: {},
+  methods: {
+    async deletePost(post: Post) {
+      try {
+        const res = await fetch(`http://localhost:5000/api/posts/delete/${post.id}`);
+        await res.json();
+        this.$router.push("/posts");
+      } catch (e) {
+        console.log("ERROR: ", e);
+      }
+    },
+
+    showConfirm(post: Post) {
+      this.currentPost = post;
+      this.dialogData = {
+        title: "Post löschen",
+        message: `Willst du "${this.currentPost.title}" echt löschen ?`,
+      };
+      this.showDialog = true;
+    },
+
+    canceled() {
+      this.showDialog = false;
+    },
+
+    confirmed() {
+      this.deletePost(this.currentPost);
+      this.currentPost = null;
+      this.showDialog = false;
+    },
+  },
 });
 </script>
