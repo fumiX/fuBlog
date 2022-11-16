@@ -2,7 +2,8 @@
   <div class="container">
     <div class="jumbotron mb-4 p-3 p-md-5 rounded post-bg">
       <div class="col-md-6 px-0">
-        <h1 class="display-2 font-italic">Post erstellen</h1>
+        <h1 v-if="isCreateMode" class="display-2 font-italic">Post erstellen</h1>
+        <h1 v-if="!isCreateMode" class="display-2 font-italic">Post bearbeiten</h1>
         <!-- <p class="lead my-3">Liste aller Blogposts.</p> -->
         <!-- <p class="lead mb-0"><a href="#" class="text-white font-weight-bold">Continue reading...</a></p> -->
       </div>
@@ -38,6 +39,7 @@
               </div>
 
               <button type="submit" class="btn btn-primary float-end">Speichern</button>
+              <button type="button" class="btn btn-secondary float-end mx-3" @click="$router.go(-1)">Abbrechen</button>
             </form>
           </div>
         </div>
@@ -57,10 +59,14 @@
 </style>
 
 <script lang="ts">
-import { defineComponent, reactive } from "vue";
+import { defineComponent, reactive, ref } from "vue";
+import { useRoute } from "vue-router";
 
 export default defineComponent({
   setup() {
+    const isCreateMode = ref(false);
+    const postId = ref(null);
+
     const form = reactive({
       title: "",
       description: "",
@@ -69,22 +75,41 @@ export default defineComponent({
 
     return {
       form,
+      isCreateMode,
+      postId,
     };
+  },
+
+  async mounted() {
+    const route = useRoute();
+    this.postId = route.query.id;
+    // prefill form with values fom loaded post
+    if (this.postId) {
+      try {
+        const res = await fetch(`http://localhost:5000/api/posts/${this.postId}`);
+        const resJson = await res.json();
+        this.form.title = resJson.data.title;
+        this.form.description = resJson.data.description;
+        this.form.markdown = resJson.data.markdown;
+      } catch (e) {
+        console.log("ERROR: ", e);
+      }
+    }
   },
 
   methods: {
     submitForm(e: FormDataEvent) {
       e.preventDefault();
-      this.send();
+      this.send(this.postId);
     },
 
-    async send() {
+    async send(id: number | null) {
       const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(this.form),
       };
-      const formAction = "http://localhost:5000/api/posts/new";
+      const formAction = id ? `http://localhost:5000/api/posts/${id}` : "http://localhost:5000/api/posts/new";
       const response = await fetch(formAction, requestOptions);
       const data = await response.json();
       const post = data;

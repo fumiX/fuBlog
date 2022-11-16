@@ -34,7 +34,7 @@
                 <fa-icon :icon="['fas', 'trash']" />
                 Löschen
               </button>
-              <button class="btn btn-sm btn-outline-secondary float-end mx-2" @click="confirmDelete(post)">
+              <button class="btn btn-sm btn-outline-secondary float-end mx-2" @click="$router.push(`/posts/post/form/?id=${post.id}`)">
                 <fa-icon :icon="['fas', 'edit']" />
                 Ändern
               </button>

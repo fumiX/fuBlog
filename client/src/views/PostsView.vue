@@ -92,7 +92,7 @@ export default defineComponent({
     },
 
     changePost(post: Post) {
-      this.goTo(`/posts/post/form/${post.id}`);
+      this.goTo(`/posts/post/form/?id=${post.id}`);
     },
   },
 });
