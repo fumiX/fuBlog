@@ -30,7 +30,7 @@
                   class="form-control"
                   placeholder="Blogpost"
                   id="markdown"
-                  style="height: 200px"
+                  style="height: 40vh; min-height: 200px"
                   aria-describedby="markdownHelp"
                   required
                 ></textarea>

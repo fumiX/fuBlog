@@ -8,7 +8,13 @@
       </div>
     </div>
 
-    <div class="row mb-2">
+    <div v-if="loading" class="loader">
+      <div class="spinner-border text-secondary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <div v-else class="row mb-2">
       <div class="col">
         <div class="card flex-md-row mb-4 box-shadow h-md-250">
           <div class="card-body">
@@ -65,6 +71,7 @@ export default defineComponent({
   components: {},
   setup() {
     return {
+      loading: ref(true),
       post: ref<Post>(null),
     };
   },
@@ -76,8 +83,10 @@ export default defineComponent({
       const res = await fetch(`http://localhost:5000/api/posts/${id}`);
       const response = await res.json();
       this.post = response.data;
+      this.loading = false;
     } catch (e) {
       console.log("ERROR: ", e);
+      this.loading = false;
     }
   },
 

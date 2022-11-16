@@ -12,7 +12,15 @@
       <button type="button" class="btn btn-outline-secondary float-end" @click="goTo('/posts/post/form')"><fa-icon :icon="['fas', 'add']" /> Post erstellen</button>
     </div>
 
-    <post-preview v-for="post in posts" :key="post.id" :post="post" @deletePost="confirmDelete($event)" @changePost="changePost($event)"></post-preview>
+    <div v-if="loading" class="loader">
+      <div class="spinner-border text-secondary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <div v-else>
+      <post-preview v-for="post in posts" :key="post.id" :post="post" @deletePost="confirmDelete($event)" @changePost="changePost($event)"></post-preview>
+    </div>
 
     <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
@@ -51,6 +59,7 @@ export default defineComponent({
   components: { PostPreview },
   setup() {
     return {
+      loading: ref(true),
       posts: ref<Post[]>([]),
       currentPost: ref<Post>(null),
     };
@@ -66,8 +75,10 @@ export default defineComponent({
         const res = await fetch("http://localhost:5000/api/posts");
         const response = await res.json();
         this.posts = response.data;
+        this.loading = false;
       } catch (e) {
         console.log("ERROR: ", e);
+        this.loading = false;
       }
     },
 

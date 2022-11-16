@@ -30,6 +30,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 // CREATE NEW POST
 router.post("/new", async (req: Request, res: Response) => {
 
+    const san = await sanitizeHtml(req.body.markdown);
     const post = {
         title: req.body.title,
         description: req.body.description,
@@ -38,7 +39,7 @@ router.post("/new", async (req: Request, res: Response) => {
         updatedBy: "",
         createdAt: new Date(),
         updatedAt: new Date(),
-        sanitizedHtml: sanitizeHtml(req.body.markdown)
+        sanitizedHtml: san
     };
 
     try {
@@ -59,12 +60,14 @@ router.post("/:id", async (req: Request, res: Response) => {
     if (post === null) {
         res.status(404).json({ error: "No such post" });
     } else {
+        const san = await sanitizeHtml(req.body.markdown);
+
         post.title = req.body.title;
         post.description = req.body.description;
         post.markdown = req.body.markdown;
         post.updatedAt = new Date()
         post.updatedBy = "Current User";
-        post.sanitizedHtml = sanitizeHtml(req.body.markdown);
+        post.sanitizedHtml = san;
 
         try {
             const results = await AppDataSource.manager.getRepository(Post).save(post);
