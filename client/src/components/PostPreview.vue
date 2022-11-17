@@ -3,6 +3,20 @@
     <div class="col">
       <div class="card flex-md-row mb-4 box-shadow h-md-250">
         <div class="card-body">
+          <div class="clearfix mb-4">
+            <button class="btn btn-sm btn-outline-primary" @click="$router.push('/posts/post/' + post.id)">
+              <fa-icon :icon="['fas', 'book-reader']" />
+              Lesen
+            </button>
+            <button class="btn btn-sm btn-outline-secondary float-end" @click="$emit('deletePost', post)">
+              <fa-icon :icon="['fas', 'trash']" />
+              Löschen
+            </button>
+            <button class="btn btn-sm btn-outline-secondary float-end mx-2" @click="$emit('changePost', post)">
+              <fa-icon :icon="['fas', 'edit']" />
+              Ändern
+            </button>
+          </div>
           <!-- <strong class="d-inline-block mb-2 text-primary">Kategorie</strong> -->
           <h3 class="mb-0">
             <router-link :to="'posts/post/' + post.id" class="text-dark">{{ post.title }}</router-link>
@@ -14,21 +28,6 @@
             <i v-if="post.createdBy">{{ post.createdBy.firstName }} {{ post.createdBy.lastName }}</i>
           </div>
           <p class="card-text my-4">{{ post.description }}</p>
-
-          <div class="clearfix">
-            <button class="btn btn-sm btn-outline-primary" @click="$router.push('/posts/post/' + post.id)">
-              <fa-icon :icon="['fas', 'book-reader']" />
-              Lesen
-            </button>
-            <button class="btn btn-sm btn-outline-secondary float-end" @click="this.$emit('deletePost', post)">
-              <fa-icon :icon="['fas', 'trash']" />
-              Löschen
-            </button>
-            <button class="btn btn-sm btn-outline-secondary float-end mx-2" @click="this.$emit('changePost', post)">
-              <fa-icon :icon="['fas', 'edit']" />
-              Ändern
-            </button>
-          </div>
         </div>
       </div>
     </div>

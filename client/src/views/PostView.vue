@@ -18,20 +18,7 @@
       <div class="col">
         <div class="card flex-md-row mb-4 box-shadow h-md-250">
           <div class="card-body">
-            <h1 class="mb-2 display-4 font-italic">
-              {{ post.title }}
-            </h1>
-            <div class="mb-1 text-muted">
-              <fa-icon :icon="['far', 'clock']" />
-              {{ $luxonDateTime.fromISO(post.createdAt).toRelativeCalendar() }}
-              <span v-if="post.createdBy"> von </span>
-              <i>{{ post.createdBy }}</i>
-            </div>
-            <!-- <p class="card-text my-4">{{ post.description }}</p> -->
-
-            <div v-html="post.sanitizedHtml"></div>
-
-            <div class="clearfix mt-3">
+            <div class="clearfix mb-4">
               <button class="btn btn-sm btn-outline-primary" @click="$router.push('/posts')">
                 <fa-icon :icon="['fas', 'arrow-left']" />
                 Zurück
@@ -45,6 +32,19 @@
                 Ändern
               </button>
             </div>
+            <h1 class="mb-2 display-4 font-italic">
+              {{ post.title }}
+            </h1>
+            <div class="mb-1 text-muted">
+              <fa-icon :icon="['far', 'clock']" />
+              {{ $luxonDateTime.fromISO(post.createdAt).toRelativeCalendar() }}
+              <span v-if="post.createdBy"> von </span>
+              <i>{{ post.createdBy }}</i>
+            </div>
+            <!-- <p class="card-text my-4">{{ post.description }}</p> -->
+
+            <div v-html="post.sanitizedHtml"></div>
+
           </div>
         </div>
       </div>
