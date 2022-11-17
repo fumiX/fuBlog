@@ -13,7 +13,7 @@
       <div class="col">
         <div class="card flex-md-row mb-4 box-shadow h-md-250">
           <div class="card-body">
-            <form @submit="submitForm">
+            <form @submit="submitForm($event)">
               <div class="form-floating mb-3">
                 <input v-model="form.title" type="text" class="form-control" id="title" placeholder="Titel" required />
                 <label for="title">Titel</label>

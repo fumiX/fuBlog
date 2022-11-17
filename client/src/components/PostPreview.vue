@@ -8,7 +8,7 @@
               <fa-icon :icon="['fas', 'book-reader']" />
               Lesen
             </button>
-            <button class="btn btn-sm btn-outline-secondary float-end" @click="$emit('deletePost', post)">
+            <button class="btn btn-sm btn-outline-danger float-end" @click="$emit('deletePost', post)">
               <fa-icon :icon="['fas', 'trash']" />
               Löschen
             </button>

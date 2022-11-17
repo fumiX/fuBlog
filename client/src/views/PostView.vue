@@ -23,7 +23,7 @@
                 <fa-icon :icon="['fas', 'arrow-left']" />
                 Zurück
               </button>
-              <button class="btn btn-sm btn-outline-secondary float-end" @click="showConfirm(post)">
+              <button class="btn btn-sm btn-outline-danger float-end" @click="showConfirm(post)">
                 <fa-icon :icon="['fas', 'trash']" />
                 Löschen
               </button>
