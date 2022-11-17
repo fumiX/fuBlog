@@ -65,7 +65,7 @@ import { useRoute } from "vue-router";
 export default defineComponent({
   setup() {
     const isCreateMode = ref(false);
-    const postId = ref(null);
+    const postId = ref<number | null>(null);
 
     const form = reactive({
       title: "",
@@ -82,7 +82,7 @@ export default defineComponent({
 
   async mounted() {
     const route = useRoute();
-    this.postId = route.query.id;
+    this.postId = route.query.id as unknown as number;
     // prefill form with values fom loaded post
     if (this.postId) {
       try {
@@ -98,7 +98,7 @@ export default defineComponent({
   },
 
   methods: {
-    submitForm(e: FormDataEvent) {
+    submitForm(e: Event) {
       e.preventDefault();
       this.send(this.postId);
     },

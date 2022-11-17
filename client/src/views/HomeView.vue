@@ -10,11 +10,14 @@
   </div>
 </template>
 
-<style lang="sass" scoped>
-.home-bg
-  background-image: url("@/assets/images/home-bg.jpg")
-  background-repeat: no-repeat
-  background-size: cover
+<style lang="scss" scoped>
+.home-bg {
+  background-image: url("@/assets/images/home-bg.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+}
 </style>
 
-<script lang="ts"></script>
+<script lang="ts">
+export default {};
+</script>

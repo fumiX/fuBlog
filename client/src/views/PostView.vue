@@ -27,7 +27,7 @@
                 <fa-icon :icon="['fas', 'trash']" />
                 Löschen
               </button>
-              <button class="btn btn-sm btn-outline-secondary float-end mx-2" @click="$router.push(`/posts/post/form/?id=${post.id}`)">
+              <button class="btn btn-sm btn-outline-secondary float-end mx-2" @click="$router.push(`/posts/post/form/?id=${post?.id}`)">
                 <fa-icon :icon="['fas', 'edit']" />
                 Ändern
               </button>
@@ -37,14 +37,13 @@
             </h1>
             <div class="mb-1 text-muted">
               <fa-icon :icon="['far', 'clock']" />
-              {{ $luxonDateTime.fromISO(post.createdAt).toRelativeCalendar() }}
+              {{ $luxonDateTime.fromISO(post.createdAt.toString()).toRelativeCalendar() }}
               <span v-if="post.createdBy"> von </span>
               <i>{{ post.createdBy }}</i>
             </div>
             <!-- <p class="card-text my-4">{{ post.description }}</p> -->
 
             <div v-html="post.sanitizedHtml"></div>
-
           </div>
         </div>
       </div>
@@ -78,10 +77,10 @@ export default defineComponent({
   setup() {
     return {
       loading: ref(true),
-      post: ref<Post>(null),
+      post: ref<Post | null>(null),
       showDialog: ref<boolean>(false),
-      currentPost: ref<Post>(null),
-      dialogData: ref<ConfirmDialogData>(null),
+      currentPost: ref<Post | null>(null),
+      dialogData: ref<ConfirmDialogData | null>(null),
     };
   },
 
@@ -110,8 +109,8 @@ export default defineComponent({
       }
     },
 
-    showConfirm(post: Post) {
-      this.currentPost = post;
+    showConfirm(post: Post | null) {
+      this.currentPost = post as Post;
       this.dialogData = {
         title: "Post löschen",
         message: `Willst du "${this.currentPost.title}" echt löschen ?`,
@@ -124,7 +123,7 @@ export default defineComponent({
     },
 
     confirmed() {
-      this.deletePost(this.currentPost);
+      this.deletePost(this.currentPost as Post);
       this.currentPost = null;
       this.showDialog = false;
     },

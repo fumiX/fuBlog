@@ -11,6 +11,12 @@ import { fab } from "@fortawesome/free-brands-svg-icons";
 import { far } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
+declare module "@vue/runtime-core" {
+  export interface ComponentCustomProperties {
+    $luxonDateTime: typeof DateTime;
+  }
+}
+
 library.add(fas, fab, far);
 
 const app = createApp(App);

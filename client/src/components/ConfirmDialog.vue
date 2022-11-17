@@ -9,8 +9,8 @@
           {{ data.message }}
         </div>
         <div class="modal-footer" v-if="data">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="$emit('canceled', null)">{{ data.cancelTitle || "Nein" }}</button>
-          <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="$emit('confirmed', post)">{{ data.confirmTitle || "Ja" }}</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="$emit('canceled')">{{ data.cancelTitle || "Nein" }}</button>
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="$emit('confirmed')">{{ data.confirmTitle || "Ja" }}</button>
         </div>
       </div>
     </div>
@@ -21,7 +21,6 @@
 
 <script lang="ts">
 import { defineComponent, watch } from "vue";
-// import type { Post } from "./../../../server/src/entity/Post";
 import type { ConfirmDialogData } from "./../../../interfaces/confirmdialog";
 import type { PropType } from "vue";
 import { Modal } from "bootstrap";
@@ -32,7 +31,7 @@ export default defineComponent({
       type: Boolean as PropType<boolean>,
     },
     data: {
-      type: Object as PropType<ConfirmDialogData>,
+      type: Object as PropType<ConfirmDialogData | null>,
     },
   },
 
@@ -40,7 +39,7 @@ export default defineComponent({
 
   setup(props, emits) {
     watch(props, () => {
-      const myModal = new Modal(document.getElementById("confirmModal"), {});
+      const myModal = new Modal(document.getElementById("confirmModal") || "", {});
       const show = props.show;
       show ? myModal?.show() : myModal.hide();
     });

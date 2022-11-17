@@ -23,7 +23,7 @@
           </h3>
           <div class="mb-1 text-muted">
             <fa-icon :icon="['far', 'clock']" />
-            {{ $luxonDateTime.fromISO(post.createdAt).toRelativeCalendar() }}
+            {{ $luxonDateTime.fromISO(post.createdAt.toString()).toRelativeCalendar() }}
             <span v-if="post.createdBy"> von </span>
             <i v-if="post.createdBy">{{ post.createdBy.firstName }} {{ post.createdBy.lastName }}</i>
           </div>

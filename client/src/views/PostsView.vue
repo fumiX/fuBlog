@@ -51,8 +51,8 @@ export default defineComponent({
       loading: ref(true),
       posts: ref<Post[]>([]),
       showDialog: ref<boolean>(false),
-      dialogData: ref<ConfirmDialogData>(null),
-      currentPost: ref<Post>(null),
+      dialogData: ref<ConfirmDialogData | null>(null),
+      currentPost: ref<Post | null>(null),
     };
   },
 
@@ -88,7 +88,7 @@ export default defineComponent({
     },
 
     showConfirm(post: Post) {
-      this.currentPost = post;
+      this.currentPost = post as Post;
       this.dialogData = {
         title: "Post löschen",
         message: `Wilst du "${this.currentPost.title}" echt löschen ?`,
@@ -101,7 +101,7 @@ export default defineComponent({
     },
 
     confirmed() {
-      this.deletePost(this.currentPost);
+      this.deletePost(this.currentPost as Post);
       this.currentPost = null;
       this.showDialog = false;
     },
