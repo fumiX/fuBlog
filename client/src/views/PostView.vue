@@ -38,8 +38,10 @@
             <div class="mb-1 text-muted">
               <fa-icon :icon="['far', 'clock']" />
               {{ $luxonDateTime.fromISO(post.createdAt.toString()).toRelativeCalendar() }}
-              <span v-if="post.createdBy"> von </span>
-              <i>{{ post.createdBy }}</i>
+              <span v-if="post.createdBy">
+                von
+                <i>{{ post.createdBy.firstName }} {{ post.createdBy.lastName }}</i>
+              </span>
             </div>
             <!-- <p class="card-text my-4">{{ post.description }}</p> -->
 
