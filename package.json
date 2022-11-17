@@ -5,6 +5,13 @@
 		"client",
 		"server"
 	],
+	"scripts": {
+		"start": "concurrently \"docker-compose up\" \"npm run --prefix client dev\" \"npm run --prefix server dev\"",
+		"lint": "concurrently \"npm run --prefix client lint\" \"npm run --prefix server lint\""
+	},
 	"author": "fumiX GmbH & Co KG",
-	"license": "Apache-2.0"
+	"license": "Apache-2.0",
+	"devDependencies": {
+		"concurrently": "^7.5.0"
+	}
 }

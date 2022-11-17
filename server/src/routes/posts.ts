@@ -1,37 +1,15 @@
-import express, {Request, Response, Router} from "express";
-import {Post} from "../entity/Post";
-import {AppDataSource} from "../data-source";
-import {sanitizeHtml} from "../html-converter";
-import {User} from "../entity/User";
+import express, { Request, Response, Router } from "express";
+import { Post } from "../entity/Post";
+import { AppDataSource } from "../data-source";
+import { sanitizeHtml } from "../html-converter";
+import { User } from "../entity/User";
 
 const router: Router = express.Router();
-
-// GET ALL POSTS
-router.get("/", async (req: Request, res: Response) => {
-    // TODO read posts from DB sorted by created Date ascending
-    const allPosts = await AppDataSource.manager.getRepository(Post).find();
-    const sortedPosts = allPosts.sort((a: Post, b: Post) => (a.createdAt > b.createdAt) ? -1 : ((b.createdAt > a.createdAt) ? 1 : 0))
-    res.status(200).json({data: sortedPosts});
-});
-
-
-// GET POST BY ID
-router.get("/:id", async (req: Request, res: Response) => {
-    const post = await AppDataSource.manager.getRepository(Post).findOneBy({
-        id: +req.params.id
-    });
-
-    if (post === null) {
-        res.status(404).json({error: "No such post"});
-    } else {
-        res.status(200).json({data: post});
-    }
-});
 
 // create or get dummy user
 async function getUser() {
     const email = "test@test.de";
-    let createdUser = await AppDataSource.manager.getRepository(User).findOneBy({email: email})
+    let createdUser = await AppDataSource.manager.getRepository(User).findOneBy({ email: email });
 
     if (createdUser === null) {
         const user = {
@@ -45,6 +23,28 @@ async function getUser() {
     }
     return createdUser;
 }
+
+// GET ALL POSTS
+router.get("/", async (req: Request, res: Response) => {
+    // TODO read posts from DB sorted by created Date ascending
+    const allPosts = await AppDataSource.manager.getRepository(Post).find();
+    const sortedPosts = allPosts.sort((a: Post, b: Post) => (a.createdAt > b.createdAt) ? -1 : ((b.createdAt > a.createdAt) ? 1 : 0))
+    res.status(200).json({ data: sortedPosts });
+});
+
+
+// GET POST BY ID
+router.get("/:id", async (req: Request, res: Response) => {
+    const post = await AppDataSource.manager.getRepository(Post).findOneBy({
+        id: +req.params.id
+    });
+
+    if (post === null) {
+        res.status(404).json({ error: "No such post" });
+    } else {
+        res.status(200).json({ data: post });
+    }
+});
 
 // CREATE NEW POST
 router.post("/new", async (req: Request, res: Response) => {
@@ -63,7 +63,7 @@ router.post("/new", async (req: Request, res: Response) => {
         const results = await AppDataSource.manager.getRepository(Post).save<any>(post);
         res.status(200).send(results);
     } catch (e) {
-        res.status(500).json({error: "Fehler " + e});
+        res.status(500).json({ error: "Fehler " + e });
     }
 
 });
@@ -75,7 +75,7 @@ router.post("/:id", async (req: Request, res: Response) => {
     });
 
     if (post === null) {
-        res.status(404).json({error: "No such post"});
+        res.status(404).json({ error: "No such post" });
     } else {
         const san = await sanitizeHtml(req.body.markdown);
 
@@ -90,7 +90,7 @@ router.post("/:id", async (req: Request, res: Response) => {
             const results = await AppDataSource.manager.getRepository(Post).save(post);
             res.status(200).send(results);
         } catch (e) {
-            res.status(500).json({error: "Fehler " + e});
+            res.status(500).json({ error: "Fehler " + e });
         }
     }
 });
@@ -102,7 +102,7 @@ router.get("/delete/:id", async (req: Request, res: Response) => {
         const result = await AppDataSource.manager.getRepository(Post).delete(+req.params.id);
         res.status(200).send(result);
     } catch (e) {
-        res.status(500).json({error: "Fehler " + e});
+        res.status(500).json({ error: "Fehler " + e });
     }
 });
 
