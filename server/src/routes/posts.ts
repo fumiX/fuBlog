@@ -12,15 +12,16 @@ async function getUser() {
     let createdUser = await AppDataSource.manager.getRepository(User).findOneBy({ email: email });
 
     if (createdUser === null) {
-        const user = {
+        const user: User = {
             birthdate: new Date(),
             email: email,
-            firstName: "Alfred",
-            lastName: "Wagner"
+            firstName: "Alfred E.",
+            lastName: "Neumann"
         }
 
         createdUser = await AppDataSource.manager.getRepository(User).save(user);
     }
+
     return createdUser;
 }
 
