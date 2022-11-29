@@ -5,15 +5,15 @@
         <div class="card-body">
           <div class="clearfix mb-4">
             <button class="btn btn-sm btn-outline-primary" @click="$router.push('/posts/post/' + post.id)">
-              <fa-icon :icon="['fas', 'book-reader']" />
+              <fa-icon :icon="faBookReader" />
               Lesen
             </button>
             <button class="btn btn-sm btn-outline-danger float-end" @click="$emit('deletePost', post)">
-              <fa-icon :icon="['fas', 'trash']" />
+              <fa-icon :icon="faTrash" />
               Löschen
             </button>
             <button class="btn btn-sm btn-outline-secondary float-end mx-2" @click="$emit('changePost', post)">
-              <fa-icon :icon="['fas', 'edit']" />
+              <fa-icon :icon="faEdit" />
               Ändern
             </button>
           </div>
@@ -22,7 +22,7 @@
             <router-link :to="'posts/post/' + post.id" class="text-dark">{{ post.title }}</router-link>
           </h3>
           <div class="mb-1 text-muted">
-            <fa-icon :icon="['far', 'clock']" />
+            <fa-icon :icon="faClock" />
             {{ $luxonDateTime.fromISO(post.createdAt.toString()).toRelativeCalendar() }}
             <span v-if="post.createdBy"> von </span>
             <i v-if="post.createdBy">{{ post.createdBy.firstName }} {{ post.createdBy.lastName }}</i>
@@ -40,6 +40,8 @@
 import { defineComponent } from "vue";
 import type { Post } from "./../../../server/src/entity/Post";
 import type { PropType } from "vue";
+import { faBookReader, faTrash, faEdit } from "@fortawesome/free-solid-svg-icons";
+import { faClock } from "@fortawesome/free-regular-svg-icons";
 
 export default defineComponent({
   props: {
@@ -55,6 +57,10 @@ export default defineComponent({
     return {
       props,
       emits,
+      faBookReader,
+      faTrash,
+      faEdit,
+      faClock,
     };
   },
 

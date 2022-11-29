@@ -34,9 +34,8 @@
       "dompurify": "^2.4.1",
       "express": "^4.18.2",
       "jsdom": "^20.0.2",
-      "marked": "^4.2.2",
       "node-fetch": "2.6.7",
-      "pako": "^2.1.0",
+      "common": "../common",
       "pg": "^8.4.0",
       "reflect-metadata": "^0.1.13",
       "typeorm": "0.3.10"

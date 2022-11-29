@@ -9,7 +9,7 @@
     </div>
 
     <div class="clearfix mb-4">
-      <button type="button" class="btn btn-outline-secondary float-end" @click="goTo('/posts/post/form')"><fa-icon :icon="['fas', 'add']" /> Post erstellen</button>
+      <button type="button" class="btn btn-outline-secondary float-end" @click="goTo('/posts/post/form')"><fa-icon :icon="faAdd" /> Post erstellen</button>
     </div>
 
     <div v-if="loading" class="loader">
@@ -40,6 +40,7 @@ import PostPreview from "../components/PostPreview.vue";
 import ConfirmDialog from "../components/ConfirmDialog.vue";
 import type { Post } from "./../../../server/src/entity/Post";
 import type { ConfirmDialogData } from "./../../../interfaces/confirmdialog";
+import { faAdd } from "@fortawesome/free-solid-svg-icons";
 
 export default defineComponent({
   components: {
@@ -53,6 +54,7 @@ export default defineComponent({
       showDialog: ref<boolean>(false),
       dialogData: ref<ConfirmDialogData | null>(null),
       currentPost: ref<Post | null>(null),
+      faAdd,
     };
   },
 

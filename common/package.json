@@ -1,0 +1,11 @@
+{
+    "name": "common",
+    "version": "0.0.0",
+    "scripts": {},
+    "dependencies": {
+        "marked": "^4.2.2",
+        "pako": "^2.1.0"
+    },
+    "module": "./index.mjs",
+    "devDependencies": {}
+}

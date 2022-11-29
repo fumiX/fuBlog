@@ -20,15 +20,15 @@
           <div class="card-body">
             <div class="clearfix mb-4">
               <button class="btn btn-sm btn-outline-primary" @click="$router.push('/posts')">
-                <fa-icon :icon="['fas', 'arrow-left']" />
+                <fa-icon :icon="faArrowLeft" />
                 Zurück
               </button>
               <button class="btn btn-sm btn-outline-danger float-end" @click="showConfirm(post)">
-                <fa-icon :icon="['fas', 'trash']" />
+                <fa-icon :icon="faTrash" />
                 Löschen
               </button>
               <button class="btn btn-sm btn-outline-secondary float-end mx-2" @click="$router.push(`/posts/post/form/?id=${post?.id}`)">
-                <fa-icon :icon="['fas', 'edit']" />
+                <fa-icon :icon="faEdit" />
                 Ändern
               </button>
             </div>
@@ -71,6 +71,7 @@ import { useRoute } from "vue-router";
 import type { Post } from "./../../../server/src/entity/Post";
 import ConfirmDialog from "../components/ConfirmDialog.vue";
 import type { ConfirmDialogData } from "./../../../interfaces/confirmdialog";
+import { faArrowLeft, faTrash, faEdit } from "@fortawesome/free-solid-svg-icons";
 
 export default defineComponent({
   components: {
@@ -83,6 +84,9 @@ export default defineComponent({
       showDialog: ref<boolean>(false),
       currentPost: ref<Post | null>(null),
       dialogData: ref<ConfirmDialogData | null>(null),
+      faArrowLeft,
+      faTrash,
+      faEdit,
     };
   },
 
