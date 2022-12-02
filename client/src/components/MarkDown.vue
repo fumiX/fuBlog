@@ -6,20 +6,23 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from "vue";
-import { marked } from "marked";
+import type { PropType } from "vue";
+import { sanitizeHtml } from "./../markdown-converter-client";
 
 export default defineComponent({
   props: {
-    markdown: String,
+    markdown: {
+      type: String as PropType<string | null>,
+    },
   },
 
   setup(props) {
     const sanitizedHtml = ref<String>("");
 
-    watch(props, () => {
+    watch(props, async () => {
       const md = props.markdown;
-    //   const san = await sanitizeHtml(md);
-      sanitizedHtml.value = marked.parse(md);
+      const san = await sanitizeHtml(md as string);
+      sanitizedHtml.value = san;
     });
     return {
       sanitizedHtml,

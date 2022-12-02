@@ -3,20 +3,10 @@ import { JSDOM } from "jsdom";
 import DOMPurify from "dompurify";
 import pako from "pako";
 import fetch from "node-fetch";
-
-const KROKI_SERVICE_URL = "https://kroki.io";
-const KROKI_DIAGRAM_LANGUAGE = "plantuml"
-const KROKI_DIAGRAMM_INFOSTRING = "diagramm-plantuml";
-const KROKI_OUTPUT_FORMAT = "svg";
+import { KROKI_SERVICE_URL, KROKI_DIAGRAM_LANGUAGE, KROKI_DIAGRAMM_INFOSTRING, KROKI_OUTPUT_FORMAT, purifyConfig } from "./../../interfaces/kroki-config";
 
 const w = new JSDOM("").window as unknown as Window;
 const purify = DOMPurify(w);
-
-
-const purifyConfig = { // Alowed Tags and Attributes inside markdown
-    ADD_TAGS: ["iframe"],
-    ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling"],
-};
 
 const walkTokens = async (token: any) => {
     if (token.type === "code" && token.lang === KROKI_DIAGRAMM_INFOSTRING) {

@@ -88,7 +88,7 @@ export default defineComponent({
       faArrowLeft,
       faTrash,
       faEdit,
-      faClock
+      faClock,
     };
   },
 

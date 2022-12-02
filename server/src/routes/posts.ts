@@ -1,7 +1,7 @@
 import express, { Request, Response, Router } from "express";
 import { Post } from "../entity/Post";
 import { AppDataSource } from "../data-source";
-import { sanitizeHtml } from "../html-converter";
+import { sanitizeHtml } from "../markdown-converter-server";
 import { User } from "../entity/User";
 
 const router: Router = express.Router();

@@ -77,7 +77,7 @@ export default defineComponent({
   setup() {
     const isCreateMode = ref(false);
     const postId = ref<number | null>(null);
-    const md = ref<string>(null);
+    const md = ref<string | null>(null);
 
     const form = reactive({
       title: "",
@@ -109,7 +109,7 @@ export default defineComponent({
       }
     }
 
-    this.md = debounce(() => this.form.markdown, 1000);
+    this.md = debounce(() => this.form.markdown, 1000) as unknown as string;
   },
 
   methods: {

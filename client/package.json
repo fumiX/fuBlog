@@ -16,10 +16,12 @@
     "@fortawesome/free-solid-svg-icons": "^6.2.0",
     "@fortawesome/vue-fontawesome": "^3.0.2",
     "bootstrap": "^5.2.2",
+    "buffer": "^6.0.3",
+    "common": "../common",
     "luxon": "^3.1.0",
+    "stream-browserify": "^3.0.0",
     "vue": "^3.2.41",
-    "vue-router": "^4.1.5",
-    "common": "../common"
+    "vue-router": "^4.1.5"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.1.4",
