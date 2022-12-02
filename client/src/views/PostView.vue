@@ -36,7 +36,7 @@
               {{ post.title }}
             </h1>
             <div class="mb-1 text-muted">
-              <fa-icon :icon="['far', 'clock']" />
+              <fa-icon :icon="faClock" />
               {{ $luxonDateTime.fromISO(post.createdAt.toString()).toRelativeCalendar() }}
               <span v-if="post.createdBy">
                 von
@@ -72,6 +72,7 @@ import type { Post } from "./../../../server/src/entity/Post";
 import ConfirmDialog from "../components/ConfirmDialog.vue";
 import type { ConfirmDialogData } from "./../../../interfaces/confirmdialog";
 import { faArrowLeft, faTrash, faEdit } from "@fortawesome/free-solid-svg-icons";
+import { faClock } from "@fortawesome/free-regular-svg-icons";
 
 export default defineComponent({
   components: {
@@ -87,6 +88,7 @@ export default defineComponent({
       faArrowLeft,
       faTrash,
       faEdit,
+      faClock
     };
   },
 

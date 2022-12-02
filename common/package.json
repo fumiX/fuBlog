@@ -4,8 +4,17 @@
     "scripts": {},
     "dependencies": {
         "marked": "^4.2.2",
-        "pako": "^2.1.0"
+        "pako": "^2.1.0",
+        "dompurify": "^2.4.1",
+        "jsdom": "^20.0.2",
+        "node-fetch": "2.6.7"
     },
-    "module": "./index.mjs",
-    "devDependencies": {}
+    "devDependencies": {
+        "@types/dompurify": "^2.4.0",
+        "@types/jsdom": "^20.0.1",
+        "@types/marked": "^4.0.7",
+        "@types/node-fetch": "^2.6.2",
+        "@types/pako": "^2.0.0"
+    },
+    "module": "./index.mjs"
 }

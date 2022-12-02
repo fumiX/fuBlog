@@ -19,4 +19,4 @@ app.config.globalProperties.$luxonDateTime = DateTime;
 
 app.use(router);
 
-app.component("fa-icon", FontAwesomeIcon).mount("#app");
+app.component("fa-icon", FontAwesomeIcon).mount("#app"); // use fa icon component globally, but only load used icons in components.

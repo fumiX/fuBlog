@@ -44,6 +44,14 @@
           </div>
         </div>
       </div>
+
+      <div class="col">
+        <div class="card flex-md-row mb-4 box-shadow h-md-250">
+          <div class="card-body">
+            <mark-down :markdown="md"></mark-down>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -61,11 +69,15 @@
 <script lang="ts">
 import { defineComponent, reactive, ref } from "vue";
 import { useRoute } from "vue-router";
+import MarkDown from "../components/MarkDown.vue";
+import { debounce } from "./../debounce";
 
 export default defineComponent({
+  components: { MarkDown },
   setup() {
     const isCreateMode = ref(false);
     const postId = ref<number | null>(null);
+    const md = ref<string>(null);
 
     const form = reactive({
       title: "",
@@ -77,6 +89,7 @@ export default defineComponent({
       form,
       isCreateMode,
       postId,
+      md,
     };
   },
 
@@ -95,6 +108,8 @@ export default defineComponent({
         console.log("ERROR: ", e);
       }
     }
+
+    this.md = debounce(() => this.form.markdown, 1000);
   },
 
   methods: {
