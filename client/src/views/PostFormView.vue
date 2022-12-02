@@ -10,7 +10,7 @@
     </div>
 
     <div class="row mb-2">
-      <div class="col">
+      <div class="col w-50">
         <div class="card flex-md-row mb-4 box-shadow h-md-250">
           <div class="card-body">
             <form @submit="submitForm($event)">
@@ -45,10 +45,16 @@
         </div>
       </div>
 
-      <div class="col">
+      <div class="col w-50">
         <div class="card flex-md-row mb-4 box-shadow h-md-250">
           <div class="card-body">
-            <mark-down :markdown="md"></mark-down>
+            <div v-if="loading" style="position: absolute; width: 100%; margin-top: 10vh; text-align: center">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+
+            <mark-down :markdown="md" @loading="loading = $event" :style="loading ? 'opacity:0.2' : 'opacity:1'"></mark-down>
           </div>
         </div>
       </div>
@@ -64,6 +70,10 @@
   background-position: center center;
   min-height: 250px;
 }
+
+.w-50 {
+  width: 50%;
+}
 </style>
 
 <script lang="ts">
@@ -78,6 +88,7 @@ export default defineComponent({
     const isCreateMode = ref(false);
     const postId = ref<number | null>(null);
     const md = ref<string | null>(null);
+    const loading = ref<boolean>(false);
 
     const form = reactive({
       title: "",
@@ -90,6 +101,7 @@ export default defineComponent({
       isCreateMode,
       postId,
       md,
+      loading,
     };
   },
 
@@ -109,7 +121,10 @@ export default defineComponent({
       }
     }
 
-    this.md = debounce(() => this.form.markdown, 1000) as unknown as string;
+    this.md = debounce(() => {
+      this.loading = true;
+      return this.form.markdown;
+    }, 1000) as unknown as string;
   },
 
   methods: {
