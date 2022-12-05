@@ -2,8 +2,8 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
 import { DateTime } from "luxon";
+import "./assets/scss/custom.scss";
 import "./assets/scss/style.scss";
-import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 

@@ -15,7 +15,7 @@
     "@fortawesome/free-regular-svg-icons": "^6.2.0",
     "@fortawesome/free-solid-svg-icons": "^6.2.0",
     "@fortawesome/vue-fontawesome": "^3.0.2",
-    "bootstrap": "^5.2.2",
+    "bootstrap": "^5.2.3",
     "buffer": "^6.0.3",
     "common": "../common",
     "luxon": "^3.1.0",

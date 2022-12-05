@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="jumbotron mb-4 p-3 p-md-5 rounded post-bg">
+    <div class="jumbotron mb-4 p-3 p-md-5 post-bg">
       <div class="col-md-6 px-0">
         <h1 v-if="isCreateMode" class="display-2 font-italic">Post erstellen</h1>
         <h1 v-if="!isCreateMode" class="display-2 font-italic">Post bearbeiten</h1>

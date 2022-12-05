@@ -1,6 +1,6 @@
 <template>
   <div class="container" v-if="post">
-    <div class="jumbotron mb-4 p-3 p-md-5 rounded post-bg">
+    <div class="jumbotron mb-4 p-3 p-md-5 post-bg">
       <div class="col-md-6 px-0">
         <!-- <h1 class="display-2 font-italic">{{ post.title }}</h1> -->
         <!-- <p class="lead my-3">Liste aller Blogposts.</p> -->
