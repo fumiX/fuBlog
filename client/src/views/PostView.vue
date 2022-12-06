@@ -1,6 +1,6 @@
 <template>
   <div class="container" v-if="post">
-    <div class="jumbotron mb-4 p-3 p-md-5 post-bg">
+    <div class="jumbotron rounded mb-4 p-3 p-md-5 post-bg">
       <div class="col-md-6 px-0">
         <!-- <h1 class="display-2 font-italic">{{ post.title }}</h1> -->
         <!-- <p class="lead my-3">Liste aller Blogposts.</p> -->
@@ -19,15 +19,15 @@
         <div class="card flex-md-row mb-4 box-shadow h-md-250">
           <div class="card-body">
             <div class="clearfix mb-4">
-              <button class="btn btn-sm btn-outline-primary" @click="$router.push('/posts')">
+              <button class="btn btn-sm btn-primary" @click="$router.push('/posts')">
                 <fa-icon :icon="faArrowLeft" />
                 Zurück
               </button>
-              <button class="btn btn-sm btn-outline-danger float-end" @click="showConfirm(post)">
+              <button class="btn btn-sm btn-danger float-end" @click="showConfirm(post)">
                 <fa-icon :icon="faTrash" />
                 Löschen
               </button>
-              <button class="btn btn-sm btn-outline-secondary float-end mx-2" @click="$router.push(`/posts/post/form/?id=${post?.id}`)">
+              <button class="btn btn-sm btn-secondary float-end mx-2" @click="$router.push(`/posts/post/form/?id=${post?.id}`)">
                 <fa-icon :icon="faEdit" />
                 Ändern
               </button>

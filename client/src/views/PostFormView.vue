@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="jumbotron mb-4 p-3 p-md-5 post-bg">
+    <div class="jumbotron rounded mb-4 p-3 p-md-5 post-bg">
       <div class="col-md-6 px-0">
         <h1 v-if="isCreateMode" class="display-2 font-italic">Post erstellen</h1>
         <h1 v-if="!isCreateMode" class="display-2 font-italic">Post bearbeiten</h1>
@@ -38,8 +38,8 @@
                 <div id="markdownHelp" class="form-text">Markdown wird unterstützt.</div>
               </div>
 
-              <button type="submit" class="btn btn-primary float-end">Speichern</button>
-              <button type="button" class="btn btn-secondary float-end mx-3" @click="$router.go(-1)">Abbrechen</button>
+              <button type="submit" class="btn btn-sm btn-primary float-end">Speichern</button>
+              <button type="button" class="btn btn-sm btn-secondary float-end mx-3" @click="$router.go(-1)">Abbrechen</button>
             </form>
           </div>
         </div>

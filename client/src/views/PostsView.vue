@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="jumbotron mb-4 p-3 p-md-5 blog-bg">
+    <div class="jumbotron rounded mb-4 p-3 p-md-5 blog-bg">
       <div class="col-md-6 px-0">
         <h1 class="display-2 font-italic">Blogposts</h1>
         <!-- <p class="lead my-3">Liste aller Blogposts.</p> -->
@@ -9,7 +9,7 @@
     </div>
 
     <div class="clearfix mb-4">
-      <button type="button" class="btn btn-sm btn-outline-secondary float-end" @click="goTo('/posts/post/form')"><fa-icon :icon="faAdd" /> Post erstellen</button>
+      <button type="button" class="btn btn-sm btn-secondary float-end" @click="goTo('/posts/post/form')"><fa-icon :icon="faAdd" /> Post erstellen</button>
     </div>
 
     <div v-if="loading" class="loader">
