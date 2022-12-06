@@ -4,7 +4,7 @@ import pako from "pako";
 import { Buffer } from "buffer";
 import { KROKI_DIAGRAMM_INFOSTRING, KROKI_SERVICE_URL, KROKI_DIAGRAM_LANGUAGE, KROKI_OUTPUT_FORMAT, purifyConfig } from "./../../interfaces/kroki-config";
 
-const walkTokens = async (token: any) => {
+const walkTokens = async (token: marked.Token) => {
   if (token.type === "code" && token.lang === KROKI_DIAGRAMM_INFOSTRING) {
     const inputText = token.text;
     const data = Buffer.from(inputText, "utf8");
@@ -17,7 +17,7 @@ const walkTokens = async (token: any) => {
 };
 
 const renderer = {
-  code(code: any, infostring: any) {
+  code(code: string, infostring: string) {
     if (infostring === KROKI_DIAGRAMM_INFOSTRING) {
       return code;
     }
