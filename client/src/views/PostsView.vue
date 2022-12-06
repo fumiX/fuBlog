@@ -42,7 +42,7 @@ import ConfirmDialog from "../components/ConfirmDialog.vue";
 import type { Post } from "./../../../server/src/entity/Post";
 import type { ConfirmDialogData } from "./../../../interfaces/confirmdialog";
 import { faAdd } from "@fortawesome/free-solid-svg-icons";
-import PaginationView from "@/views/PaginationView.vue";
+import PaginationView from "@/components/PaginationView.vue";
 
 export default defineComponent({
   components: {
