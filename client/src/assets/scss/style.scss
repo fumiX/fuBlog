@@ -32,7 +32,11 @@ pre {
 
 .card-body {
     svg {
+        max-width: 100%;
         background: transparent !important;
+    }
+    img {
+        max-width: 100%;
     }
 }
 

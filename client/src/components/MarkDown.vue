@@ -9,6 +9,10 @@
     max-width: 100% !important;
     height: auto !important;
   }
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
 }
 </style>
 

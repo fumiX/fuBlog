@@ -32,10 +32,10 @@
                 Ändern
               </button>
             </div>
-            <h1 class="mb-2 display-4 font-italic">
+            <h1 class="mb-0 display-4 font-italic">
               {{ post.title }}
             </h1>
-            <div class="mb-1 text-muted">
+            <div class="mb-2 text-muted">
               <fa-icon :icon="faClock" />
               {{ $luxonDateTime.fromISO(post.createdAt.toString()).toRelativeCalendar() }}
               <span v-if="post.createdBy">
@@ -45,7 +45,7 @@
             </div>
             <!-- <p class="card-text my-4">{{ post.description }}</p> -->
 
-            <div v-html="post.sanitizedHtml"></div>
+            <div v-html="post.sanitizedHtml" class="mt-4"></div>
           </div>
         </div>
       </div>
