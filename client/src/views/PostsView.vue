@@ -20,7 +20,17 @@
 
     <div v-else>
       <post-preview v-for="post in posts" :key="post.id" :post="post" @deletePost="showConfirm($event)" @changePost="changePost($event)"></post-preview>
-      <pagination-component :currentPage="currentPage" :totalPages="totalPages" @paginate="paginate($event)"></pagination-component>
+      <paginate
+        :page-count="totalPages"
+        :click-handler="paginate"
+        :prev-text="'<'"
+        :next-text="'>'"
+        :container-class="'pagination justify-content-end'"
+        :page-class="'page-item'"
+        :page-range="5"
+        :margin-pages="2"
+      >
+      </paginate>
     </div>
 
     <confirm-dialog :data="dialogData" :show="showDialog" @canceled="canceled()" @confirmed="confirmed()"></confirm-dialog>
@@ -42,13 +52,13 @@ import ConfirmDialog from "../components/ConfirmDialog.vue";
 import type { Post } from "./../../../server/src/entity/Post";
 import type { ConfirmDialogData } from "./../../../interfaces/confirmdialog";
 import { faAdd } from "@fortawesome/free-solid-svg-icons";
-import PaginationComponent from "../components/PaginationComponent.vue";
+import Paginate from "vuejs-paginate-next";
 
 export default defineComponent({
   components: {
     PostPreview,
     ConfirmDialog,
-    PaginationComponent,
+    Paginate,
   },
   setup() {
     return {
