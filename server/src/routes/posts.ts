@@ -61,6 +61,7 @@ router.post("/new", async (req: Request, res: Response) => {
             sanitizedHtml: san
         };
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const results = await AppDataSource.manager.getRepository(Post).save<any>(post);
         res.status(200).send(results);
     } catch (e) {

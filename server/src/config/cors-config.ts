@@ -7,9 +7,11 @@ const corsWhiteList = [
     `http://127.0.0.1:${CLIENT_PORT}`,
 ];
 
+
 export const corsOptions = {
-    origin: (origin: any, callback: any): void => {
-        if (corsWhiteList.includes(origin) || !origin) {
+    origin: (origin: string | undefined, callback: (arg0: Error | null, arg1: boolean) => void): void => {
+        const typedOrigin: string = origin !== undefined ? origin : "";
+        if (corsWhiteList.includes(typedOrigin) || !origin) {
             callback(null, true);
         } else {
             callback(new Error("CORS not allowed"), false);

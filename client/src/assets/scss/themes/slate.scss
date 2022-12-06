@@ -52,7 +52,7 @@ $table-border-color: rgba($black, 0.6) !default;
 $table-dark-border-color: $table-border-color !default;
 $table-dark-color: $white !default;
 
-$table-bg-scale: 0 !default;
+$table-bg-scale: 0 * 1% !default; // *1% because deprecation waring: https://sass-lang.com/documentation/breaking-changes/function-units
 
 // Buttons
 
