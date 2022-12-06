@@ -8,7 +8,7 @@ import {User} from "./User";
 export class Post {
 
     @PrimaryGeneratedColumn()
-    id: number
+    id?: number
 
     @Column()
     title: string
@@ -29,9 +29,9 @@ export class Post {
     createdBy: User
 
     @Column({ nullable: true })
-    updatedAt: Date
+    updatedAt?: Date
 
-    @ManyToOne(() => User, { nullable: true })
-    updatedBy: User | null
+    @ManyToOne(() => User, (user) => user.id, { nullable: true })
+    updatedBy?: User
 
 }
