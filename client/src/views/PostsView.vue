@@ -20,6 +20,7 @@
 
     <div v-else>
       <post-preview v-for="post in posts" :key="post.id" :post="post" @deletePost="showConfirm($event)" @changePost="changePost($event)"></post-preview>
+      <pagination-view :current-page="currentPage" :totalPages="totalPages" @paginate="paginate($event)"></pagination-view>
     </div>
 
     <confirm-dialog :data="dialogData" :show="showDialog" @canceled="canceled()" @confirmed="confirmed()"></confirm-dialog>
@@ -41,19 +42,24 @@ import ConfirmDialog from "../components/ConfirmDialog.vue";
 import type { Post } from "./../../../server/src/entity/Post";
 import type { ConfirmDialogData } from "./../../../interfaces/confirmdialog";
 import { faAdd } from "@fortawesome/free-solid-svg-icons";
+import PaginationView from "@/views/PaginationView.vue";
 
 export default defineComponent({
   components: {
+    PaginationView,
     PostPreview,
     ConfirmDialog,
   },
   setup() {
     return {
+      itemsPerPage: 5,
       loading: ref(true),
       posts: ref<Post[]>([]),
       showDialog: ref<boolean>(false),
       dialogData: ref<ConfirmDialogData | null>(null),
       currentPost: ref<Post | null>(null),
+      currentPage: ref<Number>(1),
+      totalPages: ref<Number>(1),
       faAdd,
     };
   },
@@ -64,10 +70,17 @@ export default defineComponent({
 
   methods: {
     async loadPosts() {
+      await this.loadPostsWithPagination(1, 5);
+    },
+
+    async loadPostsWithPagination(pageIndex: number) {
       try {
-        const res = await fetch("http://localhost:5000/api/posts");
+        let link = `http://localhost:5000/api/posts/page/` + pageIndex + `/count/` + this.itemsPerPage;
+        const res = await fetch(link);
         const response = await res.json();
-        this.posts = response.data;
+        this.posts = response.data[0];
+        this.totalPages = Math.ceil((await response.data[1]) / this.itemsPerPage);
+        this.currentPage = pageIndex;
         this.loading = false;
       } catch (e) {
         console.log("ERROR: ", e);
@@ -79,7 +92,7 @@ export default defineComponent({
       try {
         const res = await fetch(`http://localhost:5000/api/posts/delete/${post.id}`);
         await res.json();
-        this.loadPosts();
+        await this.loadPosts(1);
       } catch (e) {
         console.log("ERROR: ", e);
       }
@@ -110,6 +123,10 @@ export default defineComponent({
 
     changePost(post: Post) {
       this.goTo(`/posts/post/form/?id=${post.id}`);
+    },
+
+    paginate(page: number) {
+      this.loadPostsWithPagination(page);
     },
   },
 });
