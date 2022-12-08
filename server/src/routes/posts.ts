@@ -25,19 +25,42 @@ async function getUser() {
     return createdUser;
 }
 
-// GET ALL POSTS
-router.get("/page/:page/count/:count", async (req: Request, res: Response) => {
+// search posts
+router.get("/page/:page/count/:count/search/:search", async (req: Request, res: Response) => {
     const page = +req.params.page;
     const itemsPerPage = +req.params.count;
     const skipEntries = (page * itemsPerPage) - itemsPerPage;
-    const takeEntries = itemsPerPage;
+    let searchTerm = "true";
+    if (req.params.search) {
+        const splitSearchParams: string[] = req.params.search.split(" ");
+        console.log("searching for: " + splitSearchParams.toString());
+        searchTerm = "ts @@ to_tsquery(" + splitSearchParams.map(term => ("'" + term + "'")).join(",") + ")";
+    }
+
+    const allSearchedPosts = await AppDataSource.manager.getRepository(Post)
+        .createQueryBuilder()
+        .where(searchTerm)
+        .skip(skipEntries)
+        .take(itemsPerPage)
+        // .orderBy("createdAt", "DESC")
+        .getManyAndCount();
+
+    res.status(200).json({data: allSearchedPosts});
+});
+
+// get all posts with paging
+router.get("/page/:page/count/:count/", async (req: Request, res: Response) => {
+    const page = +req.params.page;
+    const itemsPerPage = +req.params.count;
+    const skipEntries = (page * itemsPerPage) - itemsPerPage;
     const allPosts = await AppDataSource.manager.getRepository(Post).findAndCount({
         order: {
             createdAt: "DESC"
         },
         skip: skipEntries,
-        take: takeEntries
+        take: itemsPerPage
     });
+
     res.status(200).json({data: allPosts});
 });
 

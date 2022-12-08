@@ -98,6 +98,22 @@ export default defineComponent({
       }
     },
 
+    // TODO search posts
+    async loadPostsWithPaginationAndSearch(pageIndex: number) {
+      try {
+        let link = `http://localhost:5000/api/posts/page/` + pageIndex + `/count/` + this.itemsPerPage + "/search/neque%10amet";
+        const res = await fetch(link);
+        const response = await res.json();
+        this.posts = response.data[0];
+        this.totalPages = Math.ceil((await response.data[1]) / this.itemsPerPage);
+        this.currentPage = pageIndex;
+        this.loading = false;
+      } catch (e) {
+        console.log("ERROR: ", e);
+        this.loading = false;
+      }
+    },
+
     async deletePost(post: Post) {
       try {
         const res = await fetch(`http://localhost:5000/api/posts/delete/${post.id}`);

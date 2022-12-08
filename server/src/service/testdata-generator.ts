@@ -1,13 +1,13 @@
-import {faker} from "@faker-js/faker";
 import {User} from "../entity/User";
 import {AppDataSource} from "../data-source";
 import {Post} from "../entity/Post";
 import {sanitizeHtml} from "../markdown-converter-server";
-// import { faker } from '@faker-js/faker/locale/de';
+import { faker } from "@faker-js/faker/locale/de";
 
 const usersCount = 10;
 const postsPerUser = 25;
 
+faker.seed(42);
 /**
  * Generate some test data for the blog.
  */

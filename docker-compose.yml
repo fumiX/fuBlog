@@ -2,11 +2,12 @@ version: '3'
 services:
 
   postgres:
-    image: "postgres:14.5"
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "5020:5432"
     environment:
       POSTGRES_USER: "fublog"
       POSTGRES_PASSWORD: "8!06"
       POSTGRES_DB: "fublog"
-
