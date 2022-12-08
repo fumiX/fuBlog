@@ -80,7 +80,7 @@
 import { defineComponent, reactive, ref } from "vue";
 import { useRoute } from "vue-router";
 import MarkDown from "../components/MarkDown.vue";
-import { debounce } from "./../debounce";
+import { debounce } from "@/debounce";
 
 export default defineComponent({
   components: { MarkDown },

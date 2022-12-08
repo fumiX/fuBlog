@@ -33,7 +33,6 @@ router.get("/", async (req: Request, res: Response) => {
     res.status(200).json({ data: sortedPosts });
 });
 
-
 // GET POST BY ID
 router.get("/:id", async (req: Request, res: Response) => {
     const post = await AppDataSource.manager.getRepository(Post).findOneBy({

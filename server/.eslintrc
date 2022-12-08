@@ -8,6 +8,7 @@
         "sourceType": "module"
     },
     "rules": {
-        "quotes": [2, "double", "avoid-escape"]
+        "quotes": [2, "double", "avoid-escape"],
+        "object-curly-spacing": ["error", "always"]
     }
 }
