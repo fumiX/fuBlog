@@ -18,16 +18,12 @@
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
               <RouterLink to="/" class="nav-link">Home</RouterLink>
-              <!-- <a class="nav-link active" aria-current="page" href="#">Home</a> -->
             </li>
             <li class="nav-item">
               <RouterLink to="/posts" class="nav-link">Posts</RouterLink>
             </li>
           </ul>
-          <form class="d-flex">
-            <input class="form-control me-2" v-model="search" type="search" placeholder="Suche" aria-label="Suche" />
-            <button class="btn btn-sm btn-outline-primary" type="button" @click="startSearch()">Suche</button>
-          </form>
+          <search-component :searchString="searchQuery" @searched="startSearch($event)"></search-component>
         </div>
       </div>
     </nav>
@@ -37,20 +33,31 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, watch } from "vue";
+import { useRoute } from "vue-router";
+import SearchComponent from "./components/SearchComponent.vue";
 
 export default defineComponent({
+  components: { SearchComponent },
   setup() {
-    const search = ref("");
+    const route = useRoute();
+    const searchQuery = ref<string>("");
+
+    watch(route, (value) => {
+      // prefill search input from queryParam
+      if (value.query.search) {
+        searchQuery.value = value.query.search as string;
+      }
+    });
+
     return {
-      search,
+      searchQuery,
     };
   },
 
   methods: {
-    startSearch() {
-      // TODO sanitize input
-      this.$router.push("/posts/?search=" + this.search);
+    startSearch(search: string) {
+      this.$router.push("/posts/?search=" + search);
     },
   },
 });
