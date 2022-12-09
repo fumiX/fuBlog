@@ -18,7 +18,7 @@
             </button>
           </div>
           <!-- <strong class="d-inline-block mb-2 text-primary">Kategorie</strong> -->
-          <h3 class="mb-0 display-4 clickable" @click="goTo('posts/post/' + post.id)">{{ post.title }}</h3>
+          <h3 class="mb-0 display-4 clickable" @click="goTo('/posts/post/' + post.id)">{{ post.title }}</h3>
           <div class="mb-1 text-muted">
             <fa-icon :icon="faClock" />
             {{ $luxonDateTime.fromISO(post.createdAt.toString()).toRelativeCalendar() }}

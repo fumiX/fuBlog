@@ -46,13 +46,14 @@
 </style>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, onMounted, ref, watch } from "vue";
 import PostPreview from "../components/PostPreview.vue";
 import ConfirmDialog from "../components/ConfirmDialog.vue";
 import type { Post } from "./../../../server/src/entity/Post";
 import type { ConfirmDialogData } from "./../../../interfaces/confirmdialog";
 import { faAdd } from "@fortawesome/free-solid-svg-icons";
 import Paginate from "vuejs-paginate-next";
+import { useRoute } from "vue-router";
 
 export default defineComponent({
   components: {
@@ -61,64 +62,74 @@ export default defineComponent({
     Paginate,
   },
   setup() {
+    const route = useRoute();
+    const itemsPerPage = 5;
+    const loading = ref(true);
+    const posts = ref<Post[]>([]);
+    const showDialog = ref<boolean>(false);
+    const dialogData = ref<ConfirmDialogData | null>(null);
+    const currentPost = ref<Post | null>(null);
+    const currentPage = ref<number>(1);
+    const totalPages = ref<number>(1);
+
+    const loadPostsWithPagination = async (pageIndex: number, search: string) => {
+      try {
+        let link = !search
+          ? `http://localhost:5000/api/posts/page/${pageIndex}/count/${itemsPerPage}`
+          : `http://localhost:5000/api/posts/page/${pageIndex}/count/${itemsPerPage}/search/${search}`;
+        const res = await fetch(link);
+        const response = await res.json();
+        posts.value = response.data[0];
+        totalPages.value = Math.ceil((await response.data[1]) / itemsPerPage);
+        currentPage.value = pageIndex;
+        loading.value = false;
+      } catch (e) {
+        console.log("ERROR: ", e);
+        loading.value = false;
+      }
+    };
+
+    const paginate = (page: number) => {
+      const searchValue = (route.query?.search || "") as string;
+      loadPostsWithPagination(page, searchValue);
+    };
+
+    watch(
+      () => route.query,
+      (query) => {
+        const searchValue = (query?.search || "") as string;
+        loadPostsWithPagination(1, searchValue);
+      },
+    );
+
+    onMounted(() => {
+      const searchValue = (route.query?.search || "") as string;
+      loadPostsWithPagination(1, searchValue);
+    });
+
     return {
-      itemsPerPage: 5,
-      loading: ref(true),
-      posts: ref<Post[]>([]),
-      showDialog: ref<boolean>(false),
-      dialogData: ref<ConfirmDialogData | null>(null),
-      currentPost: ref<Post | null>(null),
-      currentPage: ref<number>(1),
-      totalPages: ref<number>(1),
+      itemsPerPage,
+      loading,
+      posts,
+      showDialog,
+      dialogData,
+      currentPost,
+      currentPage,
+      totalPages,
       faAdd,
+      paginate,
+      loadPostsWithPagination,
+      route,
     };
   },
 
-  mounted() {
-    this.loadPosts();
-  },
-
   methods: {
-    async loadPosts() {
-      await this.loadPostsWithPagination(1);
-    },
-
-    async loadPostsWithPagination(pageIndex: number) {
-      try {
-        let link = `http://localhost:5000/api/posts/page/` + pageIndex + `/count/` + this.itemsPerPage;
-        const res = await fetch(link);
-        const response = await res.json();
-        this.posts = response.data[0];
-        this.totalPages = Math.ceil((await response.data[1]) / this.itemsPerPage);
-        this.currentPage = pageIndex;
-        this.loading = false;
-      } catch (e) {
-        console.log("ERROR: ", e);
-        this.loading = false;
-      }
-    },
-
-    // TODO search posts
-    async loadPostsWithPaginationAndSearch(pageIndex: number) {
-      try {
-        let link = `http://localhost:5000/api/posts/page/` + pageIndex + `/count/` + this.itemsPerPage + "/search/neque%10amet";
-        const res = await fetch(link);
-        const response = await res.json();
-        this.posts = response.data[0];
-        this.totalPages = Math.ceil((await response.data[1]) / this.itemsPerPage);
-        this.currentPage = pageIndex;
-        this.loading = false;
-      } catch (e) {
-        console.log("ERROR: ", e);
-        this.loading = false;
-      }
-    },
-
     async deletePost(post: Post) {
       try {
         const res = await fetch(`http://localhost:5000/api/posts/delete/${post.id}`);
         await res.json();
-        await this.loadPosts();
+        const searchValue = (this.route.query?.search || "") as string;
+        await this.loadPostsWithPagination(1, searchValue);
       } catch (e) {
         console.log("ERROR: ", e);
       }
@@ -149,10 +160,6 @@ export default defineComponent({
 
     changePost(post: Post) {
       this.goTo(`/posts/post/form/?id=${post.id}`);
-    },
-
-    paginate(page: number) {
-      this.loadPostsWithPagination(page);
     },
   },
 });

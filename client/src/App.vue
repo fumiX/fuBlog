@@ -25,8 +25,8 @@
             </li>
           </ul>
           <form class="d-flex">
-            <input class="form-control me-2" type="search" placeholder="Suche" aria-label="Suche" />
-            <button class="btn btn-sm btn-outline-primary" type="submit">Suche</button>
+            <input class="form-control me-2" v-model="search" type="search" placeholder="Suche" aria-label="Suche" />
+            <button class="btn btn-sm btn-outline-primary" type="button" @click="startSearch()">Suche</button>
           </form>
         </div>
       </div>
@@ -36,8 +36,24 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { RouterLink, RouterView } from "vue-router";
+<script lang="ts">
+import { defineComponent, ref } from "vue";
+
+export default defineComponent({
+  setup() {
+    const search = ref("");
+    return {
+      search,
+    };
+  },
+
+  methods: {
+    startSearch() {
+      // TODO sanitize input
+      this.$router.push("/posts/?search=" + this.search);
+    },
+  },
+});
 </script>
 
 <style lang="scss"></style>
