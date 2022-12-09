@@ -57,7 +57,15 @@ pre {
     }
     .page-link {
         &:focus {
-            box-shadow: none!important;
+            box-shadow: none !important;
         }
+    }
+}
+
+.form-control {
+    &:focus {
+        outline: 0;
+        box-shadow: none !important;
+        background-color: $form-control-background-color;
     }
 }

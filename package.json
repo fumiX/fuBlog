@@ -7,7 +7,9 @@
 	],
 	"scripts": {
 		"start": "concurrently \"docker-compose up\" \"npm run --prefix client dev\" \"npm run --prefix server dev\"",
-		"lint": "concurrently \"npm run --prefix client lint\" \"npm run --prefix server lint\""
+		"lint": "concurrently \"npm run --prefix client lint\" \"npm run --prefix server lint\"",
+		"lintfix": "concurrently \"npm run --prefix client lint --fix\" \"npm run --prefix server lint --fix\"",
+		"build": "concurrently \"npm run --prefix client build\" \"npm run --prefix server build\""
 	},
 	"author": "fumiX GmbH & Co KG",
 	"license": "Apache-2.0",

@@ -20,7 +20,13 @@
 
     <div v-else>
       <post-preview v-for="post in posts" :key="post.id" :post="post" @deletePost="showConfirm($event)" @changePost="changePost($event)"></post-preview>
+
+      <div v-if="!totalPages && route.query.search" class="alert alert-light text-center">
+        <fa-icon :icon="faSadTear" class="mx-3" />Keine Posts zu "{{ route.query.search }}" gefunden.
+      </div>
+
       <paginate
+        v-if="totalPages > 0"
         :page-count="totalPages"
         :click-handler="paginate"
         :prev-text="'<'"
@@ -52,6 +58,7 @@ import ConfirmDialog from "../components/ConfirmDialog.vue";
 import type { Post } from "./../../../server/src/entity/Post";
 import type { ConfirmDialogData } from "./../../../interfaces/confirmdialog";
 import { faAdd } from "@fortawesome/free-solid-svg-icons";
+import { faSadTear } from "@fortawesome/free-regular-svg-icons";
 import Paginate from "vuejs-paginate-next";
 import { useRoute } from "vue-router";
 
@@ -117,6 +124,7 @@ export default defineComponent({
       currentPage,
       totalPages,
       faAdd,
+      faSadTear,
       paginate,
       loadPostsWithPagination,
       route,
