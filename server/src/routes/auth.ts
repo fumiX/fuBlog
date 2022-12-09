@@ -5,13 +5,11 @@ import express, { Request, Response, Router } from "express";
 // controllers
 const router: Router = express.Router();
 
-router.get("/login", (req: Request, res: Response) => {
+router.get("/url", (req: Request, res: Response) => {
     const authUrl = req.app.authClient!.authorizationUrl({
         scope: "openid email profile"
     });
-    // console.log("REDIRECTING URIS: ", req.app.authClient?.metadata.redirect_uris);
-    console.log("REDIRECTING TO: ", authUrl);
-    res.redirect(authUrl);
+    res.json({ authUrl });
 });
 
 export default router;

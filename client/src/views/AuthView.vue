@@ -5,21 +5,22 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from "vue";
+
+export default defineComponent({
   name: "AuthView",
   methods: {
-    login: async () => {
-      const authRequest = new Request("http://localhost:5000/auth/login",{
-        method: "GET"
+    async login() {
+      const authUrlRequest = new Request("http://localhost:5000/auth/url", {
+        method: "GET",
       });
-      const response = await fetch(authRequest);
-      console.log(response);
-    }
-  }
-}
+      const response = await fetch(authUrlRequest);
+      const data = await response.json();
+      window.location.href = data.authUrl;
+    },
+  },
+});
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

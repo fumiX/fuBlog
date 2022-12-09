@@ -8,7 +8,7 @@ export async function init(req: Request, res: Response, next: NextFunction) {
         const client = new issuer.Client({
             client_id: process.env.OAUTH_CLIENT_ID!,
             client_secret: process.env.OAUTH_CLIENT_SECRET!,
-            redirect_uris: [`${getDomain()}/auth/callback`],
+            redirect_uris: [`${getDomain()}`],
             response_types: ["code"]
         });
         req.app.authIssuer = issuer;
@@ -18,5 +18,6 @@ export async function init(req: Request, res: Response, next: NextFunction) {
 }
 
 export function getDomain(): string {
-    return `http://${process.env.APP_HOST}:${process.env.APP_PORT}`;
+    return "https://www.fumix.de";
+    // return `http://${process.env.APP_HOST}:${process.env.APP_PORT}`;
 }

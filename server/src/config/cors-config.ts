@@ -4,7 +4,7 @@ const CLIENT_PORT = 5010;
 const corsWhiteList = [
     "https://www.fumix.de",
     `http://localhost:${CLIENT_PORT}`,
-    `http://127.0.0.1:${CLIENT_PORT}`,
+    `http://127.0.0.1:${CLIENT_PORT}`
 ];
 
 export const corsOptions = {
