@@ -1,15 +1,15 @@
-import express, {Request, Response, Router} from "express";
-import {Post} from "../entity/Post";
-import {AppDataSource} from "../data-source";
-import {sanitizeHtml} from "../markdown-converter-server";
-import {User} from "../entity/User";
+import express, { Request, Response, Router } from "express";
+import { Post } from "../entity/Post";
+import { AppDataSource } from "../data-source";
+import { sanitizeHtml } from "../markdown-converter-server";
+import { User } from "../entity/User";
 
 const router: Router = express.Router();
 
 // create or get dummy user
 async function getUser() {
     const email = "test@test.de";
-    let createdUser = await AppDataSource.manager.getRepository(User).findOneBy({email: email});
+    let createdUser = await AppDataSource.manager.getRepository(User).findOneBy({ email: email });
 
     if (createdUser === null) {
         const user: User = {
@@ -26,15 +26,18 @@ async function getUser() {
 }
 
 // search posts
-router.get("/page/:page/count/:count/search/:search", async (req: Request, res: Response) => {
+router.get("/page/:page/count/:count/search/:search/operator/:operator", async (req: Request, res: Response) => {
     const page = +req.params.page;
     const itemsPerPage = +req.params.count;
     const skipEntries = (page * itemsPerPage) - itemsPerPage;
     let searchTerm = "true";
     if (req.params.search) {
         const splitSearchParams: string[] = req.params.search.split(" ");
-        console.log("searching for: " + splitSearchParams.toString());
-        searchTerm = "ts @@ to_tsquery(" + splitSearchParams.map(term => ("'" + term + "'")).join(",") + ")";
+        const operator = req.params.operator === "or" ? " | " : " & ";
+
+        const words = splitSearchParams.map(word => (word)).join(operator);
+        searchTerm = "ts @@ to_tsquery('" + words + "')";
+        console.log("searchTerm:", searchTerm);
     }
 
     const allSearchedPosts = await AppDataSource.manager.getRepository(Post)
@@ -45,7 +48,7 @@ router.get("/page/:page/count/:count/search/:search", async (req: Request, res: 
         // .orderBy("createdAt", "DESC")
         .getManyAndCount();
 
-    res.status(200).json({data: allSearchedPosts});
+    res.status(200).json({ data: allSearchedPosts });
 });
 
 // get all posts with paging
@@ -61,7 +64,7 @@ router.get("/page/:page/count/:count/", async (req: Request, res: Response) => {
         take: itemsPerPage
     });
 
-    res.status(200).json({data: allPosts});
+    res.status(200).json({ data: allPosts });
 });
 
 // GET POST BY ID
@@ -71,9 +74,9 @@ router.get("/:id", async (req: Request, res: Response) => {
     });
 
     if (post === null) {
-        res.status(404).json({error: "No such post"});
+        res.status(404).json({ error: "No such post" });
     } else {
-        res.status(200).json({data: post});
+        res.status(200).json({ data: post });
     }
 });
 
@@ -95,7 +98,7 @@ router.post("/new", async (req: Request, res: Response) => {
         const results = await AppDataSource.manager.getRepository(Post).save<any>(post);
         res.status(200).send(results);
     } catch (e) {
-        res.status(500).json({error: "Fehler " + e});
+        res.status(500).json({ error: "Fehler " + e });
     }
 
 });
@@ -107,7 +110,7 @@ router.post("/:id", async (req: Request, res: Response) => {
     });
 
     if (post === null) {
-        res.status(404).json({error: "No such post"});
+        res.status(404).json({ error: "No such post" });
     } else {
         const san = await sanitizeHtml(req.body.markdown);
 
@@ -122,7 +125,7 @@ router.post("/:id", async (req: Request, res: Response) => {
             const results = await AppDataSource.manager.getRepository(Post).save(post);
             res.status(200).send(results);
         } catch (e) {
-            res.status(500).json({error: "Fehler " + e});
+            res.status(500).json({ error: "Fehler " + e });
         }
     }
 });
@@ -134,7 +137,7 @@ router.get("/delete/:id", async (req: Request, res: Response) => {
         const result = await AppDataSource.manager.getRepository(Post).delete(+req.params.id);
         res.status(200).send(result);
     } catch (e) {
-        res.status(500).json({error: "Fehler " + e});
+        res.status(500).json({ error: "Fehler " + e });
     }
 });
 

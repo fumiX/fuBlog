@@ -79,11 +79,11 @@ export default defineComponent({
     const currentPage = ref<number>(1);
     const totalPages = ref<number>(1);
 
-    const loadPostsWithPagination = async (pageIndex: number, search: string) => {
+    const loadPostsWithPagination = async (pageIndex: number, search: string, operator: string) => {
       try {
         let link = !search
           ? `http://localhost:5000/api/posts/page/${pageIndex}/count/${itemsPerPage}`
-          : `http://localhost:5000/api/posts/page/${pageIndex}/count/${itemsPerPage}/search/${search}`;
+          : `http://localhost:5000/api/posts/page/${pageIndex}/count/${itemsPerPage}/search/${search}/operator/${operator}`;
         const res = await fetch(link);
         const response = await res.json();
         posts.value = response.data[0];
@@ -98,20 +98,23 @@ export default defineComponent({
 
     const paginate = (page: number) => {
       const searchValue = (route.query?.search || "") as string;
-      loadPostsWithPagination(page, searchValue);
+      const operator = (route.query?.operator || "and") as string;
+      loadPostsWithPagination(page, searchValue, operator);
     };
 
     watch(
       () => route.query,
       (query) => {
         const searchValue = (query?.search || "") as string;
-        loadPostsWithPagination(1, searchValue);
+        const operator = (route.query?.operator || "and") as string;
+        loadPostsWithPagination(1, searchValue, operator);
       },
     );
 
     onMounted(() => {
       const searchValue = (route.query?.search || "") as string;
-      loadPostsWithPagination(1, searchValue);
+      const operator = (route.query?.operator || "and") as string;
+      loadPostsWithPagination(1, searchValue, operator);
     });
 
     return {
@@ -137,7 +140,8 @@ export default defineComponent({
         const res = await fetch(`http://localhost:5000/api/posts/delete/${post.id}`);
         await res.json();
         const searchValue = (this.route.query?.search || "") as string;
-        await this.loadPostsWithPagination(1, searchValue);
+        const operator = (this.route.query?.operator || "and") as string;
+        await this.loadPostsWithPagination(1, searchValue, operator);
       } catch (e) {
         console.log("ERROR: ", e);
       }

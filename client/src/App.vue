@@ -23,7 +23,7 @@
               <RouterLink to="/posts" class="nav-link">Posts</RouterLink>
             </li>
           </ul>
-          <search-component :searchString="searchQuery" @searched="startSearch($event)"></search-component>
+          <search-component :searchString="searchQuery" @searched="startSearch($event)" @operatorChanged="setOperator($event)"></search-component>
         </div>
       </div>
     </nav>
@@ -34,7 +34,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import SearchComponent from "./components/SearchComponent.vue";
 
 export default defineComponent({
@@ -42,6 +42,12 @@ export default defineComponent({
   setup() {
     const route = useRoute();
     const searchQuery = ref<string>("");
+    const router = useRouter();
+
+    const setOperator = (operator: string) => {
+      console.log("OP", operator);
+      router.replace({ query: { ...route.query, operator: operator } });
+    };
 
     watch(route, (value) => {
       // prefill search input from queryParam
@@ -52,12 +58,13 @@ export default defineComponent({
 
     return {
       searchQuery,
+      setOperator,
     };
   },
 
   methods: {
-    startSearch(search: string) {
-      this.$router.push("/posts/?search=" + search);
+    startSearch(search: string, operator: string = "and") {
+      this.$router.push(`/posts/?search=${search}&operator=${operator}`);
     },
   },
 });
