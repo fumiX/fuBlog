@@ -37,7 +37,6 @@ router.get("/page/:page/count/:count/search/:search/operator/:operator", async (
 
         const words = splitSearchParams.map(word => (word)).join(operator);
         searchTerm = "ts @@ to_tsquery('" + words + "')";
-        console.log("searchTerm:", searchTerm);
     }
 
     const allSearchedPosts = await AppDataSource.manager.getRepository(Post)
