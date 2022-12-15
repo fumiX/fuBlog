@@ -18,6 +18,5 @@ export async function init(req: Request, res: Response, next: NextFunction) {
 }
 
 export function getDomain(): string {
-    return "https://www.fumix.de";
-    // return `http://${process.env.APP_HOST}:${process.env.APP_PORT}`;
+    return `http://${process.env.APP_HOST}:${process.env.APP_PORT}/`;
 }
