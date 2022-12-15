@@ -56,7 +56,7 @@ import { defineComponent, onMounted, ref, watch } from "vue";
 import PostPreview from "../components/PostPreview.vue";
 import ConfirmDialog from "../components/ConfirmDialog.vue";
 import type { Post } from "./../../../server/src/entity/Post";
-import type { ConfirmDialogData } from "./../../../interfaces/confirmdialog";
+import type { ConfirmDialogData } from "@fumix/fu-blog-common/src/confirmdialog";
 import { faAdd } from "@fortawesome/free-solid-svg-icons";
 import { faSadTear } from "@fortawesome/free-regular-svg-icons";
 import Paginate from "vuejs-paginate-next";

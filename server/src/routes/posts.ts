@@ -83,18 +83,18 @@ router.get("/:id", async (req: Request, res: Response) => {
 router.post("/new", async (req: Request, res: Response) => {
     try {
         const san = await sanitizeHtml(req.body.markdown);
-        const post = {
+        const post: Post = {
             title: req.body.title,
             description: req.body.description,
             markdown: req.body.markdown,
             createdBy: await getUser(),
             createdAt: new Date(),
             updatedAt: new Date(),
-            sanitizedHtml: san
+            sanitizedHtml: san,
+            updatedBy: undefined
         };
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const results = await AppDataSource.manager.getRepository(Post).save<any>(post);
+        const results = await AppDataSource.manager.getRepository(Post).save<Post>(post);
         res.status(200).send(results);
     } catch (e) {
         res.status(500).json({ error: "Fehler " + e });

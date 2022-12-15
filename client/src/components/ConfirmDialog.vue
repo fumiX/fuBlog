@@ -21,9 +21,9 @@
 
 <script lang="ts">
 import { defineComponent, watch } from "vue";
-import type { ConfirmDialogData } from "./../../../interfaces/confirmdialog";
 import type { PropType } from "vue";
 import { Modal } from "bootstrap";
+import type { ConfirmDialogData } from "@fumix/fu-blog-common/src/confirmdialog";
 
 export default defineComponent({
   props: {

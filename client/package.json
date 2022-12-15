@@ -1,6 +1,6 @@
 {
-  "name": "client",
-  "version": "0.0.0",
+  "name": "@fumix/fu-blog-client",
+  "version": "0.1.0",
   "scripts": {
     "dev": "vite --port 5010",
     "build": "run-p type-check build-only",
@@ -15,9 +15,9 @@
     "@fortawesome/free-regular-svg-icons": "^6.2.0",
     "@fortawesome/free-solid-svg-icons": "^6.2.0",
     "@fortawesome/vue-fontawesome": "^3.0.2",
+    "@fumix/fu-blog-common": "*",
     "bootstrap": "^5.2.3",
     "buffer": "^6.0.3",
-    "common": "../common",
     "luxon": "^3.1.0",
     "stream-browserify": "^3.0.0",
     "vue": "^3.2.41",

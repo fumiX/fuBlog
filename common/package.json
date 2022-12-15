@@ -1,20 +1,25 @@
 {
-    "name": "common",
-    "version": "0.0.0",
-    "scripts": {},
-    "dependencies": {
-        "marked": "^4.2.2",
-        "pako": "^2.1.0",
-        "dompurify": "^2.4.1",
-        "jsdom": "^20.0.2",
-        "node-fetch": "2.6.7"
-    },
-    "devDependencies": {
-        "@types/dompurify": "^2.4.0",
-        "@types/jsdom": "^20.0.1",
-        "@types/marked": "^4.0.7",
-        "@types/node-fetch": "^2.6.2",
-        "@types/pako": "^2.0.0"
-    },
-    "module": "./index.mjs"
+  "name": "@fumix/fu-blog-common",
+  "version": "0.1.0",
+  "author": "fumiX GmbH & Co KG",
+  "license": "Apache-2.0",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint src/**/*.ts"
+  },
+  "dependencies": {
+    "marked": "^4.2.2",
+    "pako": "^2.1.0",
+    "dompurify": "^2.4.1",
+    "jsdom": "^20.0.2",
+    "node-fetch": "2.6.7"
+  },
+  "devDependencies": {
+    "@types/dompurify": "^2.4.0",
+    "@types/jsdom": "^20.0.1",
+    "@types/marked": "^4.0.7",
+    "@types/node-fetch": "^2.6.2",
+    "@types/pako": "^2.0.0"
+  },
+  "type": "module"
 }

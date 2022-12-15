@@ -2,7 +2,13 @@ import { marked } from "marked";
 import DOMPurify from "dompurify";
 import pako from "pako";
 import { Buffer } from "buffer";
-import { KROKI_DIAGRAMM_INFOSTRING, KROKI_SERVICE_URL, KROKI_DIAGRAM_LANGUAGE, KROKI_OUTPUT_FORMAT, purifyConfig } from "./../../interfaces/kroki-config";
+import {
+    KROKI_DIAGRAMM_INFOSTRING,
+    KROKI_DIAGRAM_LANGUAGE,
+    KROKI_OUTPUT_FORMAT,
+    KROKI_SERVICE_URL,
+    purifyConfig
+} from "@fumix/fu-blog-common/src/kroki-config";
 
 const walkTokens = async (token: marked.Token) => {
   if (token.type === "code" && token.lang === KROKI_DIAGRAMM_INFOSTRING) {

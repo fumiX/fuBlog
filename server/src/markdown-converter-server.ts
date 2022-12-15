@@ -3,7 +3,13 @@ import { JSDOM } from "jsdom";
 import DOMPurify from "dompurify";
 import pako from "pako";
 import fetch from "node-fetch";
-import { KROKI_SERVICE_URL, KROKI_DIAGRAM_LANGUAGE, KROKI_DIAGRAMM_INFOSTRING, KROKI_OUTPUT_FORMAT, purifyConfig } from "./../../interfaces/kroki-config";
+import {
+    KROKI_DIAGRAMM_INFOSTRING,
+    KROKI_DIAGRAM_LANGUAGE,
+    KROKI_OUTPUT_FORMAT,
+    KROKI_SERVICE_URL,
+    purifyConfig
+} from "@fumix/fu-blog-common/src/kroki-config";
 
 const w = new JSDOM("").window as unknown as Window;
 const purify = DOMPurify(w);
