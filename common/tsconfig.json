@@ -12,7 +12,7 @@
     "emitDecoratorMetadata": true,
     "module": "commonjs",
     "rootDir": "./src",
-    "moduleResolution": "node",
+    "moduleResolution": "Node16",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
