@@ -5,6 +5,7 @@ declare global {
         export interface Application {
             authIssuer?: Issuer;
             authClient?: Client;
+            codeVerifier?: string;
         }
     }
 }

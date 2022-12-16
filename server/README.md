@@ -2,7 +2,7 @@
 
 ### Managing environment variables ###
 
-  * To load environment variables into the application we use an external library - [dotenv](https://www.npmjs.com/package/dotenv) `npm i dotenv`
+  * To load environment variables into the application we use an external library - [dotenv](https://www.npmjs.com/package/dotenv) `npm install dotenv`
   * It relies on a file called `.env` where the key-value pairs are defined.
   * We also use node's / ts-node's  `--require (-r)` command line option to preload the library. By doing this we do not need to load dotenv in our applicaion - 
 	thus `require("dotenv")` or `import dotenv from "dotenv"` is not necessary.
@@ -25,3 +25,4 @@ All entities are currently run automatically upon starting the node server. To c
 - Example usage of the entity manager: `await AppDataSource.manager.getRepository(Post)`
 
 ## OAuth ##
+  * We use `npm install openid-client` [openid-client](https://www.npmjs.com/package/openid-client)
