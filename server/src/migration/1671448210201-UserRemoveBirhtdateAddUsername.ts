@@ -21,17 +21,14 @@ export class UserRemoveBirhtdateAddUsername1671448210201 implements MigrationInt
                 }
             ]
         );
-        await queryRunner.query(`UPDATE "user" SET "username" = "user"."firstName" || ' ' || "user"."lastName"${""}`);
+        await queryRunner.query('UPDATE "user" SET "username" = "user"."firstName" || "user"."lastName"');
         await queryRunner.changeColumns(
             "user",
             [
                 {
                     oldColumn: new TableColumn({
                         name: "username",
-                        length: "64",
                         type: "varchar",
-                        isNullable: true,
-                        isUnique: true,
                     }),
                     newColumn: new TableColumn({
                         name: "username",
@@ -46,7 +43,22 @@ export class UserRemoveBirhtdateAddUsername1671448210201 implements MigrationInt
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query("SELECT 'TODO: Implement!'")
+        await queryRunner.changeColumns(
+            "user",
+            [
+                {
+                    oldColumn: new TableColumn({
+                        name: "username",
+                        type: "varchar",
+                    }),
+                    newColumn: new TableColumn({
+                        name: "birthdate",
+                        type: "date",
+                        isNullable: true,
+                    })
+                }
+            ]
+        );
     }
 
 }
