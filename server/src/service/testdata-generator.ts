@@ -1,8 +1,8 @@
-import {User} from "../entity/User";
-import {AppDataSource} from "../data-source";
-import {Post} from "../entity/Post";
-import {sanitizeHtml} from "../markdown-converter-server";
+import { AppDataSource } from "../data-source";
+import { sanitizeHtml } from "../markdown-converter-server";
 import { faker } from "@faker-js/faker/locale/de";
+import { PostEntity } from "../entity/Post.entity";
+import { UserEntity } from "../entity/User.entity";
 
 const usersCount = 10;
 const postsPerUser = 25;
@@ -12,7 +12,7 @@ faker.seed(42);
  * Generate some test data for the blog.
  */
 export async function generate() {
-    const usersInDbAtStart = await AppDataSource.manager.getRepository(User).count();
+    const usersInDbAtStart = await AppDataSource.manager.getRepository(UserEntity).count();
     if (usersInDbAtStart !== 0) {
         console.log("Test data is already generated.");
         return;
@@ -30,17 +30,17 @@ export async function generate() {
 /**
  * Creates a user.
  */
-export async function createRandomUser(): Promise<User> {
+export async function createRandomUser(): Promise<UserEntity> {
     try {
         const firstName = faker.name.firstName();
         const lastName = faker.name.lastName();
-        const user: User = {
-            birthdate: faker.date.birthdate(),
+        const user: UserEntity = {
+            username: `${firstName}${lastName}`,
             email: faker.internet.email(firstName, lastName),
             firstName: firstName,
             lastName: lastName
         }
-        return AppDataSource.manager.getRepository(User).save(user);
+        return AppDataSource.manager.getRepository(UserEntity).save(user);
     } catch (e) {
         console.log("Error creating user", e)
     }
@@ -51,11 +51,11 @@ export async function createRandomUser(): Promise<User> {
  * Creates a post.
  * @param createdBy the User who created the post.
  */
-export async function createRandomPost(createdBy: User): Promise<Post> {
+export async function createRandomPost(createdBy: UserEntity): Promise<PostEntity> {
     try {
         const dirty = faker.lorem.sentences(29);
         const sanitized = await sanitizeHtml(dirty);
-        const post: Post = {
+        const post: PostEntity = {
             title: faker.lorem.sentence(4),
             description: faker.lorem.sentences(8),
             markdown: dirty,
@@ -63,7 +63,7 @@ export async function createRandomPost(createdBy: User): Promise<Post> {
             createdAt: faker.date.recent(),
             sanitizedHtml: sanitized,
         };
-        const postRep = AppDataSource.manager.getRepository(Post);
+        const postRep = AppDataSource.manager.getRepository(PostEntity);
         return (await postRep.save(post));
     } catch (e) {
         console.log("Error generating post");

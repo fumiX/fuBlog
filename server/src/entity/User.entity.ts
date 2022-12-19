@@ -1,22 +1,22 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
+import { User } from "@fumix/fu-blog-common/src/entity/User";
 
 /**
  * Blog post
  */
-@Entity()
-export class User {
-
+@Entity("user")
+export class UserEntity implements User {
     @PrimaryGeneratedColumn()
     id?: number
 
-    @Column({ nullable: true })
-    firstName: string
+    @Column({ nullable: false })
+    username: string
 
     @Column({ nullable: true })
-    lastName: string
+    firstName?: string
 
     @Column({ nullable: true })
-    birthdate: Date
+    lastName?: string
 
     @Column({ unique: true, nullable: false })
     email: string

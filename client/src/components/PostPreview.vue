@@ -36,7 +36,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import type { Post } from "./../../../server/src/entity/Post";
+import type { Post } from "@fumix/fu-blog-common/src/entity/Post";
 import type { PropType } from "vue";
 import { faBookReader, faTrash, faEdit } from "@fortawesome/free-solid-svg-icons";
 import { faClock } from "@fortawesome/free-regular-svg-icons";
