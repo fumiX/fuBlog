@@ -1,6 +1,6 @@
 <template>
   <form class="d-flex" @submit="$event.preventDefault()">
-    <button class="btn btn-sm btn-outline-primary" @click="toggleOperator()">{{ operator === "and" ? "UND" : "ODER" }}</button>
+    <!-- <button class="btn btn-sm btn-outline-primary" @click="toggleOperator()">{{ operator === "and" ? "UND" : "ODER" }}</button> -->
     <input class="form-control mx-2 search" v-model="search" type="search" placeholder="Suche" aria-label="Suche" @keydown.enter="$emit('searched', search)" />
     <button class="btn btn-sm btn-outline-primary" type="button" @click="$emit('searched', search)">Suche</button>
   </form>
