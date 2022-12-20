@@ -5,16 +5,16 @@ ENV LC_ALL de_DE.utf8
 
 
 ## Build FRONTEND and COMMON and BACKEND Node Server
-# FROM node:18.12.1-alpine AS build
-# WORKDIR /app
-# COPY package*.json ./
-# RUN npm install
-# COPY . .
-# RUN npm run build
+FROM node:18.12.1-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
 
 # start node server
-# CMD [ "node", "server/dist/server.js"]
-# EXPOSE 5010
+CMD [ "node", "server/dist/server.js"]
+EXPOSE 5010
 
 ## Create nginx server
 # FROM nginx:1.19.8-alpine as prod-stage

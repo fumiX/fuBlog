@@ -1,25 +1,26 @@
 import express, { Request, Response, Router } from "express";
-import { Post } from "../entity/Post";
 import { AppDataSource } from "../data-source";
 import { sanitizeHtml } from "../markdown-converter-server";
-import { User } from "../entity/User";
+import { UserEntity } from "../entity/User.entity";
+import { PostEntity } from "../entity/Post.entity";
 
 const router: Router = express.Router();
 
 // create or get dummy user
 async function getUser() {
     const email = "test@test.de";
-    let createdUser = await AppDataSource.manager.getRepository(User).findOneBy({ email: email });
+    let createdUser = await AppDataSource.manager.getRepository(UserEntity).findOneBy({ email: email });
 
     if (createdUser === null) {
-        const user: User = {
-            birthdate: new Date(),
+        const user: UserEntity = {
+            username: "AlfredENeumann",
             email: email,
             firstName: "Alfred E.",
-            lastName: "Neumann"
+            lastName: "Neumann",
+            roles: ["ADMIN", "POST_CREATE"]
         }
 
-        createdUser = await AppDataSource.manager.getRepository(User).save(user);
+        createdUser = await AppDataSource.manager.getRepository(UserEntity).save(user);
     }
 
     return createdUser;
@@ -39,7 +40,7 @@ router.get("/page/:page/count/:count/search/:search/operator/:operator", async (
         searchTerm = "ts @@ to_tsquery('" + words + "')";
     }
 
-    const allSearchedPosts = await AppDataSource.manager.getRepository(Post)
+    const allSearchedPosts = await AppDataSource.manager.getRepository(PostEntity)
         .createQueryBuilder()
         .where(searchTerm)
         .skip(skipEntries)
@@ -52,10 +53,11 @@ router.get("/page/:page/count/:count/search/:search/operator/:operator", async (
 
 // get all posts with paging
 router.get("/page/:page/count/:count/", async (req: Request, res: Response) => {
+
     const page = +req.params.page;
     const itemsPerPage = +req.params.count;
     const skipEntries = (page * itemsPerPage) - itemsPerPage;
-    const allPosts = await AppDataSource.manager.getRepository(Post).findAndCount({
+    const allPosts = await AppDataSource.manager.getRepository(PostEntity).findAndCount({
         order: {
             createdAt: "DESC"
         },
@@ -68,7 +70,7 @@ router.get("/page/:page/count/:count/", async (req: Request, res: Response) => {
 
 // GET POST BY ID
 router.get("/:id", async (req: Request, res: Response) => {
-    const post = await AppDataSource.manager.getRepository(Post).findOneBy({
+    const post = await AppDataSource.manager.getRepository(PostEntity).findOneBy({
         id: +req.params.id
     });
 
@@ -83,7 +85,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 router.post("/new", async (req: Request, res: Response) => {
     try {
         const san = await sanitizeHtml(req.body.markdown);
-        const post: Post = {
+        const post: PostEntity = {
             title: req.body.title,
             description: req.body.description,
             markdown: req.body.markdown,
@@ -94,7 +96,7 @@ router.post("/new", async (req: Request, res: Response) => {
             updatedBy: undefined
         };
 
-        const results = await AppDataSource.manager.getRepository(Post).save<Post>(post);
+        const results = await AppDataSource.manager.getRepository(PostEntity).save<PostEntity>(post);
         res.status(200).send(results);
     } catch (e) {
         res.status(500).json({ error: "Fehler " + e });
@@ -104,7 +106,7 @@ router.post("/new", async (req: Request, res: Response) => {
 
 // EDIT EXISTING POST
 router.post("/:id", async (req: Request, res: Response) => {
-    const post = await AppDataSource.manager.getRepository(Post).findOneBy({
+    const post = await AppDataSource.manager.getRepository(PostEntity).findOneBy({
         id: +req.params.id
     });
 
@@ -121,7 +123,7 @@ router.post("/:id", async (req: Request, res: Response) => {
         post.updatedBy = await getUser();
 
         try {
-            const results = await AppDataSource.manager.getRepository(Post).save(post);
+            const results = await AppDataSource.manager.getRepository(PostEntity).save(post);
             res.status(200).send(results);
         } catch (e) {
             res.status(500).json({ error: "Fehler " + e });
@@ -133,7 +135,7 @@ router.post("/:id", async (req: Request, res: Response) => {
 router.get("/delete/:id", async (req: Request, res: Response) => {
     try {
         // find post in DB and delete it
-        const result = await AppDataSource.manager.getRepository(Post).delete(+req.params.id);
+        const result = await AppDataSource.manager.getRepository(PostEntity).delete(+req.params.id);
         res.status(200).send(result);
     } catch (e) {
         res.status(500).json({ error: "Fehler " + e });
