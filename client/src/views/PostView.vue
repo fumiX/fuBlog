@@ -96,7 +96,7 @@ export default defineComponent({
     try {
       const route = useRoute();
       const id = route.params.id;
-      const res = await fetch(`http://localhost:5000/api/posts/${id}`);
+      const res = await fetch(`${this.$apiUrl}/posts/${id}`);
       const response = await res.json();
       this.post = response.data;
       this.loading = false;
@@ -109,7 +109,7 @@ export default defineComponent({
   methods: {
     async deletePost(post: Post) {
       try {
-        const res = await fetch(`http://localhost:5000/api/posts/delete/${post.id}`);
+        const res = await fetch(`${this.$apiUrl}/posts/delete/${post.id}`);
         await res.json();
         this.$router.push("/posts");
       } catch (e) {

@@ -1,10 +1,11 @@
-// Origins that are allowed to call our site / pull data off of our site!
-const CLIENT_PORT = 5010;
+import dotenv from "dotenv";
+dotenv.config();
 
+// Origins that are allowed to call our site / pull data off of our site!
 const corsWhiteList = [
     "https://www.fumix.de",
-    `http://localhost:${CLIENT_PORT}`,
-    `http://127.0.0.1:${CLIENT_PORT}`,
+    `${process.env.CLIENT_BASE_URL}`,
+    `http://127.0.0.1:${process.env.CLIENT_PORT}`,
 ];
 
 
