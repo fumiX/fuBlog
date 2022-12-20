@@ -8,6 +8,7 @@ rm -r server/dist/
 npm run build
 cp "docker/app/Dockerfile" "server/dist/"
 cp "server/package.json" "server/dist/"
-cp -r "node_modules/@fumix/" "server/dist/node_modules/@fumix/"
+mkdir -p "server/dist/node_modules/@fumix/"
+cp -r -T "common/" "server/dist/node_modules/@fumix/fu-blog-common/"
 cd "server/dist/"
 docker build .
