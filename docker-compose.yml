@@ -3,7 +3,7 @@ services:
 
   postgres:
     build:
-      context: .
+      context: docker/postgres
       dockerfile: Dockerfile
     ports:
       - "5020:5432"
