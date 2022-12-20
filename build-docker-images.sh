@@ -1,5 +1,5 @@
-#!/bin/sh
-SCRIPT_RELATIVE_DIR=$(dirname "${BASH_SOURCE[0]}") 
+#!/bin/bash
+SCRIPT_RELATIVE_DIR=$(dirname "${BASH_SOURCE[0]}")
 cd $SCRIPT_RELATIVE_DIR
 
 
