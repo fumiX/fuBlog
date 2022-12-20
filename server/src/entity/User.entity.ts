@@ -1,5 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
-import { User } from "@fumix/fu-blog-common/src/entity/User";
+import { User } from "@fumix/fu-blog-common/dist/entity/User";
+import type { UserRole } from "@fumix/fu-blog-common/dist/entity/UserRole";
+import { UserRoles } from "@fumix/fu-blog-common/dist/entity/UserRole";
 
 /**
  * Blog post
@@ -20,5 +22,7 @@ export class UserEntity implements User {
 
     @Column({ unique: true, nullable: false })
     email: string
+    @Column({ type: "enum", enum: Object.keys(UserRoles), array: true, nullable: false })
+    roles: UserRole[]
 
 }

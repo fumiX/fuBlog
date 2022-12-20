@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm"
 import { UserEntity } from "./User.entity";
-import { Post } from "@fumix/fu-blog-common/src/entity/Post";
+import { Post } from "@fumix/fu-blog-common/dist/entity/Post";
 
 /**
  * Blog post

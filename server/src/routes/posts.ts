@@ -17,6 +17,7 @@ async function getUser() {
             email: email,
             firstName: "Alfred E.",
             lastName: "Neumann",
+            roles: ["ADMIN", "POST_CREATE"]
         }
 
         createdUser = await AppDataSource.manager.getRepository(UserEntity).save(user);
