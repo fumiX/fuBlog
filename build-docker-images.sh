@@ -14,4 +14,4 @@ cp "server/package.json" "server/dist/"
 mkdir -p "server/dist/node_modules/@fumix/"
 cp -r -T "common/" "server/dist/node_modules/@fumix/fu-blog-common/"
 cd "server/dist/" || exit
-docker build -t fu-blog_app:latest .
+docker build -t fublog_app:latest .
