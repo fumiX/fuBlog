@@ -2,6 +2,7 @@ import "reflect-metadata"
 import { DataSource } from "typeorm"
 import { Post } from "./entity/Post";
 import { User } from "./entity/User";
+import {Attachment} from "./entity/Attachment";
 
 export const AppDataSource = new DataSource({
     type: "postgres",
@@ -12,7 +13,7 @@ export const AppDataSource = new DataSource({
     database: "fublog",
     synchronize: false,
     logging: false,
-    entities: [ Post, User ],
+    entities: [ Post, User, Attachment ],
     migrations: ["./src/migration/*.ts"],
     migrationsRun: true,
     subscribers: [],

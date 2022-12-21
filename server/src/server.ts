@@ -1,10 +1,11 @@
-import express, {Application} from "express";
+import express, { Application } from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
-import {corsOptions} from "./config/cors-config";
+import { corsOptions } from "./config/cors-config";
 import postRoutes from "./routes/posts";
-import {generate} from "./service/testdata-generator";
-import {AppDataSource} from "./data-source";
+import attRoutes from "./routes/attachments";
+import { generate } from "./service/testdata-generator";
+import { AppDataSource } from "./data-source";
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
@@ -25,6 +26,7 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
 app.use(`${BASE_API_URL}/posts`, postRoutes);
+app.use(`${BASE_API_URL}/attachments`, attRoutes);
 
 app.listen(PORT, () => {
     console.log(`fuBlog server running on port: ${PORT}`);

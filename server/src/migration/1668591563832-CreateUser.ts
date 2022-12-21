@@ -43,6 +43,7 @@ export class CreateUser1668591563832 implements MigrationInterface {
             isNullable: false
         }));
         await queryRunner.createForeignKey("post", new TableForeignKey({
+            name: "post_user_created_by_fk",
             columnNames: ["createdById"],
             referencedColumnNames: ["id"],
             referencedTableName: "user"
@@ -53,6 +54,7 @@ export class CreateUser1668591563832 implements MigrationInterface {
             isNullable: true
         }));
         await queryRunner.createForeignKey("post", new TableForeignKey({
+            name: "post_user_updated_by_fk",
             columnNames: ["updatedById"],
             referencedColumnNames: ["id"],
             referencedTableName: "user"

@@ -1,5 +1,6 @@
-import {Entity, PrimaryGeneratedColumn, Column, ManyToOne} from "typeorm"
+import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany} from "typeorm"
 import {User} from "./User";
+import {Attachment} from "./Attachment";
 
 /**
  * Blog post
@@ -33,5 +34,11 @@ export class Post {
 
     @ManyToOne(() => User, (user) => user.id, { nullable: true })
     updatedBy?: User
+
+    @OneToMany(() => Attachment, (attachment) => attachment.post, { nullable: true })
+    attachments: Attachment[]
+
+    @Column({ nullable: false })
+    draft: boolean
 
 }
