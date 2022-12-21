@@ -78,11 +78,10 @@ export default defineComponent({
     const currentPost = ref<Post | null>(null);
     const currentPage = ref<number>(1);
     const totalPages = ref<number>(1);
-    const url = import.meta.env.VITE_API_URL; // cant access this.$apiUrl here in setup dont know why ?!?!
 
     const loadPostsWithPagination = async (pageIndex: number, search: string, operator: string) => {
       try {
-        let link = !search ? `${url}/posts/page/${pageIndex}/count/${itemsPerPage}` : `${url}/posts/page/${pageIndex}/count/${itemsPerPage}/search/${search}/operator/${operator}`;
+        let link = !search ? `/api/posts/page/${pageIndex}/count/${itemsPerPage}` : `/api/posts/page/${pageIndex}/count/${itemsPerPage}/search/${search}/operator/${operator}`;
         const res = await fetch(link);
         const response = await res.json();
         posts.value = response.data[0];
@@ -130,18 +129,13 @@ export default defineComponent({
       paginate,
       loadPostsWithPagination,
       route,
-      url,
     };
-  },
-
-  async mounted() {
-    this.url = this.$apiUrl;
   },
 
   methods: {
     async deletePost(post: Post) {
       try {
-        const res = await fetch(`${this.$apiUrl}/posts/delete/${post.id}`);
+        const res = await fetch(`/api/posts/delete/${post.id}`);
         await res.json();
         const searchValue = (this.route.query?.search || "") as string;
         const operator = (this.route.query?.operator || "and") as string;

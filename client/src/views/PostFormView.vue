@@ -111,7 +111,7 @@ export default defineComponent({
     // prefill form with values fom loaded post
     if (this.postId) {
       try {
-        const res = await fetch(`${this.$apiUrl}/posts/${this.postId}`);
+        const res = await fetch(`/api/posts/${this.postId}`);
         const resJson = await res.json();
         this.form.title = resJson.data.title;
         this.form.description = resJson.data.description;
@@ -139,7 +139,7 @@ export default defineComponent({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(this.form),
       };
-      const formAction = id ? `${this.$apiUrl}/posts/${id}` : `${this.$apiUrl}/posts/new`;
+      const formAction = id ? `/api/posts/${id}` : `/api/posts/new`;
       const response = await fetch(formAction, requestOptions);
       const data = await response.json();
       const post = data;
