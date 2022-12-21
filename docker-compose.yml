@@ -21,7 +21,7 @@ services:
       CLIENT_PORT: 5010
       CLIENT_URL: http://localhost
       CLIENT_BASE_URL: http://localhost:5010
-      DATABASE_HOST: localhost
+      DATABASE_HOST: postgres
       DATABASE_PORT: 5020
       DATABASE_USER: fublog
       DATABASE_PW: 8!06

@@ -6,4 +6,4 @@ RUN npm install
 
 # start node server
 CMD [ "node", "server.js"]
-EXPOSE 5010
+EXPOSE 5000
