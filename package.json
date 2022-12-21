@@ -6,9 +6,9 @@
   "name": "@fumix/fu-blog",
   "version": "0.1.0",
   "workspaces": [
-    "client",
     "common",
-    "server"
+    "server",
+    "client"
   ],
   "scripts": {
     "start": "concurrently \"docker compose up\" \"npm run --workspace client dev\" \"npm run --workspace server dev\"",

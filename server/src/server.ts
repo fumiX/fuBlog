@@ -6,6 +6,7 @@ import postRoutes from "./routes/posts";
 import {generate} from "./service/testdata-generator";
 import {AppDataSource} from "./data-source";
 
+
 const app: Application = express();
 const PORT = process.env.SERVER_PORT || 3000;
 
@@ -25,6 +26,11 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
 app.use(`${BASE_API_PATH}/posts`, postRoutes);
+
+// in production serve the built vue-app from static public folder: 
+if (process.env.NODE_ENV === "production") {
+    app.use(express.static(`${__dirname}/public`));
+}
 
 app.listen(PORT, () => {
     console.log(`fuBlog server running on port: ${PORT}`);

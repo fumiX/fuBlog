@@ -5,10 +5,13 @@ cd $SCRIPT_RELATIVE_DIR
 
 npm install
 rm -r server/dist/
+rm -r server/public/
 npm run build
+cp -r "server/public" "server/dist/public"
+rm -r server/public/
 cp "docker/app/Dockerfile" "server/dist/"
 cp "server/package.json" "server/dist/"
 mkdir -p "server/dist/node_modules/@fumix/"
 cp -r -T "common/" "server/dist/node_modules/@fumix/fu-blog-common/"
 cd "server/dist/"
-docker build .
+docker build ./ -t fublog_app:latest

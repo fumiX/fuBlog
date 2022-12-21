@@ -3,7 +3,7 @@ import { JSDOM } from "jsdom";
 import DOMPurify from "dompurify";
 import pako from "pako";
 import fetch from "node-fetch";
-import * as kroki from "@fumix/fu-blog-common/src/kroki-config";
+import * as kroki from "@fumix/fu-blog-common/dist/kroki-config";
 
 const w = new JSDOM("").window as unknown as Window;
 const purify = DOMPurify(w);
