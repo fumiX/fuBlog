@@ -2,16 +2,16 @@ import { marked } from "marked";
 import DOMPurify from "dompurify";
 import pako from "pako";
 import { Buffer } from "buffer";
-import * as kroki from "@fumix/fu-blog-common/src/kroki-config";
+import { KROKI_DIAGRAM_LANGUAGE, KROKI_DIAGRAMM_INFOSTRING, KROKI_OUTPUT_FORMAT, KROKI_SERVICE_URL, purifyConfig } from "@fumix/fu-blog-common";
 
 // TODO: Move to common project
 const walkTokens = async (token: marked.Token) => {
-  if (token.type === "code" && token.lang === kroki.KROKI_DIAGRAMM_INFOSTRING) {
+  if (token.type === "code" && token.lang === KROKI_DIAGRAMM_INFOSTRING) {
     const inputText = token.text;
     const data = Buffer.from(inputText, "utf8");
     const compressed = pako.deflate(data, { level: 9 });
     const res = Buffer.from(compressed).toString("base64").replace(/\+/g, "-").replace(/\//g, "_");
-    const svg = await fetch(`${kroki.KROKI_SERVICE_URL}/${kroki.KROKI_DIAGRAM_LANGUAGE}/${kroki.KROKI_OUTPUT_FORMAT}/${res}`);
+    const svg = await fetch(`${KROKI_SERVICE_URL}/${KROKI_DIAGRAM_LANGUAGE}/${KROKI_OUTPUT_FORMAT}/${res}`);
     const txt = await svg.text();
     token.text = txt;
   }
@@ -19,7 +19,7 @@ const walkTokens = async (token: marked.Token) => {
 
 const renderer = {
   code(code: string, infostring: string) {
-    if (infostring === kroki.KROKI_DIAGRAMM_INFOSTRING) {
+    if (infostring === KROKI_DIAGRAMM_INFOSTRING) {
       return code;
     }
     return false;
@@ -31,5 +31,5 @@ marked.use({ renderer });
 
 export async function sanitizeHtml(dirty: string): Promise<string> {
   const rawHtml = await marked.parse(dirty);
-  return DOMPurify.sanitize(rawHtml, kroki.purifyConfig);
+  return DOMPurify.sanitize(rawHtml, purifyConfig);
 }

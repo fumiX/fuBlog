@@ -1,8 +1,8 @@
 import express, { Request, Response, Router } from "express";
-import { AppDataSource } from "../data-source";
-import { sanitizeHtml } from "../markdown-converter-server";
-import { UserEntity } from "../entity/User.entity";
-import { PostEntity } from "../entity/Post.entity";
+import { AppDataSource } from "../data-source.js";
+import { sanitizeHtml } from "../markdown-converter-server.js";
+import { UserEntity } from "../entity/User.entity.js";
+import { PostEntity } from "../entity/Post.entity.js";
 
 const router: Router = express.Router();
 

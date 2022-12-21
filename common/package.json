@@ -21,5 +21,9 @@
     "@types/node-fetch": "^2.6.2",
     "@types/pako": "^2.0.0"
   },
-  "type": "commonjs"
+  "type": "module",
+  "exports": {
+    ".":  "./dist/index.js",
+    "./package.json": "./package.json"
+  }
 }

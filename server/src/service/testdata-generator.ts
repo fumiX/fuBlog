@@ -1,8 +1,8 @@
-import { AppDataSource } from "../data-source";
-import { sanitizeHtml } from "../markdown-converter-server";
+import { AppDataSource } from "../data-source.js";
+import { sanitizeHtml } from "../markdown-converter-server.js";
 import { faker } from "@faker-js/faker/locale/de";
-import { PostEntity } from "../entity/Post.entity";
-import { UserEntity } from "../entity/User.entity";
+import { PostEntity } from "../entity/Post.entity.js";
+import { UserEntity } from "../entity/User.entity.js";
 
 const usersCount = 10;
 const postsPerUser = 25;

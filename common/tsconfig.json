@@ -10,7 +10,7 @@
     ],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "module": "commonjs",
+    "module": "Node16",
     "rootDir": "./src",
     "moduleResolution": "Node16",
     "declaration": true,
