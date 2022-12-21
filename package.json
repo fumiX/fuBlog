@@ -19,6 +19,7 @@
   "author": "fumiX GmbH & Co KG",
   "license": "Apache-2.0",
   "devDependencies": {
+    "@types/node": "^18.11.17",
     "concurrently": "7.6.0"
   },
   "dependencies": {

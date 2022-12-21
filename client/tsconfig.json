@@ -9,6 +9,7 @@
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
     "moduleResolution": "Node16",
+    "types": ["node"]
   },
 
   "references": [
