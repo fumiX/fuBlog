@@ -1,9 +1,8 @@
 ## Build FRONTEND and COMMON and BACKEND Node Server
-FROM node:18.12.1-alpine AS build
+FROM node:18-alpine
 WORKDIR /app
 COPY . .
 RUN npm install
 
 # start node server
 CMD [ "node", "server.js"]
-EXPOSE 5000

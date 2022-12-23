@@ -14,7 +14,7 @@
     "start": "concurrently \"docker compose up\" \"npm run --workspace client dev\" \"npm run --workspace server dev\"",
     "lint": "npm run --workspaces lint",
     "lintfix": "npm run --workspaces lint --fix",
-    "build": "npm run --workspaces build"
+    "build": "npm run -w common build && npm run -ws build"
   },
   "author": "fumiX GmbH & Co KG",
   "license": "Apache-2.0",

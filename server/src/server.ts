@@ -27,7 +27,7 @@ app.use(bodyParser.json());
 
 app.use(`${BASE_API_PATH}/posts`, postRoutes);
 
-// in production serve the built vue-app from static public folder: 
+// in production serve the built vue-app from static public folder:
 if (process.env.NODE_ENV === "production") {
     app.use(express.static(`${__dirname}/public`));
 }
