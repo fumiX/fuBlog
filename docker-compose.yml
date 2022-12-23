@@ -9,6 +9,8 @@ services:
       POSTGRES_USER: "fublog"
       POSTGRES_PASSWORD: "8!06"
       POSTGRES_DB: "fublog"
+    ports:
+      - "5020:5432"
 
   app:
     depends_on:

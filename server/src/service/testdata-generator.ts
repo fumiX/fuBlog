@@ -1,5 +1,5 @@
 import { AppDataSource } from "../data-source.js";
-import { sanitizeHtml } from "../markdown-converter-server.js";
+import { sanitizeHtml } from "@fumix/fu-blog-common";
 import { faker } from "@faker-js/faker/locale/de";
 import { PostEntity } from "../entity/Post.entity.js";
 import { UserEntity } from "../entity/User.entity.js";

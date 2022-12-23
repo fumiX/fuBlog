@@ -19,7 +19,7 @@
 <script lang="ts">
 import { defineComponent, ref, watch } from "vue";
 import type { PropType } from "vue";
-import { sanitizeHtml } from "./../markdown-converter-client.js";
+import { sanitizeHtml } from "@fumix/fu-blog-common";
 
 export default defineComponent({
   props: {

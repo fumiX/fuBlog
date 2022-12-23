@@ -2,12 +2,10 @@ import { marked } from "marked";
 import { Buffer } from "buffer";
 import pako from "pako";
 import type { Config } from "dompurify";
+import DOMPurify from "dompurify";
 
 const KROKI_SERVICE_URL = "https://kroki.io";
 const KROKI_DIAGRAM_INFOSTRING = "diagram-plantuml";
-
-
-export type FetchTextFromUrlFunction = (a: string) => Promise<string>;
 
 export function createWalkTokensExtension(fetchTextFromUrl: FetchTextFromUrlFunction): marked.MarkedExtension {
     return {
@@ -37,13 +35,8 @@ export const rendererExtension: marked.MarkedExtension = {
     }
 };
 
-export type PurifyFunction = (
-    source: string | Node,
-    config: Config & { RETURN_DOM_FRAGMENT?: false | undefined; RETURN_DOM?: false | undefined }
-) => string;
-
-export function createSanitizeHtmlFunction(sanitize: PurifyFunction): (input: string) => string {
-    return input => sanitize(
+export const sanitizeHtml: (input: string) => string = (input) => {
+    return DOMPurify.sanitize(
         marked.parse(input),
         {
             // Alowed Tags and Attributes inside markdown
@@ -51,4 +44,11 @@ export function createSanitizeHtmlFunction(sanitize: PurifyFunction): (input: st
             ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling"],
         }
     );
-}
+};
+
+/**
+ * Takes a URL as argument, fetches text content from there and returns a promise resolving to that content.
+ * This is `(url) => fetch(url).then((it) => it.text())` on client and server, but using a different fetch() function
+ * (on the server from `node-fetch`, on the client the browser Fetch API is used).
+ */
+type FetchTextFromUrlFunction = (a: string) => Promise<string>;

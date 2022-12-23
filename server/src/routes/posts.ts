@@ -1,6 +1,6 @@
 import express, { Request, Response, Router } from "express";
 import { AppDataSource } from "../data-source.js";
-import { sanitizeHtml } from "../markdown-converter-server.js";
+import { sanitizeHtml } from "@fumix/fu-blog-common";
 import { UserEntity } from "../entity/User.entity.js";
 import { PostEntity } from "../entity/Post.entity.js";
 

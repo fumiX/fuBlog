@@ -4,5 +4,5 @@ export * from "./entity/SupportedOAuthProvider.js";
 export * from "./entity/User.js";
 export * from "./entity/UserRole.js";
 
-export * from "./kroki-config.js";
+export * from "./markdown-converter-common.js";
 export * from "./confirmdialog.js";
