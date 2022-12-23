@@ -1,11 +1,13 @@
-import express, { Application } from "express";
+import express, { Application, Request, Response } from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import { corsOptions } from "./config/cors-config.js";
 import postRoutes from "./routes/posts.js";
 import attRoutes from "./routes/attachments.js";
+import authRoutes from "./routes/auth.js";
 import { generate } from "./service/testdata-generator.js";
 import { AppDataSource } from "./data-source.js";
+import { init as initAuth } from "./auth/middleware.js";
 
 const app: Application = express();
 const PORT = process.env.SERVER_PORT || 5000;
@@ -19,11 +21,14 @@ AppDataSource.initialize()
     })
     .catch((err) => console.log("Error initializing database", err));
 
-
-
 app.use(cors(corsOptions));
 
 app.use(bodyParser.json());
+
+// The authorization (OAuth2) middleware
+app.use(initAuth);
+// The authorization controller routes
+app.use("/auth", authRoutes);
 
 app.use(`${BASE_API_PATH}/posts`, postRoutes);
 app.use(`${BASE_API_PATH}/attachments`, attRoutes);

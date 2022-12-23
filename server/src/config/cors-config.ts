@@ -8,7 +8,6 @@ const corsWhiteList = [
     `http://127.0.0.1:${process.env.CLIENT_PORT}`,
 ];
 
-
 export const corsOptions = {
     origin: (origin: string | undefined, callback: (arg0: Error | null, arg1: boolean) => void): void => {
         const typedOrigin: string = origin !== undefined ? origin : "";

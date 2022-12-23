@@ -18,6 +18,7 @@ jobs:
           node-version-file: '.node-version'
       - run: npm install
       - run: npm run ${{ matrix.task }} --workspace ${{ matrix.workspace }}
+        continue-on-error: true
 
   build:
     needs: tasks
@@ -30,4 +31,4 @@ jobs:
         with:
           node-version-file: '.node-version'
       - run: npm install
-      - run: npm run build --workspaces
+      - run: npm run build
