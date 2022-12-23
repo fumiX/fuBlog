@@ -15,11 +15,11 @@ const PORT = process.env.SERVER_PORT || 5000;
 const BASE_API_PATH = process.env.SERVER_API_PATH || "/api";
 
 AppDataSource.initialize()
-    .then(async () => {
-        generate();
-        console.log("Database initialized")
-    })
-    .catch((err) => console.log("Error initializing database", err));
+  .then(async () => {
+    generate();
+    console.log("Database initialized")
+  })
+  .catch((err) => console.log("Error initializing database", err));
 
 app.use(cors(corsOptions));
 
@@ -35,9 +35,9 @@ app.use(`${BASE_API_PATH}/attachments`, attRoutes);
 
 // in production serve the built vue-app from static public folder:
 if (process.env.NODE_ENV === "production") {
-    app.use(express.static("./public"));
+  app.use(express.static("./public"));
 }
 
 app.listen(PORT, () => {
-    console.log(`fuBlog server running on port: ${PORT}`);
+  console.log(`fuBlog server running on port: ${PORT}`);
 });

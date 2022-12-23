@@ -13,33 +13,33 @@ const router: Router = express.Router();
  */
 router.get("/url", (req: Request, res: Response) => {
 
-    // This is an extract from https://github.com/panva/node-openid-client#AuthorizationCodeFlow
-    const codeVerifier = generators.codeVerifier();
-    const codeChallenge = generators.codeChallenge(codeVerifier);
-    const authUrl = req.app.authClient!.authorizationUrl({
-        scope: "openid email profile",
-        code_challenge: codeChallenge,
-        code_challenge_method: "S256"
-    });
+  // This is an extract from https://github.com/panva/node-openid-client#AuthorizationCodeFlow
+  const codeVerifier = generators.codeVerifier();
+  const codeChallenge = generators.codeChallenge(codeVerifier);
+  const authUrl = req.app.authClient!.authorizationUrl({
+    scope: "openid email profile",
+    code_challenge: codeChallenge,
+    code_challenge_method: "S256"
+  });
 
-    // TODO: This is only for testing - the code verifier should be stored in the session. In case of a cookie it
-    //  should be httpOnly, encrypted and not readable by JavaScript
-    req.app.codeVerifier = codeVerifier;
-    res.json({ authUrl });
+  // TODO: This is only for testing - the code verifier should be stored in the session. In case of a cookie it
+  //  should be httpOnly, encrypted and not readable by JavaScript
+  req.app.codeVerifier = codeVerifier;
+  res.json({ authUrl });
 });
 
 /** Retrieves a collection of requested tokens in exchange for an authorization code */
 router.get("/callback", async (req: Request, res: Response) => {
-    // The params containing the authorization code
-    const client = req.app.authClient;
-    if (client) {
-        const params: CallbackParamsType = client.callbackParams(req);
-        const checks = { code_verifier: req.app.codeVerifier };
-        const tokenSet: TokenSet = await client.callback(getRedirectURI(), params, checks);
-        const userinfo = await client.userinfo(tokenSet);
-        console.log("THE USER INFO OBJECT", userinfo);
-        res.status(200);
-    }
+  // The params containing the authorization code
+  const client = req.app.authClient;
+  if (client) {
+    const params: CallbackParamsType = client.callbackParams(req);
+    const checks = { code_verifier: req.app.codeVerifier };
+    const tokenSet: TokenSet = await client.callback(getRedirectURI(), params, checks);
+    const userinfo = await client.userinfo(tokenSet);
+    console.log("THE USER INFO OBJECT", userinfo);
+    res.status(200);
+  }
 });
 
 export default router;

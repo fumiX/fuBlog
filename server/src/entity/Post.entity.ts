@@ -9,36 +9,36 @@ import { AttachmentEntity } from "./Attachment.entity.js";
 @Entity("post")
 export class PostEntity implements Post {
 
-    @PrimaryGeneratedColumn()
-    id?: number
+  @PrimaryGeneratedColumn()
+  id?: number
 
-    @Column()
-    title: string
+  @Column()
+  title: string
 
-    @Column({ nullable: true })
-    description: string
+  @Column({ nullable: true })
+  description: string
 
-    @Column({ nullable: true })
-    markdown: string
+  @Column({ nullable: true })
+  markdown: string
 
-    @Column({ nullable: true })
-    sanitizedHtml: string
+  @Column({ nullable: true })
+  sanitizedHtml: string
 
-    @Column()
-    createdAt: Date
+  @Column()
+  createdAt: Date
 
-    @ManyToOne(() => UserEntity)
-    createdBy?: UserEntity
+  @ManyToOne(() => UserEntity)
+  createdBy?: UserEntity
 
-    @Column({ nullable: true })
-    updatedAt?: Date
+  @Column({ nullable: true })
+  updatedAt?: Date
 
-    @ManyToOne(() => UserEntity, (user) => user.id, { nullable: true })
-    updatedBy?: UserEntity
+  @ManyToOne(() => UserEntity, (user) => user.id, { nullable: true })
+  updatedBy?: UserEntity
 
-    @OneToMany(() => AttachmentEntity, (attachment) => attachment.post, { nullable: true })
-    attachments: AttachmentEntity[]
+  @OneToMany(() => AttachmentEntity, (attachment) => attachment.post, { nullable: true })
+  attachments: AttachmentEntity[]
 
-    @Column({ nullable: false })
-    draft: boolean
+  @Column({ nullable: false })
+  draft: boolean
 }
