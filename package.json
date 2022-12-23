@@ -6,9 +6,9 @@
   "name": "@fumix/fu-blog",
   "version": "0.1.0",
   "workspaces": [
+    "client",
     "common",
-    "server",
-    "client"
+    "server"
   ],
   "scripts": {
     "start": "concurrently \"docker compose up\" \"npm run --workspace client dev\" \"npm run --workspace server dev\"",
@@ -19,6 +19,7 @@
   "author": "fumiX GmbH & Co KG",
   "license": "Apache-2.0",
   "devDependencies": {
+    "@types/node": "^18.11.17",
     "concurrently": "7.6.0"
   },
   "dependencies": {

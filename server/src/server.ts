@@ -1,14 +1,14 @@
-import express, {Application} from "express";
+import express, { Application } from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
-import {corsOptions} from "./config/cors-config.js";
+import { corsOptions } from "./config/cors-config.js";
 import postRoutes from "./routes/posts.js";
-import {generate} from "./service/testdata-generator.js";
-import {AppDataSource} from "./data-source.js";
-
+import attRoutes from "./routes/attachments.js";
+import { generate } from "./service/testdata-generator.js";
+import { AppDataSource } from "./data-source.js";
 
 const app: Application = express();
-const PORT = process.env.SERVER_PORT || 3000;
+const PORT = process.env.SERVER_PORT || 5000;
 
 const BASE_API_PATH = process.env.SERVER_API_PATH || "/api";
 
@@ -26,6 +26,7 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
 app.use(`${BASE_API_PATH}/posts`, postRoutes);
+app.use(`${BASE_API_PATH}/attachments`, attRoutes);
 
 // in production serve the built vue-app from static public folder:
 if (process.env.NODE_ENV === "production") {

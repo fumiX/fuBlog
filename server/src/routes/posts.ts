@@ -93,7 +93,9 @@ router.post("/new", async (req: Request, res: Response) => {
             createdAt: new Date(),
             updatedAt: new Date(),
             sanitizedHtml: san,
-            updatedBy: undefined
+            updatedBy: undefined,
+            draft: req.body.draft || true,
+            attachments: []
         };
 
         const results = await AppDataSource.manager.getRepository(PostEntity).save<PostEntity>(post);
@@ -121,6 +123,9 @@ router.post("/:id", async (req: Request, res: Response) => {
         post.updatedAt = new Date()
         post.sanitizedHtml = san;
         post.updatedBy = await getUser();
+        // TODO
+        post.draft = req.body.draft || true;
+        post.attachments = [];
 
         try {
             const results = await AppDataSource.manager.getRepository(PostEntity).save(post);

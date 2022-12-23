@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from "typeorm";
 import { UserEntity } from "./User.entity.js";
 import { Post } from "@fumix/fu-blog-common";
+import { AttachmentEntity } from "./Attachment.entity.js";
 
 /**
  * Blog post
@@ -35,4 +36,9 @@ export class PostEntity implements Post {
     @ManyToOne(() => UserEntity, (user) => user.id, { nullable: true })
     updatedBy?: UserEntity
 
+    @OneToMany(() => AttachmentEntity, (attachment) => attachment.post, { nullable: true })
+    attachments: AttachmentEntity[]
+
+    @Column({ nullable: false })
+    draft: boolean
 }

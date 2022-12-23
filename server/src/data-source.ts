@@ -1,9 +1,11 @@
-import "reflect-metadata"
-import { DataSource } from "typeorm"
+import "reflect-metadata";
+import { DataSource } from "typeorm";
 import dotenv from "dotenv";
-dotenv.config();
-import { UserEntity } from "./entity/User.entity.js";
 import { PostEntity } from "./entity/Post.entity.js";
+import { UserEntity } from "./entity/User.entity.js";
+import { AttachmentEntity } from "./entity/Attachment.entity.js";
+
+dotenv.config();
 
 export const AppDataSource = new DataSource({
     type: "postgres",
@@ -14,7 +16,7 @@ export const AppDataSource = new DataSource({
     database: process.env.DATABASE_NAME,
     synchronize: false,
     logging: false,
-    entities: [ UserEntity, PostEntity ],
+    entities: [ AttachmentEntity, PostEntity, UserEntity ],
     migrations: ["./src/migration/*.ts"],
     migrationsRun: true,
     subscribers: [],

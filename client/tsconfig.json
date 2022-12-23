@@ -10,6 +10,7 @@
     "strictPropertyInitialization": false,
     "module": "esnext", // needed to make env variables work in vue with import.meta.env
     "moduleResolution": "Node16",
+    "types": ["node"]
   },
 
   "references": [
