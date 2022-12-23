@@ -10,9 +10,9 @@
   "dependencies": {
     "marked": "^4.2.2",
     "pako": "^2.1.0",
-    "dompurify": "^2.4.1",
+    "dompurify": "2.4.1",
     "jsdom": "^20.0.2",
-    "node-fetch": "2.6.7"
+    "node-fetch": "3.3.0"
   },
   "devDependencies": {
     "@types/dompurify": "^2.4.0",
