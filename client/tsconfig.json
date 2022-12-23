@@ -15,6 +15,7 @@
   "references": [
     {
       "path": "./tsconfig.config.json"
-    }
+    },
+    { "path":  "../common" }
   ]
 }

@@ -3,7 +3,7 @@
 /server/public/
 /.idea/
 *.tsbuildinfo
-
+/server/public/
 # Logs
 logs
 *.log

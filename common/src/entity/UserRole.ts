@@ -1,4 +1,4 @@
-import { UserRolePermissions } from "./permission/Permissions";
+import { UserRolePermissions } from "./permission/Permissions.js";
 
 export type UserRolesType = {
     ADMIN: UserRolePermissions,

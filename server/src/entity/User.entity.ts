@@ -1,7 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
-import { User } from "@fumix/fu-blog-common/dist/entity/User";
-import type { UserRole } from "@fumix/fu-blog-common/dist/entity/UserRole";
-import { UserRoles } from "@fumix/fu-blog-common/dist/entity/UserRole";
+import { User, UserRoles } from "@fumix/fu-blog-common";
+import type { UserRole } from "@fumix/fu-blog-common";
 
 /**
  * Blog post

@@ -23,7 +23,7 @@
 import { defineComponent, watch } from "vue";
 import type { PropType } from "vue";
 import { Modal } from "bootstrap";
-import type { ConfirmDialogData } from "@fumix/fu-blog-common/src/confirmdialog";
+import type { ConfirmDialogData } from "@fumix/fu-blog-common";
 
 export default defineComponent({
   props: {

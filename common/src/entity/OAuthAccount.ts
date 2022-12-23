@@ -1,5 +1,5 @@
-import { User } from "./User";
-import type { SupportedOAuthProvider } from "./SupportedOAuthProvider";
+import type { User } from "./User.js";
+import type { SupportedOAuthProvider } from "./SupportedOAuthProvider.js";
 
 
 export type OAuthAccount = {

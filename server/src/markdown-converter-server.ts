@@ -5,7 +5,7 @@ import {
     createSanitizeHtmlFunction,
     createWalkTokensExtension,
     rendererExtension
-} from "../../common/src/markdown-converter-common";
+} from "@fumix/fu-blog-common";
 import fetch from "node-fetch";
 
 const w = new JSDOM("").window as unknown as Window;
@@ -14,3 +14,4 @@ export const sanitizeHtml = createSanitizeHtmlFunction(purify.sanitize);
 
 marked.use(createWalkTokensExtension((url) => fetch(url).then((it) => it.text())));
 marked.use(rendererExtension);
+

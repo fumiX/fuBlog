@@ -1,10 +1,10 @@
 import express, {Application} from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
-import {corsOptions} from "./config/cors-config";
-import postRoutes from "./routes/posts";
-import {generate} from "./service/testdata-generator";
-import {AppDataSource} from "./data-source";
+import {corsOptions} from "./config/cors-config.js";
+import postRoutes from "./routes/posts.js";
+import {generate} from "./service/testdata-generator.js";
+import {AppDataSource} from "./data-source.js";
 
 
 const app: Application = express();

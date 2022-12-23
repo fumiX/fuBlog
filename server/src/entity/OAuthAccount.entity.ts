@@ -1,8 +1,7 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
-import { UserEntity } from "./User.entity";
-import { OAuthAccount } from "@fumix/fu-blog-common/dist/entity/OAuthAccount"
-import type { SupportedOAuthProvider } from "@fumix/fu-blog-common/dist/entity/SupportedOAuthProvider"
-import { SupportedOAuthProviders } from "@fumix/fu-blog-common/dist/entity/SupportedOAuthProvider";
+import { UserEntity } from "./User.entity.js";
+import { OAuthAccount, SupportedOAuthProviders } from "@fumix/fu-blog-common"
+import type { SupportedOAuthProvider } from "@fumix/fu-blog-common";
 
 @Entity("oauth_account")
 @Unique(["oauthId", "provider"])

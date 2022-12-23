@@ -4,8 +4,7 @@ import {
   createSanitizeHtmlFunction,
   createWalkTokensExtension,
   rendererExtension
-} from "../../common/src/markdown-converter-common";
-import fetch from "node-fetch";
+} from "@fumix/fu-blog-common";
 
 marked.use(createWalkTokensExtension((url) => fetch(url).then((it) => it.text())));
 marked.use(rendererExtension);
