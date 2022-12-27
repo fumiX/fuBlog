@@ -17,8 +17,8 @@
 </style>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from "vue";
 import type { PropType } from "vue";
+import { defineComponent, ref, watch } from "vue";
 import { sanitizeHtml } from "@fumix/fu-blog-common";
 
 export default defineComponent({

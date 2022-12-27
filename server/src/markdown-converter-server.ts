@@ -4,4 +4,3 @@ import fetch from "node-fetch";
 
 marked.use(createWalkTokensExtension((url) => fetch(url).then((it) => it.text())));
 marked.use(rendererExtension);
-

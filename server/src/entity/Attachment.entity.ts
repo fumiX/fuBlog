@@ -1,22 +1,20 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { PostEntity } from "./Post.entity.js";
-import { UserEntity } from "./User.entity.js";
 
 @Entity()
 export class AttachmentEntity {
-
   @PrimaryGeneratedColumn()
-  id?: number
+  id?: number;
 
-  @Column({nullable: false})
-  filename: string
+  @Column({ nullable: false })
+  filename: string;
 
-  @Column({type: "bytea", nullable: false})
-  binaryData: Buffer
+  @Column({ type: "bytea", nullable: false })
+  binaryData: Buffer;
 
-  @ManyToOne(() => PostEntity, {nullable: false})
-  post: PostEntity
+  @ManyToOne(() => PostEntity, { nullable: false })
+  post: PostEntity;
 
-  @Column({nullable: false})
-  mimeType: string
+  @Column({ nullable: false })
+  mimeType: string;
 }

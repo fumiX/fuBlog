@@ -35,10 +35,10 @@
 <style lang="scss" scoped></style>
 
 <script lang="ts">
+import type { PropType } from "vue";
 import { defineComponent } from "vue";
 import type { Post } from "@fumix/fu-blog-common";
-import type { PropType } from "vue";
-import { faBookReader, faTrash, faEdit } from "@fortawesome/free-solid-svg-icons";
+import { faBookReader, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { faClock } from "@fortawesome/free-regular-svg-icons";
 
 export default defineComponent({

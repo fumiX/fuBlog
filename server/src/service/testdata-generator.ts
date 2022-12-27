@@ -23,11 +23,11 @@ export async function generate() {
     return;
   }
 
-  Array.from({length: usersCount}).forEach(() => {
-    createRandomUser().then(user => {
-      Array.from({length: postsPerUser}).forEach(() => {
-        createRandomPost(user).then(post => {
-          Array.from({length: attachmentsPerPost}).forEach(() => {
+  Array.from({ length: usersCount }).forEach(() => {
+    createRandomUser().then((user) => {
+      Array.from({ length: postsPerUser }).forEach(() => {
+        createRandomPost(user).then((post) => {
+          Array.from({ length: attachmentsPerPost }).forEach(() => {
             createRandomAttachment(post);
           });
         });
@@ -48,11 +48,11 @@ export async function createRandomUser(): Promise<UserEntity> {
       email: faker.internet.email(firstName, lastName),
       firstName: firstName,
       lastName: lastName,
-      roles: []
-    }
+      roles: [],
+    };
     return AppDataSource.manager.getRepository(UserEntity).save(user);
   } catch (e) {
-    console.log("Error creating user", e)
+    console.log("Error creating user", e);
   }
   return new Promise(() => null);
 }
@@ -73,13 +73,12 @@ export async function createRandomPost(createdBy: UserEntity): Promise<PostEntit
       createdAt: faker.date.recent(),
       sanitizedHtml: sanitized,
       draft: false,
-      attachments: []
+      attachments: [],
     };
     const postRep = AppDataSource.manager.getRepository(PostEntity);
-    return (await postRep.save(post));
+    return await postRep.save(post);
   } catch (e) {
     console.log("Error generating post");
-
   }
   return new Promise(() => null);
 }
@@ -91,13 +90,12 @@ export async function createRandomAttachment(post: PostEntity): Promise<Attachme
       post: post,
       binaryData: data,
       filename: faker.random.word() + ".png",
-      mimeType: "image/png"
-    }
+      mimeType: "image/png",
+    };
     const attRep = AppDataSource.manager.getRepository(AttachmentEntity);
-    return (await attRep.save(attachment));
+    return await attRep.save(attachment);
   } catch (e) {
     console.log("Error generating attachment", e);
-
   }
   return new Promise(() => null);
 }

@@ -17,7 +17,7 @@ const BASE_API_PATH = process.env.SERVER_API_PATH || "/api";
 AppDataSource.initialize()
   .then(async () => {
     generate();
-    console.log("Database initialized")
+    console.log("Database initialized");
   })
   .catch((err) => console.log("Error initializing database", err));
 

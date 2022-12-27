@@ -9,7 +9,7 @@ export async function init(req: Request, res: Response, next: NextFunction) {
       client_id: process.env.OAUTH_CLIENT_ID!,
       client_secret: process.env.OAUTH_CLIENT_SECRET!,
       redirect_uris: [`${getRedirectURI()}`],
-      response_types: ["code"]
+      response_types: ["code"],
     });
     req.app.authIssuer = issuer;
     req.app.authClient = client;
@@ -18,7 +18,7 @@ export async function init(req: Request, res: Response, next: NextFunction) {
 }
 
 export function getRedirectURI(): string {
-  return `http://${process.env.APP_HOST}:${process.env.SERVER_PORT}/auth/callback`
+  return `http://${process.env.APP_HOST}:${process.env.SERVER_PORT}/auth/callback`;
 }
 
 export function getDomain(): string {

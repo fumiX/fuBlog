@@ -2,7 +2,6 @@ import express, { Request, Response, Router } from "express";
 import { CallbackParamsType, generators, TokenSet } from "openid-client";
 import { getRedirectURI } from "../auth/middleware.js";
 
-
 const router: Router = express.Router();
 
 /**
@@ -12,14 +11,13 @@ const router: Router = express.Router();
  * injections attacks. For more information visit: {@link https://oauth.net/2/pkce/}
  */
 router.get("/url", (req: Request, res: Response) => {
-
   // This is an extract from https://github.com/panva/node-openid-client#AuthorizationCodeFlow
   const codeVerifier = generators.codeVerifier();
   const codeChallenge = generators.codeChallenge(codeVerifier);
   const authUrl = req.app.authClient!.authorizationUrl({
     scope: "openid email profile",
     code_challenge: codeChallenge,
-    code_challenge_method: "S256"
+    code_challenge_method: "S256",
   });
 
   // TODO: This is only for testing - the code verifier should be stored in the session. In case of a cookie it
