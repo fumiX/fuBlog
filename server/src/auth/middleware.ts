@@ -20,7 +20,3 @@ export async function init(req: Request, res: Response, next: NextFunction) {
 export function getRedirectURI(): string {
     return `http://${process.env.APP_HOST}:${process.env.SERVER_PORT}/auth/callback`
 }
-
-export function getDomain(): string {
-    return `http://${process.env.APP_HOST}:${process.env.APP_PORT}/`;
-}

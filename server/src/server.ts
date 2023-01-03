@@ -1,9 +1,9 @@
-import express, {Application, Request, Response} from "express";
+import express, { Application } from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import { corsOptions } from "./config/cors-config";
 import postRoutes from "./routes/posts";
-import authRoutes from "./routes/auth";
+import authRoutes, { authenticate } from "./routes/auth";
 import { AppDataSource } from "./data-source";
 import { init as initAuth } from "./auth/middleware";
 
@@ -20,13 +20,22 @@ app.use(cors(corsOptions));
 
 app.use(bodyParser.json());
 
-// The authorization (OAuth2) middleware
+// The OAuth2 middleware (used for authentication)
 app.use(initAuth);
-// The authorization controller routes
+
+// Check the authentication status
+app.all(`${BASE_API_URL}/posts`, authenticate)
+
+// The authentication controller routes
 app.use("/auth", authRoutes);
 
+// The CRUD routes
 app.use(`${BASE_API_URL}/posts`, postRoutes);
 
 app.listen(PORT, () => {
     console.log(`fuBlog server running on port: ${PORT}`);
 });
+
+export function getDomain(): string {
+    return `http://${process.env.APP_HOST}:${process.env.APP_PORT}`;
+}
