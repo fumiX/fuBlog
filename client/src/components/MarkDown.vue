@@ -9,13 +9,17 @@
     max-width: 100% !important;
     height: auto !important;
   }
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
 }
 </style>
 
 <script lang="ts">
 import { defineComponent, ref, watch } from "vue";
 import type { PropType } from "vue";
-import { sanitizeHtml } from "./../markdown-converter-client";
+import { sanitizeHtml } from "@fumix/fu-blog-common";
 
 export default defineComponent({
   props: {

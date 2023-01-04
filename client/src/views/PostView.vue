@@ -1,6 +1,6 @@
 <template>
   <div class="container" v-if="post">
-    <div class="jumbotron mb-4 p-3 p-md-5 post-bg">
+    <div class="jumbotron rounded mb-4 p-3 p-md-5 post-bg">
       <div class="col-md-6 px-0">
         <!-- <h1 class="display-2 font-italic">{{ post.title }}</h1> -->
         <!-- <p class="lead my-3">Liste aller Blogposts.</p> -->
@@ -19,23 +19,23 @@
         <div class="card flex-md-row mb-4 box-shadow h-md-250">
           <div class="card-body">
             <div class="clearfix mb-4">
-              <button class="btn btn-sm btn-outline-primary" @click="$router.push('/posts')">
+              <button class="btn btn-sm btn-primary" @click="$router.push('/posts')">
                 <fa-icon :icon="faArrowLeft" />
                 Zurück
               </button>
-              <button class="btn btn-sm btn-outline-danger float-end" @click="showConfirm(post)">
+              <button class="btn btn-sm btn-danger float-end" @click="showConfirm(post)">
                 <fa-icon :icon="faTrash" />
                 Löschen
               </button>
-              <button class="btn btn-sm btn-outline-secondary float-end mx-2" @click="$router.push(`/posts/post/form/?id=${post?.id}`)">
+              <button class="btn btn-sm btn-secondary float-end mx-2" @click="$router.push(`/posts/post/form/?id=${post?.id}`)">
                 <fa-icon :icon="faEdit" />
                 Ändern
               </button>
             </div>
-            <h1 class="mb-2 display-4 font-italic">
+            <h1 class="mb-0 display-4 font-italic">
               {{ post.title }}
             </h1>
-            <div class="mb-1 text-muted">
+            <div class="mb-2 text-muted">
               <fa-icon :icon="faClock" />
               {{ $luxonDateTime.fromISO(post.createdAt.toString()).toRelativeCalendar() }}
               <span v-if="post.createdBy">
@@ -45,7 +45,7 @@
             </div>
             <!-- <p class="card-text my-4">{{ post.description }}</p> -->
 
-            <div v-html="post.sanitizedHtml"></div>
+            <div v-html="post.sanitizedHtml" class="mt-4"></div>
           </div>
         </div>
       </div>
@@ -68,9 +68,8 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import { useRoute } from "vue-router";
-import type { Post } from "./../../../server/src/entity/Post";
+import type { ConfirmDialogData, Post } from "@fumix/fu-blog-common";
 import ConfirmDialog from "../components/ConfirmDialog.vue";
-import type { ConfirmDialogData } from "./../../../interfaces/confirmdialog";
 import { faArrowLeft, faTrash, faEdit } from "@fortawesome/free-solid-svg-icons";
 import { faClock } from "@fortawesome/free-regular-svg-icons";
 
@@ -96,7 +95,7 @@ export default defineComponent({
     try {
       const route = useRoute();
       const id = route.params.id;
-      const res = await fetch(`http://localhost:5000/api/posts/${id}`);
+      const res = await fetch(`/api/posts/${id}`);
       const response = await res.json();
       this.post = response.data;
       this.loading = false;
@@ -109,7 +108,7 @@ export default defineComponent({
   methods: {
     async deletePost(post: Post) {
       try {
-        const res = await fetch(`http://localhost:5000/api/posts/delete/${post.id}`);
+        const res = await fetch(`/api/posts/delete/${post.id}`);
         await res.json();
         this.$router.push("/posts");
       } catch (e) {

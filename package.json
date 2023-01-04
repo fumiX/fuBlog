@@ -1,20 +1,26 @@
 {
-	"name": "fu-blog",
-	"version": "0.1.0",
-	"workspaces": [
-		"client",
-		"server"
-	],
-	"scripts": {
-		"start": "concurrently \"docker-compose up\" \"npm run --prefix client dev\" \"npm run --prefix server dev\"",
-		"lint": "concurrently \"npm run --prefix client lint\" \"npm run --prefix server lint\""
-	},
-	"author": "fumiX GmbH & Co KG",
-	"license": "Apache-2.0",
-	"devDependencies": {
-		"concurrently": "^7.5.0"
-	},
-	"dependencies": {
-		"dotenv": "^16.0.3"
-	}
+  "engines": {
+    "node": ">=18.0.0 <19.0.0",
+    "npm": ">=8.0.0 <9.0.0"
+  },
+  "name": "@fumix/fu-blog",
+  "version": "0.1.0",
+  "workspaces": [
+    "client",
+    "common",
+    "server"
+  ],
+  "scripts": {
+    "start": "concurrently \"docker compose up\" \"npm run --workspace client dev\" \"npm run --workspace server dev\"",
+    "start-client": "npm run dev --workspace client",
+    "start-server": "npm run dev --workspace server",
+    "lint": "npm run --workspaces lint",
+    "lintfix": "npm run --workspaces lint --fix",
+    "build": "npm run -w common build && npm run -ws build"
+  },
+  "author": "fumiX GmbH & Co KG",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "concurrently": "7.6.0"
+  }
 }
