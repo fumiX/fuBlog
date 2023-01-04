@@ -4,7 +4,7 @@ import { faker } from "@faker-js/faker/locale/de";
 import { AttachmentEntity } from "../entity/Attachment.entity.js";
 import { PostEntity } from "../entity/Post.entity.js";
 import { UserEntity } from "../entity/User.entity.js";
-
+import { createDomPurify } from "../markdown-converter-server.js";
 import fs from "fs";
 
 const usersCount = 10;
@@ -28,7 +28,8 @@ export async function generate() {
       Array.from({ length: postsPerUser }).forEach(() => {
         createRandomPost(user).then((post) => {
           Array.from({ length: attachmentsPerPost }).forEach(() => {
-            createRandomAttachment(post);
+            // TODO: Uncomment when it's working again
+            // createRandomAttachment(post);
           });
         });
       });
@@ -64,7 +65,7 @@ export async function createRandomUser(): Promise<UserEntity> {
 export async function createRandomPost(createdBy: UserEntity): Promise<PostEntity> {
   try {
     const dirty = faker.lorem.sentences(29);
-    const sanitized = await sanitizeHtml(dirty);
+    const sanitized = sanitizeHtml(dirty, createDomPurify());
     const post: PostEntity = {
       title: faker.lorem.sentence(4),
       description: faker.lorem.sentences(8),

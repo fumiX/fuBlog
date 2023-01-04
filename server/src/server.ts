@@ -1,4 +1,4 @@
-import express, { Application, Request, Response } from "express";
+import express, { Application } from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import { corsOptions } from "./config/cors-config.js";

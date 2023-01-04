@@ -3,6 +3,9 @@ import { AppDataSource } from "../data-source.js";
 import { sanitizeHtml } from "@fumix/fu-blog-common";
 import { UserEntity } from "../entity/User.entity.js";
 import { PostEntity } from "../entity/Post.entity.js";
+import { JSDOM } from "jsdom";
+import DOMPurify from "dompurify";
+import { createDomPurify } from "../markdown-converter-server.js";
 
 const router: Router = express.Router();
 
@@ -84,7 +87,6 @@ router.get("/:id", async (req: Request, res: Response) => {
 // CREATE NEW POST
 router.post("/new", async (req: Request, res: Response) => {
   try {
-    const san = await sanitizeHtml(req.body.markdown);
     const post: PostEntity = {
       title: req.body.title,
       description: req.body.description,
@@ -92,7 +94,7 @@ router.post("/new", async (req: Request, res: Response) => {
       createdBy: await getUser(),
       createdAt: new Date(),
       updatedAt: new Date(),
-      sanitizedHtml: san,
+      sanitizedHtml: sanitizeHtml(req.body.markdown, createDomPurify()),
       updatedBy: undefined,
       draft: req.body.draft || true,
       attachments: [],
@@ -114,13 +116,11 @@ router.post("/:id", async (req: Request, res: Response) => {
   if (post === null) {
     res.status(404).json({ error: "No such post" });
   } else {
-    const san = await sanitizeHtml(req.body.markdown);
-
     post.title = req.body.title;
     post.description = req.body.description;
     post.markdown = req.body.markdown;
     post.updatedAt = new Date();
-    post.sanitizedHtml = san;
+    post.sanitizedHtml = sanitizeHtml(req.body.markdown, createDomPurify());
     post.updatedBy = await getUser();
     // TODO
     post.draft = req.body.draft || true;

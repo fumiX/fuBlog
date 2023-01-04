@@ -1,7 +1,7 @@
 import { marked } from "marked";
 import { Buffer } from "buffer";
 import pako from "pako";
-import DOMPurify from "dompurify";
+import { DOMPurifyI } from "dompurify";
 
 const KROKI_SERVICE_URL = "https://kroki.io";
 const KROKI_DIAGRAM_INFOSTRING = "diagram-plantuml";
@@ -32,8 +32,8 @@ export const rendererExtension: marked.MarkedExtension = {
   },
 };
 
-export const sanitizeHtml: (input: string) => string = (input) => {
-  return DOMPurify.sanitize(marked.parse(input), {
+export const sanitizeHtml: (input: string, purify: DOMPurifyI) => string = (input, purify) => {
+  return purify.sanitize(marked.parse(input), {
     // Allowed tags and attributes inside markdown
     ADD_TAGS: ["iframe"],
     ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling"],
