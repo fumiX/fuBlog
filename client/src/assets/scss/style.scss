@@ -1,3 +1,5 @@
+/* GLOBAL STYLES */
+
 .loader {
     position: fixed;
     z-index: 1031;
@@ -30,12 +32,40 @@ pre {
 
 .card-body {
     svg {
+        max-width: 100%;
         background: transparent !important;
+    }
+    img {
+        max-width: 100%;
     }
 }
 
 .jumbotron {
     h1 {
         color: $hero-text-color;
+    }
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.page-item {
+    cursor: pointer;
+    &.disabled {
+        cursor: default;
+    }
+    .page-link {
+        &:focus {
+            box-shadow: none !important;
+        }
+    }
+}
+
+.form-control {
+    &:focus {
+        outline: 0;
+        box-shadow: none !important;
+        background-color: $form-control-background-color;
     }
 }

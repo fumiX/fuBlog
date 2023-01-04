@@ -21,16 +21,12 @@
             </li>
             <li class="nav-item">
               <RouterLink to="/" class="nav-link">Home</RouterLink>
-              <!-- <a class="nav-link active" aria-current="page" href="#">Home</a> -->
             </li>
             <li class="nav-item">
               <RouterLink to="/posts" class="nav-link">Posts</RouterLink>
             </li>
           </ul>
-          <form class="d-flex">
-            <input class="form-control me-2" type="search" placeholder="Suche" aria-label="Suche" />
-            <button class="btn btn-sm btn-outline-primary" type="submit">Suche</button>
-          </form>
+          <search-component :searchString="searchQuery" @searched="startSearch($event)" @operatorChanged="setOperator($event)"></search-component>
         </div>
       </div>
     </nav>
@@ -39,8 +35,42 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { RouterLink, RouterView } from "vue-router";
+<script lang="ts">
+import { defineComponent, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import SearchComponent from "./components/SearchComponent.vue";
+
+export default defineComponent({
+  components: { SearchComponent },
+  setup() {
+    const route = useRoute();
+    const searchQuery = ref<string>("");
+    const router = useRouter();
+
+    const setOperator = (operator: string) => {
+      console.log("OP", operator);
+      router.replace({ query: { ...route.query, operator: operator } });
+    };
+
+    watch(route, (value) => {
+      // prefill search input from queryParam
+      if (value.query.search) {
+        searchQuery.value = value.query.search as string;
+      }
+    });
+
+    return {
+      searchQuery,
+      setOperator,
+    };
+  },
+
+  methods: {
+    startSearch(search: string, operator: string = "and") {
+      this.$router.push(`/posts/?search=${search}&operator=${operator}`);
+    },
+  },
+});
 </script>
 
 <style lang="scss"></style>

@@ -1,6 +1,6 @@
 import { createApp } from "vue";
 import App from "./App.vue";
-import router from "./router";
+import router from "./router/index.js";
 import { DateTime } from "luxon";
 import "./assets/scss/custom.scss";
 import "./assets/scss/style.scss";
