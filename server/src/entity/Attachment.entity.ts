@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
 import { PostEntity } from "./Post.entity.js";
 
 @Entity()
@@ -13,7 +13,7 @@ export class AttachmentEntity {
   binaryData: Buffer;
 
   @ManyToOne(() => PostEntity, { nullable: false })
-  post: PostEntity;
+  post: Relation<PostEntity>;
 
   @Column({ nullable: false })
   mimeType: string;
