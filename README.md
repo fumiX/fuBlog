@@ -45,7 +45,7 @@ npm run build
 
 ## Start the server and vue3 client for development
 ```bash
-npm start
+docker compose up -d && npm start
 ```
 
 ## Starting a task in the subprojects
