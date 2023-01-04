@@ -3,7 +3,7 @@ import { Issuer } from "openid-client";
 
 export async function init(req: Request, res: Response, next: NextFunction) {
   const initialized = !!req.app.authIssuer && req.app.authClient;
-  if (!initialized) {
+  if (!initialized && process.env.OAUTH_PROVIDER_URL) {
     const issuer = await Issuer.discover(`${process.env.OAUTH_PROVIDER_URL}`);
     const client = new issuer.Client({
       client_id: process.env.OAUTH_CLIENT_ID!,
