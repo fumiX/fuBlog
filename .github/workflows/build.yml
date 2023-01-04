@@ -3,32 +3,59 @@ name: build
 on: push
 
 jobs:
-  tasks:
+  basic-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.node-version'
+          cache: 'npm'
+          cache-dependency-key: 'package-lock.json'
+      - run: npm ci
+      - run: npm run check-packages
+
+  build-common:
+    needs: basic-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: common/dist/
+          key: common_dist-${{ runner.os }}-${{ hashFiles('.node-version', 'package-lock.json') }}-${{ github.sha }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.node-version'
+          cache: 'npm'
+          cache-dependency-key: 'package-lock.json'
+      - run: npm ci
+      - run: npm run lint --workspace common
+      - run: npm run build --workspace common
+
+  build-app:
+    needs: build-common
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
       matrix:
-        workspace: [ client, common, server ]
-        task: [ lint, build ]
+        workspace: [ client, server ]
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: common/dist/
+          key: common_dist-${{ runner.os }}-${{ hashFiles('.node-version', 'package-lock.json') }}-${{ github.sha }}
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version-file: '.node-version'
-      - run: npm install
-      - run: npm run ${{ matrix.task }} --workspace ${{ matrix.workspace }}
-        continue-on-error: true
-
-  build:
-    needs: tasks
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version-file: '.node-version'
-      - run: npm install
-      - run: npm run build
+          cache: 'npm'
+          cache-dependency-key: 'package-lock.json'
+      - run: npm ci
+      - run: npm run lint --workspace ${{ matrix.workspace }}
+      - run: npm run build --workspace ${{ matrix.workspace }}

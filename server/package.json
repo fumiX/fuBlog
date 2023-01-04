@@ -2,33 +2,16 @@
   "name": "@fumix/fu-blog-server",
   "version": "0.1.0",
   "description": "Backend Server for Blog in Node/Express",
-  "main": "index.js",
   "scripts": {
     "dev": "nodemon -r dotenv/config ./src/server.ts",
     "build": "tsc",
     "run-prod": "node ./dist/server.js",
     "lint": "eslint src/**/*.ts",
     "format": "eslint src/**/*.ts --fix",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"At the moment there are no tests for the 'server' package …\"",
     "typeorm": "typeorm-ts-node-commonjs"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/fumiX/fuBlog.git"
-  },
-  "keywords": [
-    "blog",
-    "nodejs",
-    "express",
-    "typescript"
-  ],
-  "author": "fumiX GmbH & Co KG",
-  "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/fumiX/fuBlog/issues"
-  },
   "type": "module",
-  "homepage": "https://github.com/fumiX/fuBlog#readme",
   "dependencies": {
     "@fumix/fu-blog-common": "*",
     "body-parser": "^1.20.1",
