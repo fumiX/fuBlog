@@ -1,7 +1,7 @@
-/node_modules/
 /*/dist/
 /server/public/
 /.idea/
+node_modules/
 # TypeScript cache
 *.tsbuildinfo
 
