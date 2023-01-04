@@ -14,14 +14,15 @@
     "build": "npm run -w common build && npm run -ws build",
     "clean": "ts-node scripts/clean-all.ts",
     "check-packages": "ts-node scripts/check-packages.ts",
-    "lint": "prettier --config .prettierrc '*/src/**/*.ts' && npm run --workspaces lint",
-    "lintfix": "prettier --config .prettierrc '*/src/**/*.ts' --write && npm run --workspaces lint --fix",
+    "lint": "prettier --check --config .prettierrc '*/src/**/*.(ts|vue)' && npm run --workspaces lint",
+    "lintfix": "prettier --config .prettierrc '*/src/**/*.(ts|vue)' --write && npm run --workspaces lint --fix",
     "start": "concurrently \"docker compose up\" \"npm run --workspace client dev\" \"npm run --workspace server dev\"",
     "test": "npm run --workspaces test"
   },
   "devDependencies": {
     "concurrently": "7.6.0",
     "eslint-plugin-prettier": "4.2.1",
+    "eslint-plugin-unused-imports": "2.0.0",
     "json-source-map": "0.6.1",
     "npm-run-all": "4.1.5",
     "prettier": "2.8.1"

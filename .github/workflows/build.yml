@@ -13,7 +13,7 @@ jobs:
         with:
           node-version-file: '.node-version'
           cache: 'npm'
-          cache-dependency-key: 'package-lock.json'
+          cache-dependency-path: 'package-lock.json'
       - run: npm ci
       - run: npm run check-packages
 
