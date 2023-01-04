@@ -28,8 +28,7 @@ export async function generate() {
       Array.from({ length: postsPerUser }).forEach(() => {
         createRandomPost(user).then((post) => {
           Array.from({ length: attachmentsPerPost }).forEach(() => {
-            // TODO: Uncomment when it's working again
-            // createRandomAttachment(post);
+            createRandomAttachment(post);
           });
         });
       });
