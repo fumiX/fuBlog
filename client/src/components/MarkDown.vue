@@ -17,9 +17,10 @@
 </style>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from "vue";
 import type { PropType } from "vue";
+import { defineComponent, ref, watch } from "vue";
 import { sanitizeHtml } from "@fumix/fu-blog-common";
+import DOMPurify from "dompurify";
 
 export default defineComponent({
   props: {
@@ -36,9 +37,7 @@ export default defineComponent({
     watch(props, async () => {
       try {
         emits.emit("loading", true);
-        const md = props.markdown;
-        const san = await sanitizeHtml(md as string);
-        sanitizedHtml.value = san;
+        sanitizedHtml.value = sanitizeHtml(props.markdown as string, DOMPurify);
       } catch (e) {
         // TODO erro handling
       } finally {

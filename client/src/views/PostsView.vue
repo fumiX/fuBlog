@@ -81,11 +81,25 @@ export default defineComponent({
     const loadPostsWithPagination = async (pageIndex: number, search: string, operator: string) => {
       try {
         let link = !search ? `/api/posts/page/${pageIndex}/count/${itemsPerPage}` : `/api/posts/page/${pageIndex}/count/${itemsPerPage}/search/${search}/operator/${operator}`;
-        const res = await fetch(link);
-        const response = await res.json();
-        posts.value = response.data[0];
-        totalPages.value = Math.ceil((await response.data[1]) / itemsPerPage);
-        currentPage.value = pageIndex;
+        const res: Response = await fetch(link);
+        if (res.ok) {
+          const response = await res.json();
+          posts.value = response.data[0];
+          totalPages.value = Math.ceil((await response.data[1]) / itemsPerPage);
+          currentPage.value = pageIndex;
+        } else {
+          if (res.status === 401) {
+            // const response = await res.json();
+            // const reason = response.data.error;
+
+            const authUrlRequest = new Request("http://localhost:5000/auth/url", {
+              method: "GET",
+            });
+            const response = await fetch(authUrlRequest);
+            const data = await response.json();
+            window.location.href = data.authUrl;
+          }
+        }
         loading.value = false;
       } catch (e) {
         console.log("ERROR: ", e);

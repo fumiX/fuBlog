@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { UserEntity } from "./User.entity.js";
 import { Post } from "@fumix/fu-blog-common";
 import { AttachmentEntity } from "./Attachment.entity.js";
@@ -8,37 +8,36 @@ import { AttachmentEntity } from "./Attachment.entity.js";
  */
 @Entity("post")
 export class PostEntity implements Post {
-
   @PrimaryGeneratedColumn()
-  id?: number
+  id?: number;
 
   @Column()
-  title: string
+  title: string;
 
   @Column({ nullable: true })
-  description: string
+  description: string;
 
   @Column({ nullable: true })
-  markdown: string
+  markdown: string;
 
   @Column({ nullable: true })
-  sanitizedHtml: string
+  sanitizedHtml: string;
 
   @Column()
-  createdAt: Date
+  createdAt: Date;
 
   @ManyToOne(() => UserEntity)
-  createdBy?: UserEntity
+  createdBy?: UserEntity;
 
   @Column({ nullable: true })
-  updatedAt?: Date
+  updatedAt?: Date;
 
   @ManyToOne(() => UserEntity, (user) => user.id, { nullable: true })
-  updatedBy?: UserEntity
+  updatedBy?: UserEntity;
 
   @OneToMany(() => AttachmentEntity, (attachment) => attachment.post, { nullable: true })
-  attachments: AttachmentEntity[]
+  attachments: AttachmentEntity[];
 
   @Column({ nullable: false })
-  draft: boolean
+  draft: boolean;
 }

@@ -16,8 +16,8 @@ const BASE_API_PATH = process.env.SERVER_API_PATH || "/api";
 
 AppDataSource.initialize()
   .then(async () => {
-    generate();
-    console.log("Database initialized")
+    await generate();
+    console.log("Database initialized");
   })
   .catch((err) => console.log("Error initializing database", err));
 
@@ -29,7 +29,7 @@ app.use(bodyParser.json());
 app.use(initAuth);
 
 // Check the authentication status
-app.all(`${BASE_API_PATH}/posts`, authenticate)
+app.all(`${BASE_API_PATH}/posts/*`, authenticate);
 
 // The authentication controller routes
 app.use("/auth", authRoutes);

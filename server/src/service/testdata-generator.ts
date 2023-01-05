@@ -4,7 +4,7 @@ import { faker } from "@faker-js/faker/locale/de";
 import { AttachmentEntity } from "../entity/Attachment.entity.js";
 import { PostEntity } from "../entity/Post.entity.js";
 import { UserEntity } from "../entity/User.entity.js";
-
+import { createDomPurify } from "../markdown-converter-server.js";
 import fs from "fs";
 
 const usersCount = 10;
@@ -24,11 +24,12 @@ export async function generate() {
   }
 
   Array.from({ length: usersCount }).forEach(() => {
-    createRandomUser().then(user => {
+    createRandomUser().then((user: UserEntity) => {
       Array.from({ length: postsPerUser }).forEach(() => {
-        createRandomPost(user).then(post => {
+        createRandomPost(user).then((post: PostEntity) => {
           Array.from({ length: attachmentsPerPost }).forEach(() => {
-            createRandomAttachment(post);
+            // TODO: Uncomment when it's working again
+            // createRandomAttachment(post);
           });
         });
       });
@@ -48,11 +49,11 @@ export async function createRandomUser(): Promise<UserEntity> {
       email: faker.internet.email(firstName, lastName),
       firstName: firstName,
       lastName: lastName,
-      roles: []
-    }
+      roles: [],
+    };
     return AppDataSource.manager.getRepository(UserEntity).save(user);
   } catch (e) {
-    console.log("Error creating user", e)
+    console.log("Error creating user", e);
   }
   return new Promise(() => null);
 }
@@ -64,7 +65,7 @@ export async function createRandomUser(): Promise<UserEntity> {
 export async function createRandomPost(createdBy: UserEntity): Promise<PostEntity> {
   try {
     const dirty = faker.lorem.sentences(29);
-    const sanitized = await sanitizeHtml(dirty);
+    const sanitized = sanitizeHtml(dirty, createDomPurify());
     const post: PostEntity = {
       title: faker.lorem.sentence(4),
       description: faker.lorem.sentences(8),
@@ -76,10 +77,9 @@ export async function createRandomPost(createdBy: UserEntity): Promise<PostEntit
       attachments: []
     };
     const postRep = AppDataSource.manager.getRepository(PostEntity);
-    return (await postRep.save(post));
+    return await postRep.save(post);
   } catch (e) {
     console.log("Error generating post", e);
-
   }
   return new Promise(() => null);
 }
@@ -91,13 +91,12 @@ export async function createRandomAttachment(post: PostEntity): Promise<Attachme
       post: post,
       binaryData: data,
       filename: faker.random.word() + ".png",
-      mimeType: "image/png"
-    }
+      mimeType: "image/png",
+    };
     const attRep = AppDataSource.manager.getRepository(AttachmentEntity);
-    return (await attRep.save(attachment));
+    return await attRep.save(attachment);
   } catch (e) {
     console.log("Error generating attachment", e);
-
   }
   return new Promise(() => null);
 }
