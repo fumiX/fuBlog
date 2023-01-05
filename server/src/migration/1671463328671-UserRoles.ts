@@ -1,7 +1,6 @@
-import { MigrationInterface, QueryRunner, Table, TableColumn } from "typeorm"
+import { MigrationInterface, QueryRunner, Table, TableColumn } from "typeorm";
 
 export class UserRoles1671463328671 implements MigrationInterface {
-
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
@@ -29,16 +28,16 @@ export class UserRoles1671463328671 implements MigrationInterface {
             name: "provider",
             type: "enum",
             enum: ["FAKE", "GOOGLE"],
-          }
+          },
         ],
         foreignKeys: [
           {
             columnNames: ["user_id"],
             referencedTableName: "user",
             referencedColumnNames: ["id"],
-          }
-        ]
-      })
+          },
+        ],
+      }),
     );
     await queryRunner.addColumn(
       "user",
@@ -47,8 +46,8 @@ export class UserRoles1671463328671 implements MigrationInterface {
         type: "enum",
         isArray: true,
         enum: ["ADMIN", "POST_CREATE", "POST_EDIT", "POST_DELETE"],
-      })
-    )
+      }),
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
@@ -56,12 +55,9 @@ export class UserRoles1671463328671 implements MigrationInterface {
       "user",
       new TableColumn({
         name: "roles",
-        type: "enum"
-      })
+        type: "enum",
+      }),
     );
-    await queryRunner.dropTable(
-      "oauth_account"
-    );
+    await queryRunner.dropTable("oauth_account");
   }
-
 }

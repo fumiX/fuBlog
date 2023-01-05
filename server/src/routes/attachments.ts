@@ -7,15 +7,14 @@ const router: Router = express.Router();
 // get attachments associated to post
 router.get("/post/:id", async (req: Request, res: Response) => {
   const postId = +req.params.id;
-  const foundAttachments = await AppDataSource.manager.getRepository(AttachmentEntity)
-    .findBy({
-      post: {
-        id: postId
-      }
-    });
+  const foundAttachments = await AppDataSource.manager.getRepository(AttachmentEntity).findBy({
+    post: {
+      id: postId,
+    },
+  });
 
   if (foundAttachments != null) {
-    res.status(200).json({data: foundAttachments});
+    res.status(200).json({ data: foundAttachments });
   } else {
     res.sendStatus(404);
   }
@@ -24,11 +23,10 @@ router.get("/post/:id", async (req: Request, res: Response) => {
 // get specific attachment
 router.get("/attachment/:id", async (req: Request, res: Response) => {
   const attachmentId = +req.params.id;
-  const foundAttachment = await AppDataSource.manager.getRepository(AttachmentEntity)
-    .findOneBy({id: attachmentId});
+  const foundAttachment = await AppDataSource.manager.getRepository(AttachmentEntity).findOneBy({ id: attachmentId });
 
   if (foundAttachment != null) {
-    res.status(200).json({data: foundAttachment});
+    res.status(200).json({ data: foundAttachment });
   } else {
     res.sendStatus(404);
   }
@@ -37,8 +35,7 @@ router.get("/attachment/:id", async (req: Request, res: Response) => {
 // get single attachment as binary data, file name is arbitrary
 router.get("/attachment/:id/:filename", async (req: Request, res: Response) => {
   const attachmentId = +req.params.id;
-  const foundAttachment = await AppDataSource.manager.getRepository(AttachmentEntity)
-    .findOneBy({id: attachmentId});
+  const foundAttachment = await AppDataSource.manager.getRepository(AttachmentEntity).findOneBy({ id: attachmentId });
 
   if (foundAttachment != null) {
     res.type(foundAttachment.mimeType).status(200).send(foundAttachment.binaryData);

@@ -2,8 +2,8 @@
 /*/dist/
 /server/public/
 /.idea/
+# TypeScript cache
 *.tsbuildinfo
-/server/public/
 
 ###
 
@@ -51,9 +51,6 @@ jspm_packages/
 
 # TypeScript v1 declaration files
 typings/
-
-# TypeScript cache
-*.tsbuildinfo
 
 # Optional npm cache directory
 .npm

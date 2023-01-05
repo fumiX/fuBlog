@@ -1,5 +1,5 @@
-import { computed, ref, watchEffect } from "vue";
 import type { ComputedRef, Ref } from "vue";
+import { computed, ref, watchEffect } from "vue";
 
 export const debounce = <T>(callback: () => T, timeout = 500): ComputedRef<T> => {
   let isFirstRun = false; // < don't use a ref, otherwise it will loop indefinitely
