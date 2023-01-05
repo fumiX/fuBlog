@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { UserEntity } from "./User.entity.js";
-import type { SupportedOAuthProvider, User } from "@fumix/fu-blog-common";
+import type { SupportedOAuthProvider } from "@fumix/fu-blog-common";
 import { OAuthAccount, SupportedOAuthProviders } from "@fumix/fu-blog-common";
 
 @Entity("oauth_account")

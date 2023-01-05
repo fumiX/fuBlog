@@ -6,8 +6,10 @@
     "build": "run-p type-check build-only",
     "preview": "vite preview",
     "build-only": "vite build",
+    "test": "echo \"At the moment there are no tests for the 'client' package …\"",
     "type-check": "vue-tsc --noEmit",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --ignore-path .gitignore",
+    "lintfix": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.2.0",
@@ -33,7 +35,7 @@
     "@vue/eslint-config-prettier": "^7.0.0",
     "@vue/eslint-config-typescript": "^11.0.0",
     "@vue/tsconfig": "^0.1.3",
-    "eslint": "8.30.0",
+    "eslint": "8.31.0",
     "eslint-plugin-vue": "^9.3.0",
     "sass": "1.57.1",
     "typescript": "4.9.4",

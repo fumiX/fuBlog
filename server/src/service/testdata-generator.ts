@@ -1,11 +1,11 @@
-import { AppDataSource } from "../data-source.js";
-import { sanitizeHtml } from "@fumix/fu-blog-common";
 import { faker } from "@faker-js/faker/locale/de";
+import { sanitizeHtml } from "@fumix/fu-blog-common";
+import fs from "fs";
+import { AppDataSource } from "../data-source.js";
 import { AttachmentEntity } from "../entity/Attachment.entity.js";
 import { PostEntity } from "../entity/Post.entity.js";
 import { UserEntity } from "../entity/User.entity.js";
 import { createDomPurify } from "../markdown-converter-server.js";
-import fs from "fs";
 
 const usersCount = 10;
 const postsPerUser = 25;
@@ -28,8 +28,7 @@ export async function generate() {
       Array.from({ length: postsPerUser }).forEach(() => {
         createRandomPost(user).then((post: PostEntity) => {
           Array.from({ length: attachmentsPerPost }).forEach(() => {
-            // TODO: Uncomment when it's working again
-            // createRandomAttachment(post);
+            createRandomAttachment(post);
           });
         });
       });
@@ -74,7 +73,7 @@ export async function createRandomPost(createdBy: UserEntity): Promise<PostEntit
       createdAt: faker.date.recent(),
       sanitizedHtml: sanitized,
       draft: false,
-      attachments: []
+      attachments: [],
     };
     const postRep = AppDataSource.manager.getRepository(PostEntity);
     return await postRep.save(post);

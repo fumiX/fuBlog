@@ -1,10 +1,8 @@
+import { sanitizeHtml } from "@fumix/fu-blog-common";
 import express, { Request, Response, Router } from "express";
 import { AppDataSource } from "../data-source.js";
-import { sanitizeHtml } from "@fumix/fu-blog-common";
-import { UserEntity } from "../entity/User.entity.js";
 import { PostEntity } from "../entity/Post.entity.js";
-import { JSDOM } from "jsdom";
-import DOMPurify from "dompurify";
+import { UserEntity } from "../entity/User.entity.js";
 import { createDomPurify } from "../markdown-converter-server.js";
 
 const router: Router = express.Router();
