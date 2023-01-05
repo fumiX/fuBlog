@@ -1,18 +1,16 @@
-import express, { Application } from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
+import express, { Application } from "express";
+import { init as initAuth } from "./auth/middleware.js";
 import { corsOptions } from "./config/cors-config.js";
-import postRoutes from "./routes/posts.js";
+import { AppDataSource } from "./data-source.js";
 import attRoutes from "./routes/attachments.js";
 import authRoutes from "./routes/auth.js";
+import postRoutes from "./routes/posts.js";
 import { generate } from "./service/testdata-generator.js";
-import { AppDataSource } from "./data-source.js";
-import { init as initAuth } from "./auth/middleware.js";
+import { AppSettings, ServerSettings } from "./settings.js";
 
 const app: Application = express();
-const PORT = process.env.SERVER_PORT || 5000;
-
-const BASE_API_PATH = process.env.SERVER_API_PATH || "/api";
 
 await AppDataSource.initialize();
 await generate();
@@ -27,14 +25,14 @@ app.use(initAuth);
 // The authorization controller routes
 app.use("/auth", authRoutes);
 
-app.use(`${BASE_API_PATH}/posts`, postRoutes);
-app.use(`${BASE_API_PATH}/attachments`, attRoutes);
+app.use(`${ServerSettings.API_PATH}/posts`, postRoutes);
+app.use(`${ServerSettings.API_PATH}/attachments`, attRoutes);
 
 // in production serve the built vue-app from static public folder:
-if (process.env.NODE_ENV === "production") {
+if (AppSettings.IS_PRODUCTION) {
   app.use(express.static("./public"));
 }
 
-app.listen(PORT, () => {
-  console.log(`fuBlog server running on port: ${PORT}`);
+app.listen(ServerSettings.PORT, () => {
+  console.log(`fuBlog server running on port: ${ServerSettings.PORT}`);
 });

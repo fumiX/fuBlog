@@ -1,19 +1,20 @@
+import dotenv from "dotenv";
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-import dotenv from "dotenv";
+import { AttachmentEntity } from "./entity/Attachment.entity.js";
 import { PostEntity } from "./entity/Post.entity.js";
 import { UserEntity } from "./entity/User.entity.js";
-import { AttachmentEntity } from "./entity/Attachment.entity.js";
+import { DatabaseSettings } from "./settings.js";
 
 dotenv.config();
 
 export const AppDataSource = new DataSource({
   type: "postgres",
-  host: process.env.DATABASE_HOST || "localhost",
-  port: (process.env.DATABASE_PORT as unknown as number) || 5020,
-  username: process.env.DATABASE_USER || "fublog",
-  password: process.env.DATABASE_PW || "8!06",
-  database: process.env.DATABASE_NAME || "fublog",
+  host: DatabaseSettings.HOST,
+  port: DatabaseSettings.PORT,
+  username: DatabaseSettings.USER,
+  password: DatabaseSettings.PASSWORD,
+  database: DatabaseSettings.NAME,
   synchronize: false,
   logging: false,
   entities: [AttachmentEntity, PostEntity, UserEntity],
