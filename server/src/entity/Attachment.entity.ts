@@ -1,7 +1,7 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
 import { PostEntity } from "./Post.entity.js";
 
-@Entity()
+@Entity("attachment")
 export class AttachmentEntity {
   @PrimaryGeneratedColumn()
   id?: number;

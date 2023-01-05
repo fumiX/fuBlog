@@ -8,10 +8,15 @@
     "ecmaVersion": 2018,
     "sourceType": "module"
   },
-  "plugins": ["prettier"],
+  "plugins": ["prettier", "unused-imports"],
   "rules": {
     "quotes": [2, "double", "avoid-escape"],
     "object-curly-spacing": ["error", "always"],
+    "unused-imports/no-unused-imports": "error",
+    "sort-imports": ["error", {
+      "ignoreCase": true,
+      "ignoreDeclarationSort": true
+    }],
     "prettier/prettier": ["error"]
   }
 }

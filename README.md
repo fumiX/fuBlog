@@ -1,9 +1,9 @@
 # ![fumiX blog icon](./client/src/assets/favicon/favicon.svg) fuBlog
-![Build status of main branch](https://img.shields.io/github/actions/workflow/status/FumiX/fuBlog/build.yml?style=flat-square&branch=main)
-![Version in package.json](https://img.shields.io/github/package-json/v/FumiX/fuBlog?style=flat-square&label=package.json)
-![Latest git tag](https://img.shields.io/github/v/tag/FumiX/fuBlog?style=flat-square&include_prereleases&sort=semver&label=git%20tag)
-![Latest GitHub release](https://img.shields.io/github/v/release/FumiX/fuBlog?style=flat-square&include_prereleases&sort=semver&label=GitHub%20release)
-![License recognized by GitHub](https://img.shields.io/github/license/FumiX/fuBlog?style=flat-square)
+[![Build status of main branch](https://img.shields.io/github/actions/workflow/status/FumiX/fuBlog/build.yml?style=flat-square&branch=main)](https://github.com/fumiX/fuBlog/actions/workflows/build.yml?query=branch%3Amain)
+[![Version in package.json](https://img.shields.io/github/package-json/v/FumiX/fuBlog?style=flat-square&label=package.json)](https://github.com/fumiX/fuBlog/blob/main/package.json)
+[![Latest git tag](https://img.shields.io/github/v/tag/FumiX/fuBlog?style=flat-square&include_prereleases&sort=semver&label=git%20tag)](https://github.com/fumiX/fuBlog/tags)
+[![Latest GitHub release](https://img.shields.io/github/v/release/FumiX/fuBlog?style=flat-square&include_prereleases&sort=semver&label=GitHub%20release)](https://github.com/fumiX/fuBlog/releases/latest)
+[![License recognized by GitHub](https://img.shields.io/github/license/FumiX/fuBlog?style=flat-square)](https://github.com/fumiX/fuBlog/blob/main/LICENSE)
 
 
 A blog software written in Typescript, with an Express.js backend and a Vue3 frontend.
@@ -45,7 +45,7 @@ npm run build
 
 ## Start the server and vue3 client for development
 ```bash
-npm start
+docker compose up -d && npm start
 ```
 
 ## Starting a task in the subprojects

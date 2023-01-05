@@ -16,7 +16,7 @@
     "run-prod": "node ./dist/server.js",
     "lint": "eslint src/**/*.ts",
     "format": "eslint src/**/*.ts --fix",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"At the moment there are no tests for the 'server' package …\"",
     "typeorm": "typeorm-ts-node-commonjs"
   },
   "repository": {

@@ -1,11 +1,11 @@
-import { AppDataSource } from "../data-source.js";
-import { sanitizeHtml } from "@fumix/fu-blog-common";
 import { faker } from "@faker-js/faker/locale/de";
+import { sanitizeHtml } from "@fumix/fu-blog-common";
+import fs from "fs";
+import { AppDataSource } from "../data-source.js";
 import { AttachmentEntity } from "../entity/Attachment.entity.js";
 import { PostEntity } from "../entity/Post.entity.js";
 import { UserEntity } from "../entity/User.entity.js";
 import { createDomPurify } from "../markdown-converter-server.js";
-import fs from "fs";
 
 const usersCount = 10;
 const postsPerUser = 25;
@@ -28,8 +28,7 @@ export async function generate() {
       Array.from({ length: postsPerUser }).forEach(() => {
         createRandomPost(user).then((post: PostEntity) => {
           Array.from({ length: attachmentsPerPost }).forEach(() => {
-            // TODO: Uncomment when it's working again
-            // createRandomAttachment(post);
+            createRandomAttachment(post);
           });
         });
       });
@@ -91,7 +90,7 @@ export async function createRandomAttachment(post: PostEntity): Promise<Attachme
       post: post,
       binaryData: data,
       filename: faker.random.word() + ".png",
-      mimeType: "image/png",
+      mimeType: "image/png"
     };
     const attRep = AppDataSource.manager.getRepository(AttachmentEntity);
     return await attRep.save(attachment);
