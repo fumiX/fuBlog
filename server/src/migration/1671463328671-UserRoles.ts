@@ -11,33 +11,33 @@ export class UserRoles1671463328671 implements MigrationInterface {
             type: "bigint",
             isNullable: false,
             isGenerated: true,
-            isPrimary: true,
+            isPrimary: true
           },
           {
             name: "oauth_id",
             type: "varchar",
             length: "128",
-            isNullable: false,
+            isNullable: false
           },
           {
             name: "user_id",
             type: "bigint",
-            isNullable: false,
+            isNullable: false
           },
           {
             name: "provider",
             type: "enum",
-            enum: ["FAKE", "GOOGLE"],
-          },
+            enum: ["FAKE", "GOOGLE"]
+          }
         ],
         foreignKeys: [
           {
             columnNames: ["user_id"],
             referencedTableName: "user",
-            referencedColumnNames: ["id"],
-          },
-        ],
-      }),
+            referencedColumnNames: ["id"]
+          }
+        ]
+      })
     );
     await queryRunner.addColumn(
       "user",
@@ -45,8 +45,8 @@ export class UserRoles1671463328671 implements MigrationInterface {
         name: "roles",
         type: "enum",
         isArray: true,
-        enum: ["ADMIN", "POST_CREATE", "POST_EDIT", "POST_DELETE"],
-      }),
+        enum: ["ADMIN", "POST_CREATE", "POST_EDIT", "POST_DELETE"]
+      })
     );
   }
 
@@ -55,8 +55,8 @@ export class UserRoles1671463328671 implements MigrationInterface {
       "user",
       new TableColumn({
         name: "roles",
-        type: "enum",
-      }),
+        type: "enum"
+      })
     );
     await queryRunner.dropTable("oauth_account");
   }

@@ -13,13 +13,13 @@ export default defineComponent({
   methods: {
     async login() {
       const authUrlRequest = new Request("http://localhost:5000/auth/url", {
-        method: "GET",
+        method: "GET"
       });
       const response = await fetch(authUrlRequest);
       const data = await response.json();
       window.location.href = data.authUrl;
-    },
-  },
+    }
+  }
 });
 </script>
 

@@ -18,7 +18,7 @@ async function getUser() {
       email: email,
       firstName: "Alfred E.",
       lastName: "Neumann",
-      roles: ["ADMIN", "POST_CREATE"],
+      roles: ["ADMIN", "POST_CREATE"]
     };
 
     createdUser = await AppDataSource.manager.getRepository(UserEntity).save(user);
@@ -60,10 +60,10 @@ router.get("/page/:page/count/:count/", async (req: Request, res: Response) => {
   const skipEntries = page * itemsPerPage - itemsPerPage;
   const allPosts = await AppDataSource.manager.getRepository(PostEntity).findAndCount({
     order: {
-      createdAt: "DESC",
+      createdAt: "DESC"
     },
     skip: skipEntries,
-    take: itemsPerPage,
+    take: itemsPerPage
   });
 
   res.status(200).json({ data: allPosts });
@@ -72,7 +72,7 @@ router.get("/page/:page/count/:count/", async (req: Request, res: Response) => {
 // GET POST BY ID
 router.get("/:id", async (req: Request, res: Response) => {
   const post = await AppDataSource.manager.getRepository(PostEntity).findOneBy({
-    id: +req.params.id,
+    id: +req.params.id
   });
 
   if (post === null) {
@@ -95,7 +95,7 @@ router.post("/new", async (req: Request, res: Response) => {
       sanitizedHtml: sanitizeHtml(req.body.markdown, createDomPurify()),
       updatedBy: undefined,
       draft: req.body.draft || true,
-      attachments: [],
+      attachments: []
     };
 
     const results = await AppDataSource.manager.getRepository(PostEntity).save<PostEntity>(post);
@@ -108,7 +108,7 @@ router.post("/new", async (req: Request, res: Response) => {
 // EDIT EXISTING POST
 router.post("/:id", async (req: Request, res: Response) => {
   const post = await AppDataSource.manager.getRepository(PostEntity).findOneBy({
-    id: +req.params.id,
+    id: +req.params.id
   });
 
   if (post === null) {

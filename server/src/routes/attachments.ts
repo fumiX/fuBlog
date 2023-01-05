@@ -9,8 +9,8 @@ router.get("/post/:id", async (req: Request, res: Response) => {
   const postId = +req.params.id;
   const foundAttachments = await AppDataSource.manager.getRepository(AttachmentEntity).findBy({
     post: {
-      id: postId,
-    },
+      id: postId
+    }
   });
 
   if (foundAttachments != null) {

@@ -93,7 +93,7 @@ export default defineComponent({
     const form = reactive({
       title: "",
       description: "",
-      markdown: "",
+      markdown: ""
     });
 
     return {
@@ -101,7 +101,7 @@ export default defineComponent({
       isCreateMode,
       postId,
       md,
-      loading,
+      loading
     };
   },
 
@@ -137,14 +137,14 @@ export default defineComponent({
       const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(this.form),
+        body: JSON.stringify(this.form)
       };
       const formAction = id ? `/api/posts/${id}` : `/api/posts/new`;
       const response = await fetch(formAction, requestOptions);
       const data = await response.json();
       const post = data;
       this.$router.push(`/posts/post/${post.id}`);
-    },
-  },
+    }
+  }
 });
 </script>

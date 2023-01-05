@@ -25,8 +25,8 @@ import DOMPurify from "dompurify";
 export default defineComponent({
   props: {
     markdown: {
-      type: String as PropType<string | null>,
-    },
+      type: String as PropType<string | null>
+    }
   },
 
   emits: ["loading"],
@@ -46,10 +46,10 @@ export default defineComponent({
     });
     return {
       sanitizedHtml,
-      emits,
+      emits
     };
   },
 
-  methods: {},
+  methods: {}
 });
 </script>

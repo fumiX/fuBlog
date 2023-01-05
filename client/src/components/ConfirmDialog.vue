@@ -9,8 +9,12 @@
           {{ data.message }}
         </div>
         <div class="modal-footer" v-if="data">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="$emit('canceled')">{{ data.cancelTitle || "Nein" }}</button>
-          <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="$emit('confirmed')">{{ data.confirmTitle || "Ja" }}</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="$emit('canceled')">
+            {{ data.cancelTitle || "Nein" }}
+          </button>
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="$emit('confirmed')">
+            {{ data.confirmTitle || "Ja" }}
+          </button>
         </div>
       </div>
     </div>
@@ -28,11 +32,11 @@ import type { ConfirmDialogData } from "@fumix/fu-blog-common";
 export default defineComponent({
   props: {
     show: {
-      type: Boolean as PropType<boolean>,
+      type: Boolean as PropType<boolean>
     },
     data: {
-      type: Object as PropType<ConfirmDialogData | null>,
-    },
+      type: Object as PropType<ConfirmDialogData | null>
+    }
   },
 
   emits: ["confirmed", "canceled"],
@@ -46,10 +50,10 @@ export default defineComponent({
 
     return {
       props,
-      emits,
+      emits
     };
   },
 
-  methods: {},
+  methods: {}
 });
 </script>

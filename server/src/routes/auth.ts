@@ -2,7 +2,7 @@ import express, { NextFunction, Request, Response, Router } from "express";
 import { CallbackParamsType, generators, TokenSet } from "openid-client";
 import { getRedirectURI } from "../auth/middleware.js";
 import { findOAuthAccountBy } from "../service/crud.js";
-import { SupportedOAuthProviders, findOAuthProviderById } from "@fumix/fu-blog-common";
+import { findOAuthProviderById } from "@fumix/fu-blog-common";
 
 const router: Router = express.Router();
 enum StatusCode {

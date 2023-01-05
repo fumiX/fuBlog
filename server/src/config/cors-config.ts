@@ -4,7 +4,7 @@ import { ClientSettings } from "../settings.js";
 const corsWhiteList = [
   "https://www.fumix.de", //
   `${ClientSettings.BASE_URL}`,
-  `http://127.0.0.1:${ClientSettings.PORT}`,
+  `http://127.0.0.1:${ClientSettings.PORT}`
 ];
 
 export const corsOptions = {
@@ -16,5 +16,5 @@ export const corsOptions = {
       callback(new Error("CORS not allowed"), false);
     }
   },
-  optionSuccessStatus: 200,
+  optionSuccessStatus: 200
 };

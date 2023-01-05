@@ -26,7 +26,11 @@
               <RouterLink to="/posts" class="nav-link">Posts</RouterLink>
             </li>
           </ul>
-          <search-component :searchString="searchQuery" @searched="startSearch($event)" @operatorChanged="setOperator($event)"></search-component>
+          <search-component
+            :searchString="searchQuery"
+            @searched="startSearch($event)"
+            @operatorChanged="setOperator($event)"
+          ></search-component>
         </div>
       </div>
     </nav>
@@ -61,15 +65,15 @@ export default defineComponent({
 
     return {
       searchQuery,
-      setOperator,
+      setOperator
     };
   },
 
   methods: {
     startSearch(search: string, operator: string = "and") {
       this.$router.push(`/posts/?search=${search}&operator=${operator}`);
-    },
-  },
+    }
+  }
 });
 </script>
 

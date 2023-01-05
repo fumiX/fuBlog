@@ -10,31 +10,31 @@ export class CreateUser1668591563832 implements MigrationInterface {
             name: "id",
             type: "bigint",
             isPrimary: true,
-            isGenerated: true,
+            isGenerated: true
           },
           {
             name: "firstName",
             type: "varchar",
-            isNullable: true,
+            isNullable: true
           },
           {
             name: "lastName",
             type: "varchar",
-            isNullable: true,
+            isNullable: true
           },
           {
             name: "email",
             type: "varchar",
             isNullable: false,
-            isUnique: true,
+            isUnique: true
           },
           {
             name: "birthdate",
             type: "date",
-            isNullable: true,
-          },
-        ],
-      }),
+            isNullable: true
+          }
+        ]
+      })
     );
     await queryRunner.dropColumn("post", "createdBy");
     await queryRunner.dropColumn("post", "updatedBy");
@@ -43,8 +43,8 @@ export class CreateUser1668591563832 implements MigrationInterface {
       new TableColumn({
         name: "createdById",
         type: "bigint",
-        isNullable: false,
-      }),
+        isNullable: false
+      })
     );
     await queryRunner.createForeignKey(
       "post",
@@ -52,16 +52,16 @@ export class CreateUser1668591563832 implements MigrationInterface {
         name: "post_user_created_by_fk",
         columnNames: ["createdById"],
         referencedColumnNames: ["id"],
-        referencedTableName: "user",
-      }),
+        referencedTableName: "user"
+      })
     );
     await queryRunner.addColumn(
       "post",
       new TableColumn({
         name: "updatedById",
         type: "bigint",
-        isNullable: true,
-      }),
+        isNullable: true
+      })
     );
     await queryRunner.createForeignKey(
       "post",
@@ -69,8 +69,8 @@ export class CreateUser1668591563832 implements MigrationInterface {
         name: "post_user_updated_by_fk",
         columnNames: ["updatedById"],
         referencedColumnNames: ["id"],
-        referencedTableName: "user",
-      }),
+        referencedTableName: "user"
+      })
     );
   }
 
@@ -82,16 +82,16 @@ export class CreateUser1668591563832 implements MigrationInterface {
       new TableColumn({
         name: "createdBy",
         type: "varchar",
-        isNullable: false,
-      }),
+        isNullable: false
+      })
     );
     await queryRunner.addColumn(
       "post",
       new TableColumn({
         name: "updatedBy",
         type: "varchar",
-        isNullable: true,
-      }),
+        isNullable: true
+      })
     );
     await queryRunner.dropTable("user");
   }

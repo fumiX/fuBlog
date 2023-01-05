@@ -75,7 +75,7 @@ import { faClock } from "@fortawesome/free-regular-svg-icons";
 
 export default defineComponent({
   components: {
-    ConfirmDialog,
+    ConfirmDialog
   },
   setup() {
     return {
@@ -87,7 +87,7 @@ export default defineComponent({
       faArrowLeft,
       faTrash,
       faEdit,
-      faClock,
+      faClock
     };
   },
 
@@ -120,7 +120,7 @@ export default defineComponent({
       this.currentPost = post as Post;
       this.dialogData = {
         title: "Post löschen",
-        message: `Willst du "${this.currentPost.title}" echt löschen ?`,
+        message: `Willst du "${this.currentPost.title}" echt löschen ?`
       };
       this.showDialog = true;
     },
@@ -133,7 +133,7 @@ export default defineComponent({
       this.deletePost(this.currentPost as Post);
       this.currentPost = null;
       this.showDialog = false;
-    },
-  },
+    }
+  }
 });
 </script>

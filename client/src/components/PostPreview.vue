@@ -45,8 +45,8 @@ export default defineComponent({
   props: {
     post: {
       type: Object as PropType<Post>,
-      required: true,
-    },
+      required: true
+    }
   },
 
   emits: ["deletePost", "changePost"],
@@ -58,14 +58,14 @@ export default defineComponent({
       faBookReader,
       faTrash,
       faEdit,
-      faClock,
+      faClock
     };
   },
 
   methods: {
     goTo(path: string) {
       this.$router.push(path);
-    },
-  },
+    }
+  }
 });
 </script>

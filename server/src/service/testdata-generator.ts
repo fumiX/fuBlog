@@ -48,7 +48,7 @@ export async function createRandomUser(): Promise<UserEntity> {
       email: faker.internet.email(firstName, lastName),
       firstName: firstName,
       lastName: lastName,
-      roles: [],
+      roles: []
     };
     return AppDataSource.manager.getRepository(UserEntity).save(user);
   } catch (e) {

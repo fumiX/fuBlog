@@ -9,7 +9,9 @@
     </div>
 
     <div class="clearfix mb-4">
-      <button type="button" class="btn btn-sm btn-secondary float-end" @click="goTo('/posts/post/form')"><fa-icon :icon="faAdd" /> Post erstellen</button>
+      <button type="button" class="btn btn-sm btn-secondary float-end" @click="goTo('/posts/post/form')">
+        <fa-icon :icon="faAdd" /> Post erstellen
+      </button>
     </div>
 
     <div v-if="loading" class="loader">
@@ -19,7 +21,13 @@
     </div>
 
     <div v-else>
-      <post-preview v-for="post in posts" :key="post.id" :post="post" @deletePost="showConfirm($event)" @changePost="changePost($event)"></post-preview>
+      <post-preview
+        v-for="post in posts"
+        :key="post.id"
+        :post="post"
+        @deletePost="showConfirm($event)"
+        @changePost="changePost($event)"
+      ></post-preview>
 
       <div v-if="!totalPages && route.query.search" class="alert alert-light text-center">
         <fa-icon :icon="faSadTear" class="mx-3" />Keine Posts zu "{{ route.query.search }}" gefunden.
@@ -65,7 +73,7 @@ export default defineComponent({
   components: {
     PostPreview,
     ConfirmDialog,
-    Paginate,
+    Paginate
   },
   setup() {
     const route = useRoute();
@@ -80,7 +88,9 @@ export default defineComponent({
 
     const loadPostsWithPagination = async (pageIndex: number, search: string, operator: string) => {
       try {
-        let link = !search ? `/api/posts/page/${pageIndex}/count/${itemsPerPage}` : `/api/posts/page/${pageIndex}/count/${itemsPerPage}/search/${search}/operator/${operator}`;
+        let link = !search
+          ? `/api/posts/page/${pageIndex}/count/${itemsPerPage}`
+          : `/api/posts/page/${pageIndex}/count/${itemsPerPage}/search/${search}/operator/${operator}`;
         const res: Response = await fetch(link);
         if (res.ok) {
           const response = await res.json();
@@ -93,7 +103,7 @@ export default defineComponent({
             // const reason = response.data.error;
 
             const authUrlRequest = new Request("http://localhost:5000/auth/url", {
-              method: "GET",
+              method: "GET"
             });
             const response = await fetch(authUrlRequest);
             const data = await response.json();
@@ -119,7 +129,7 @@ export default defineComponent({
         const searchValue = (query?.search || "") as string;
         const operator = (route.query?.operator || "and") as string;
         loadPostsWithPagination(1, searchValue, operator);
-      },
+      }
     );
 
     onMounted(() => {
@@ -141,7 +151,7 @@ export default defineComponent({
       faSadTear,
       paginate,
       loadPostsWithPagination,
-      route,
+      route
     };
   },
 
@@ -166,7 +176,7 @@ export default defineComponent({
       this.currentPost = post as Post;
       this.dialogData = {
         title: "Post löschen",
-        message: `Wilst du "${this.currentPost.title}" echt löschen ?`,
+        message: `Wilst du "${this.currentPost.title}" echt löschen ?`
       };
       this.showDialog = true;
     },
@@ -183,8 +193,8 @@ export default defineComponent({
 
     changePost(post: Post) {
       this.goTo(`/posts/post/form/?id=${post.id}`);
-    },
-  },
+    }
+  }
 });
 </script>
 

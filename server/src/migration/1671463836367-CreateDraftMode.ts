@@ -8,8 +8,8 @@ export class CreateDraftMode1671463836367 implements MigrationInterface {
         name: "draft",
         isNullable: false,
         default: false,
-        type: "boolean",
-      }),
+        type: "boolean"
+      })
     );
   }
 

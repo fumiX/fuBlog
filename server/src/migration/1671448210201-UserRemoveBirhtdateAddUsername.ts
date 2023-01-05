@@ -6,32 +6,32 @@ export class UserRemoveBirhtdateAddUsername1671448210201 implements MigrationInt
       {
         oldColumn: new TableColumn({
           name: "birthdate",
-          type: "date",
+          type: "date"
         }),
         newColumn: new TableColumn({
           name: "username",
           length: "64",
           type: "varchar",
           isNullable: true,
-          isUnique: true,
-        }),
-      },
+          isUnique: true
+        })
+      }
     ]);
     await queryRunner.query('UPDATE "user" SET "username" = "user"."firstName" || "user"."lastName"');
     await queryRunner.changeColumns("user", [
       {
         oldColumn: new TableColumn({
           name: "username",
-          type: "varchar",
+          type: "varchar"
         }),
         newColumn: new TableColumn({
           name: "username",
           length: "64",
           type: "varchar",
           isNullable: false,
-          isUnique: true,
-        }),
-      },
+          isUnique: true
+        })
+      }
     ]);
   }
 
@@ -40,14 +40,14 @@ export class UserRemoveBirhtdateAddUsername1671448210201 implements MigrationInt
       {
         oldColumn: new TableColumn({
           name: "username",
-          type: "varchar",
+          type: "varchar"
         }),
         newColumn: new TableColumn({
           name: "birthdate",
           type: "date",
-          isNullable: true,
-        }),
-      },
+          isNullable: true
+        })
+      }
     ]);
   }
 }

@@ -10,34 +10,34 @@ export class CreateAttachments1671462016666 implements MigrationInterface {
             name: "id",
             type: "bigint",
             isPrimary: true,
-            isGenerated: true,
+            isGenerated: true
           },
           {
             name: "filename",
             type: "varchar",
             length: "255",
-            isNullable: false,
+            isNullable: false
           },
           {
             name: "binaryData",
             type: "bytea",
-            isNullable: false,
+            isNullable: false
           },
           {
             name: "postId",
             type: "bigint",
-            isNullable: false,
+            isNullable: false
           },
           {
             name: "mimeType",
             type: "varchar",
-            isNullable: false,
-          },
-        ],
+            isNullable: false
+          }
+        ]
       }),
       true,
       false,
-      false,
+      false
     );
     await queryRunner.createForeignKey(
       "attachment",
@@ -45,15 +45,15 @@ export class CreateAttachments1671462016666 implements MigrationInterface {
         name: "attachment_post_fk",
         columnNames: ["postId"],
         referencedColumnNames: ["id"],
-        referencedTableName: "post",
-      }),
+        referencedTableName: "post"
+      })
     );
     await queryRunner.createIndex(
       "attachment",
       new TableIndex({
         name: "attachment_post_ind",
-        columnNames: ["postId"],
-      }),
+        columnNames: ["postId"]
+      })
     );
   }
 

@@ -17,7 +17,7 @@ export function createWalkTokensExtension(fetchTextFromUrl: FetchTextFromUrlFunc
         const res = Buffer.from(compressed).toString("base64").replace(/\+/g, "-").replace(/\//g, "_");
         token.text = await fetchTextFromUrl(`${KROKI_SERVICE_URL}/plantuml/svg/${res}`);
       }
-    },
+    }
   };
 }
 
@@ -28,15 +28,15 @@ export const rendererExtension: marked.MarkedExtension = {
         return code;
       }
       return false;
-    },
-  },
+    }
+  }
 };
 
 export const sanitizeHtml: (input: string, purify: DOMPurifyI) => string = (input, purify) => {
   return purify.sanitize(marked.parse(input), {
     // Allowed tags and attributes inside markdown
     ADD_TAGS: ["iframe"],
-    ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling"],
+    ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling"]
   });
 };
 

@@ -6,12 +6,12 @@ const router = createRouter({
     {
       path: "/",
       name: "home",
-      component: () => import("@/views/HomeView.vue"),
+      component: () => import("@/views/HomeView.vue")
     },
     {
       path: "/auth",
       name: "authenticate",
-      component: () => import("@/views/AuthView.vue"),
+      component: () => import("@/views/AuthView.vue")
     },
     {
       path: "/posts",
@@ -19,7 +19,7 @@ const router = createRouter({
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import("@/views/PostsView.vue"),
+      component: () => import("@/views/PostsView.vue")
     },
     {
       path: "/posts/post/:id",
@@ -27,7 +27,7 @@ const router = createRouter({
       // route level code-splitting
       // this generates a separate chunk (Articles.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import("@/views/PostView.vue"),
+      component: () => import("@/views/PostView.vue")
     },
     {
       path: "/posts/post/form",
@@ -35,9 +35,9 @@ const router = createRouter({
       // route level code-splitting
       // this generates a separate chunk (Articles.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import("@/views/PostFormView.vue"),
-    },
-  ],
+      component: () => import("@/views/PostFormView.vue")
+    }
+  ]
 });
 
 export default router;
