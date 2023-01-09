@@ -30,4 +30,5 @@ export const UserRoles: UserRolesType = {
   )
 } as const;
 
-export type UserRole = keyof typeof UserRoles;
+// The union of N property names comprising the UserRoles - "prop!" | "prop2" ... | "propN"
+export type UserRole = keyof UserRolesType;
