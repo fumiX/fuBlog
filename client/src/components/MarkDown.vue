@@ -19,8 +19,7 @@
 <script lang="ts">
 import type { PropType } from "vue";
 import { defineComponent, ref, watch } from "vue";
-import { sanitizeHtml } from "@fumix/fu-blog-common";
-import DOMPurify from "dompurify";
+import { MarkdownConverterClient } from "../markdown-converter-client.js";
 
 export default defineComponent({
   props: {
@@ -32,12 +31,12 @@ export default defineComponent({
   emits: ["loading"],
 
   setup(props, emits) {
-    const sanitizedHtml = ref<String>("");
+    const sanitizedHtml = ref<string>("");
 
     watch(props, async () => {
       try {
         emits.emit("loading", true);
-        sanitizedHtml.value = sanitizeHtml(props.markdown as string, DOMPurify);
+        sanitizedHtml.value = await MarkdownConverterClient.Instance.convert(props.markdown ?? "");
       } catch (e) {
         // TODO erro handling
       } finally {

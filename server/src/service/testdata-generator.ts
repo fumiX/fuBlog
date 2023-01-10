@@ -1,11 +1,10 @@
 import { faker } from "@faker-js/faker/locale/de";
-import { sanitizeHtml } from "@fumix/fu-blog-common";
 import fs from "fs";
 import { AppDataSource } from "../data-source.js";
 import { AttachmentEntity } from "../entity/Attachment.entity.js";
 import { PostEntity } from "../entity/Post.entity.js";
 import { UserEntity } from "../entity/User.entity.js";
-import { createDomPurify } from "../markdown-converter-server.js";
+import { MarkdownConverterServer } from "../markdown-converter-server.js";
 
 const usersCount = 10;
 const postsPerUser = 25;
@@ -64,7 +63,7 @@ export async function createRandomUser(): Promise<UserEntity> {
 export async function createRandomPost(createdBy: UserEntity): Promise<PostEntity> {
   try {
     const dirty = faker.lorem.sentences(29);
-    const sanitized = sanitizeHtml(dirty, createDomPurify());
+    const sanitized = await MarkdownConverterServer.Instance.convert(dirty);
     const post: PostEntity = {
       title: faker.lorem.sentence(4),
       description: faker.lorem.sentences(8),

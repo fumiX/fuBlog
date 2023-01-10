@@ -1,10 +1,16 @@
-import { marked } from "marked";
-import {
-  createWalkTokensExtension,
-  rendererExtension,
-} from "@fumix/fu-blog-common";
+import { MarkdownConverter } from "@fumix/fu-blog-common";
+import DOMPurify from "dompurify";
 
-marked.use(
-  createWalkTokensExtension((url) => fetch(url).then((it) => it.text())),
-);
-marked.use(rendererExtension);
+export class MarkdownConverterClient extends MarkdownConverter {
+  private static instance: MarkdownConverterClient;
+
+  protected override dompurify: DOMPurify.DOMPurifyI = DOMPurify;
+
+  private constructor() {
+    super((url: string) => fetch(url).then((it) => it.text()));
+  }
+
+  public static get Instance() {
+    return this.instance ?? (this.instance = new this());
+  }
+}

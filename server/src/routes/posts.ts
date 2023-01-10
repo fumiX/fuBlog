@@ -1,9 +1,8 @@
-import { sanitizeHtml } from "@fumix/fu-blog-common";
 import express, { Request, Response, Router } from "express";
 import { AppDataSource } from "../data-source.js";
 import { PostEntity } from "../entity/Post.entity.js";
 import { UserEntity } from "../entity/User.entity.js";
-import { createDomPurify } from "../markdown-converter-server.js";
+import { MarkdownConverterServer } from "../markdown-converter-server.js";
 
 const router: Router = express.Router();
 
@@ -92,7 +91,7 @@ router.post("/new", async (req: Request, res: Response) => {
       createdBy: await getUser(),
       createdAt: new Date(),
       updatedAt: new Date(),
-      sanitizedHtml: sanitizeHtml(req.body.markdown, createDomPurify()),
+      sanitizedHtml: await MarkdownConverterServer.Instance.convert(req.body.markdown),
       updatedBy: undefined,
       draft: req.body.draft || true,
       attachments: [],
@@ -118,7 +117,7 @@ router.post("/:id", async (req: Request, res: Response) => {
     post.description = req.body.description;
     post.markdown = req.body.markdown;
     post.updatedAt = new Date();
-    post.sanitizedHtml = sanitizeHtml(req.body.markdown, createDomPurify());
+    post.sanitizedHtml = await MarkdownConverterServer.Instance.convert(req.body.markdown);
     post.updatedBy = await getUser();
     // TODO
     post.draft = req.body.draft || true;
