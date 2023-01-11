@@ -11,12 +11,12 @@
     "server"
   ],
   "scripts": {
-    "build": "npm run -w common build && npm run -ws build",
+    "build": "npm run clean && npm run -w common build && npm run -ws build",
     "clean": "ts-node scripts/clean-all.ts",
     "check-packages": "ts-node scripts/check-packages.ts",
     "lint": "prettier --check --config .prettierrc '*/src/**/*.(ts|vue)' && npm run --workspaces lint",
     "lintfix": "prettier --config .prettierrc '*/src/**/*.(ts|vue)' --write && npm run --workspaces lint --fix",
-    "start": "concurrently \"npm run --workspace client dev\" \"npm run --workspace server dev\"",
+    "start": "docker compose -d up && concurrently \"npm run --workspace client dev\" \"npm run --workspace server dev\"",
     "test": "npm run --workspaces test"
   },
   "devDependencies": {

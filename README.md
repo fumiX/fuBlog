@@ -42,10 +42,11 @@ If you don't have a local copy of that branch, try replacing `intellij` with `or
 ```bash
 npm run build
 ```
+At the moment this needs to be repeated every time the `common` module changes.
 
 ## Start the server and vue3 client for development
 ```bash
-docker compose up -d && npm start
+npm start
 ```
 
 ## Starting a task in the subprojects
