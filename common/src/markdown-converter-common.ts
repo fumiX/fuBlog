@@ -10,14 +10,57 @@ import { DOMPurifyI } from "dompurify";
  */
 type FetchTextFromUrlFunction = (a: string) => Promise<string>;
 
+type KrokiDiagramType = {
+  /** The ID of the diagram type, as used in the URL */
+  id: string;
+  /** Human readable label for the diagram type */
+  label: string;
+  /** The ID of the diagram type, as used at the beginning of the Markdown code block */
+  markdownId: string;
+};
+
 export abstract class MarkdownConverter {
-  private static KROKI_SERVICE_URL = "https://kroki.io";
-  private static KROKI_DIAGRAM_INFOSTRING = "diagram-plantuml";
+  private static readonly KROKI_SERVICE_URL = "https://kroki.io";
+  private static readonly KROKI_DIAGRAM_INFOSTRING = "diagram-plantuml";
+  private static readonly KROKI_DIAGRAM_PREFIX = "diagram-";
+
+  private static readonly KROKI_SVG_DIAGRAM_TYPES: KrokiDiagramType[] = [
+    ["actdiag", "ActDiag"],
+    ["blockdiag", "BlockDiag"],
+    ["bpmn", "BPMN"],
+    ["bytefield", "Bytefield"],
+    ["c4plantuml", "C4 with PlantUML"],
+    ["ditaa", "Ditaa"],
+    ["erd", "Erd"],
+    ["excalidraw", "Excalidraw"],
+    ["graphviz", "GraphViz"],
+    ["mermaid", "Mermaid"],
+    ["nomnoml", "Nomnoml"],
+    ["nwdiag", "NwDiag"],
+    ["packetdiag", "PacketDiag"],
+    ["pikchr", "Pikchr"],
+    ["plantuml", "PlantUML"],
+    ["rackdiag", "RackDiag"],
+    ["seqdiag", "SeqDiag"],
+    ["structurizr", "Structurizr"],
+    ["svgbob", "Svgbob"],
+    ["vega", "Vega"],
+    ["vegalite", "Vega-Lite"],
+    ["wavedrom", "WaveDrom"],
+  ].map(([id, label]) => {
+    return { id, markdownId: MarkdownConverter.KROKI_DIAGRAM_PREFIX + id, label };
+  });
+
+  private static getKrokiDiagramTypeFromMarkdownId(markdownId: string | undefined): KrokiDiagramType | undefined {
+    return markdownId === undefined //
+      ? undefined
+      : this.KROKI_SVG_DIAGRAM_TYPES.find((it) => it.markdownId === markdownId) ?? undefined;
+  }
 
   private static rendererExtension: marked.MarkedExtension = {
     renderer: {
       code(code: string, infostring: string) {
-        if (infostring === MarkdownConverter.KROKI_DIAGRAM_INFOSTRING) {
+        if (MarkdownConverter.getKrokiDiagramTypeFromMarkdownId(infostring)) {
           return code;
         }
         return false;
@@ -29,12 +72,15 @@ export abstract class MarkdownConverter {
       return {
         async: true,
         walkTokens: async (token: marked.Token) => {
-          if (token.type === "code" && token.lang === MarkdownConverter.KROKI_DIAGRAM_INFOSTRING) {
-            const inputText = token.text;
-            const data = Buffer.from(inputText, "utf8");
-            const compressed = pako.deflate(data, { level: 9 });
-            const res = Buffer.from(compressed).toString("base64").replace(/\+/g, "-").replace(/\//g, "_");
-            token.text = await fetchTextFromUrl(`${MarkdownConverter.KROKI_SERVICE_URL}/plantuml/svg/${res}`);
+          if (token.type === "code") {
+            const diagramType = MarkdownConverter.getKrokiDiagramTypeFromMarkdownId(token.lang);
+            if (diagramType) {
+              const inputText = token.text;
+              const data = Buffer.from(inputText, "utf8");
+              const compressed = pako.deflate(data, { level: 9 });
+              const res = Buffer.from(compressed).toString("base64").replace(/\+/g, "-").replace(/\//g, "_");
+              token.text = await fetchTextFromUrl(`${MarkdownConverter.KROKI_SERVICE_URL}/${diagramType.id}/svg/${res}`);
+            }
           }
         },
       };
