@@ -89,6 +89,7 @@ jobs:
             server/dist/
           key: app_dist-${{ runner.os }}-${{ hashFiles('.node-version', 'package-lock.json') }}-${{ github.sha }}
       - run: |
+          ls -R *
           cp -r server/dist/* docker/app/
           cp -rT client/dist/ docker/app/public/
           cp server/package.json docker/app/
