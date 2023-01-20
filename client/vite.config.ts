@@ -20,12 +20,9 @@ export default defineConfig({
       },
     },
   },
-  build: {
-    // we only want to deploy the server folder, hence build the vue app inside the servers public folder
-    outDir: path.resolve(__dirname, "../server/public"),
-  },
   server: {
-    // in dev mode we have to proxy all api calls to the api server which runs on localhost:5000 in dev. In prod it runs on the same machine
+    // in dev mode we have to proxy all api calls to the api server which runs on localhost:5000 in dev.
+    // In prod mode it is done the other way around: The server will serve the built files for the client.
     proxy: {
       "/api": {
         target: "http://localhost:5000",

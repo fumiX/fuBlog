@@ -90,6 +90,7 @@ jobs:
           key: app_dist-${{ runner.os }}-${{ hashFiles('.node-version', 'package-lock.json') }}-${{ github.sha }}
       - run: |
           cp -r server/dist/* docker/app/
+          cp -rT client/dist/ docker/app/public/
           cp server/package.json docker/app/
           mkdir -p "docker/app/node_modules/@fumix"
           cp -r -T common/ "docker/app/node_modules/@fumix/fu-blog-common"
