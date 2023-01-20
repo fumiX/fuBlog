@@ -27,10 +27,6 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/cache@v3
-        with:
-          path: common/dist/
-          key: common_dist-${{ runner.os }}-${{ hashFiles('.node-version', 'package-lock.json') }}-${{ github.sha }}
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -40,6 +36,14 @@ jobs:
       - run: npm ci
       - run: npm run lint --workspace common
       - run: npm run build --workspace common
+      - run: echo "This file is placed at the project root, so Github preserves the artifact paths (see https://github.com/actions/upload-artifact/issues/206)" > root.txt
+      - uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: | # Important to use `|` to preserve the path (see https://github.com/actions/upload-artifact/issues/55#issuecomment-633825395)
+            common/dist/**
+            root.txt
+          if-no-files-found: error
 
   build-app:
     needs: build-common
@@ -50,16 +54,9 @@ jobs:
         workspace: [ client, server ]
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/cache@v3
+      - uses: actions/download-artifact@v3
         with:
-          path: common/dist/
-          key: common_dist-${{ runner.os }}-${{ hashFiles('.node-version', 'package-lock.json') }}-${{ github.sha }}
-      - uses: actions/cache@v3
-        with:
-          path: |
-            client/dist/
-            server/dist/
-          key: app_dist-${{ runner.os }}-${{ hashFiles('.node-version', 'package-lock.json') }}-${{ github.sha }}
+          name: dist
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -69,6 +66,13 @@ jobs:
       - run: npm ci
       - run: npm run lint --workspace ${{ matrix.workspace }}
       - run: npm run build --workspace ${{ matrix.workspace }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: |
+            ${{ matrix.workspace }}/dist/**
+            root.txt
+          if-no-files-found: error
 
   publish:
     needs: build-app
@@ -78,16 +82,9 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/cache@v3
+      - uses: actions/download-artifact@v3
         with:
-          path: common/dist/
-          key: common_dist-${{ runner.os }}-${{ hashFiles('.node-version', 'package-lock.json') }}-${{ github.sha }}
-      - uses: actions/cache@v3
-        with:
-          path: |
-            client/dist/
-            server/dist/
-          key: app_dist-${{ runner.os }}-${{ hashFiles('.node-version', 'package-lock.json') }}-${{ github.sha }}
+          name: dist
       - run: |
           ls -R *
           cp -r server/dist/* docker/app/
