@@ -11,10 +11,37 @@ A blog software written in Typescript, with an Express.js backend and a Vue3 fro
 ## Requirements
 * git
 * Node 18 & NPM 8
+* [Docker with the Compose plugin](https://docs.docker.com/compose/install/)
 
-## Preparations
+## Ports
+* [5000](http://localhost:5000): dev server
+* [5010](http://localhost:5010): dev client
+* [5020](http://localhost:5020): dev postgres
+* [5100](http://localhost:5100): production app
+* [5120](http://localhost:5120): production postgres
 
-### General
+## Start the published docker image
+
+Start the docker image published to [ghcr.io/fumix/fublog-app:main](https://github.com/fumiX/fuBlog/pkgs/container/fublog-app),
+connects it with [ghcr.io/fumix/fublog-postgres:main](https://github.com/fumiX/fuBlog/pkgs/container/fublog-app):
+
+```bash
+docker compose -f docker-compose.production.yml up -d
+```
+
+The app can be accessed via http://localhost:5100
+
+The above command won't automatically re-download newer versions of the docker images.
+You can update the docker images to the latest published version by running this:
+```bash
+docker compose -f docker-compose.production.yml pull
+```
+
+## Start the app for local development
+
+### Preparations
+
+#### General
 
 Unless otherwise stated, all commands should be executed in the
 root directory of the project.
@@ -24,7 +51,7 @@ root directory of the project.
 npm install
 ```
 
-### IntelliJ
+#### IntelliJ
 
 In case you develop in an IntelliJ IDE, you can initialize or override your IDE settings
 with useful defaults by doing this:
@@ -38,13 +65,13 @@ and overlays these files on the current worktree.
 
 If you don't have a local copy of that branch, try replacing `intellij` with `origin/intellij`.
 
-## Full build of the project
+### Full build of the project
 ```bash
 npm run build
 ```
 At the moment this needs to be repeated every time the `common` module changes.
 
-## Start the server and vue3 client for development
+### Start the server and vue3 client for development
 ```bash
 npm start
 ```

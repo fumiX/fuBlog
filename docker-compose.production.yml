@@ -1,0 +1,28 @@
+# Docker compose file that demonstrates how to start the blog
+# It uses the version from the `main` branch of GitHub.com/fumiX/fuBlog
+version: '3'
+services:
+
+  postgres:
+    image: ghcr.io/fumix/fublog-postgres:docker
+    environment:
+      # Example
+      POSTGRES_USER: "fublog"
+      POSTGRES_PASSWORD: "8!06"
+      POSTGRES_DB: "fublog"
+    ports:
+      - "5120:5432"
+
+  app:
+    image: ghcr.io/fumix/fublog-app:docker
+    environment:
+      DATABASE_HOST: "postgres"
+      DATABASE_PORT: "5432"
+      DATABASE_USER: "fublog"
+      DATABASE_PASSWORD: "8!06"
+      DATABASE_NAME: "fublog"
+      OAUTH_CLIENT_ID: # Put the OAuth client ID here
+      OAUTH_CLIENT_SECRET: # Put the Oauth client secret here
+      NODE_ENV: production
+    ports:
+      - "5100:5000"

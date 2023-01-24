@@ -1,6 +1,8 @@
 import dotenv from "dotenv";
 import "reflect-metadata";
+import { dirname } from "path";
 import { DataSource } from "typeorm";
+import { fileURLToPath } from "url";
 import { AttachmentEntity } from "./entity/Attachment.entity.js";
 import { PostEntity } from "./entity/Post.entity.js";
 import { UserEntity } from "./entity/User.entity.js";
@@ -18,7 +20,7 @@ export const AppDataSource = new DataSource({
   synchronize: false,
   logging: false,
   entities: [AttachmentEntity, PostEntity, UserEntity],
-  migrations: ["./src/migration/*.ts"],
+  migrations: ["./src/migration/*.ts", "./migration/*.js"],
   migrationsRun: true,
   subscribers: [],
 });

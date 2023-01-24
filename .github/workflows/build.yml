@@ -86,12 +86,12 @@ jobs:
         with:
           name: dist
       - run: |
-          ls -R *
           cp -r server/dist/* docker/app/
+          cp -rT server/test-data/ docker/app/test-data/
           cp -rT client/dist/ docker/app/public/
           cp server/package.json docker/app/
-          mkdir -p "docker/app/node_modules/@fumix"
-          cp -r -T common/ "docker/app/node_modules/@fumix/fu-blog-common"
+          mkdir -p "docker/app/node_modules/@fumix/"
+          cp -rT common/ "docker/app/node_modules/@fumix/fu-blog-common"
           cd docker/app/
           npm install
       - name: Extract metadata (tags, labels) for Docker
