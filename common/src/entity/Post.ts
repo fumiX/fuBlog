@@ -1,4 +1,5 @@
 import type { User } from "./User.js";
+import { Attachment } from "./Attachment.js";
 
 export type Post = {
   id?: number;
@@ -10,4 +11,5 @@ export type Post = {
   createdBy?: User;
   updatedAt?: Date;
   updatedBy?: User;
+  attachments?: Attachment[];
 };

@@ -1,8 +1,9 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
 import { PostEntity } from "./Post.entity.js";
+import { Attachment } from "@fumix/fu-blog-common";
 
 @Entity("attachment")
-export class AttachmentEntity {
+export class AttachmentEntity implements Attachment {
   @PrimaryGeneratedColumn()
   id?: number;
 

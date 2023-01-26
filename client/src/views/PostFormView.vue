@@ -15,12 +15,12 @@
           <div class="card-body">
             <form @submit="submitForm($event)">
               <div class="form-floating mb-3">
-                <input v-model="form.title" type="text" class="form-control" id="title" placeholder="Titel" required/>
+                <input v-model="form.title" type="text" class="form-control" id="title" placeholder="Titel" required />
                 <label for="title">Titel</label>
               </div>
 
               <div class="form-floating mb-3">
-                <input v-model="form.description" type="text" class="form-control" id="description" placeholder="Beschreibung"/>
+                <input v-model="form.description" type="text" class="form-control" id="description" placeholder="Beschreibung" />
                 <label for="description">Kurzbeschreibung</label>
               </div>
 
@@ -39,12 +39,12 @@
               </div>
 
               <div class="form-check">
-                <input v-model="form.draft" type="checkbox" id="draft" placeholder="Entwurf"/>
+                <input v-model="form.draft" type="checkbox" id="draft" placeholder="Entwurf" />
                 <label for="draft">Entwurf</label>
               </div>
 
               <div class="file-upload">
-                <input type="file" id="file" ref="file" v-on:change="handleFileChange($event)" />
+                <input type="file" id="file" ref="file" v-on:change="handleFileChange($event)" accept="image/png, image/jpeg" />
               </div>
 
               <button type="submit" class="btn btn-sm btn-primary float-end">Speichern</button>
@@ -92,7 +92,7 @@ import MarkDown from "../components/MarkDown.vue";
 import { debounce } from "../debounce.js";
 
 export default defineComponent({
-  components: {MarkDown},
+  components: { MarkDown },
   setup() {
     const isCreateMode = ref(false);
     const postId = ref<number | null>(null);
@@ -104,7 +104,7 @@ export default defineComponent({
       description: "",
       markdown: "",
       draft: true,
-      attachments: []
+      attachments: [],
     });
 
     return {
@@ -113,7 +113,7 @@ export default defineComponent({
       postId,
       md,
       loading,
-      file: ''
+      file: "",
     };
   },
 
@@ -166,6 +166,21 @@ export default defineComponent({
     },
 
     async send(id: number | null) {
+      let postable = new FormData();
+      postable.append("body", JSON.stringify(this.form));
+      postable.append("file", this.file);
+      const requestOptions = {
+        method: "POST",
+        body: postable,
+      };
+      const formAction = id ? `/api/posts/${id}` : `/api/posts/new`;
+      const response = await fetch(formAction, requestOptions);
+      const data = await response.json();
+      const post = data;
+      this.$router.push(`/posts/post/${post.id}`);
+    },
+
+    async saveDraft(id: number | null) {
       let postable = new FormData();
       postable.append("body", JSON.stringify(this.form));
       postable.append("file", this.file);

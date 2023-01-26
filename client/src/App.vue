@@ -26,7 +26,11 @@
               <RouterLink to="/posts" class="nav-link">Posts</RouterLink>
             </li>
           </ul>
-          <search-component :searchString="searchQuery" @searched="startSearch($event)" @operatorChanged="setOperator($event)"></search-component>
+          <search-component
+            :searchString="searchQuery"
+            @searched="startSearch($event)"
+            @operatorChanged="setOperator($event)"
+          ></search-component>
         </div>
       </div>
     </nav>

@@ -84,7 +84,7 @@ router.get("/:id", async (req: Request, res: Response) => {
   }
 });
 
-function convertAttachment(filename: string, buffer: Buffer, mimeType: string, post: PostEntity) : AttachmentEntity {
+function convertAttachment(filename: string, buffer: Buffer, mimeType: string, post: PostEntity): AttachmentEntity {
   return {
     filename: filename,
     binaryData: buffer,
@@ -118,6 +118,7 @@ router.post("/new", upload.single("file"), async (req: Request, res: Response) =
       // let attachments = files?.map((file: Multer.File) => convertAttachment(file.filename, file.buffer, file.mimetype, post));
       const attachmentEntity = convertAttachment(file.originalname, file.buffer, file.mimetype, post);
       await AppDataSource.manager.getRepository(AttachmentEntity).save<AttachmentEntity>(attachmentEntity);
+      results.attachments.push(attachmentEntity);
     }
     res.status(200).send(results);
   } catch (e) {
