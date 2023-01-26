@@ -1,4 +1,5 @@
 import { Client, Issuer } from "openid-client";
+import { ISession } from "../../auth/session.js";
 
 declare global {
   namespace Express {
@@ -6,6 +7,9 @@ declare global {
       authIssuer?: Issuer;
       authClient?: Client;
       codeVerifier?: string;
+    }
+    export interface Request {
+      session?: ISession;
     }
   }
 }

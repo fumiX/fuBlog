@@ -1,10 +1,14 @@
-import express, { NextFunction, Request, Response, Router } from "express";
+import express, { CookieOptions, NextFunction, Request, Response, Router } from "express";
 import { CallbackParamsType, generators, TokenSet } from "openid-client";
 import { getRedirectURI } from "../auth/middleware.js";
-import { findOAuthAccountBy } from "../service/crud.js";
-import { SupportedOAuthProviders, findOAuthProviderById } from "@fumix/fu-blog-common";
+import { createOAuthAccount, createUser, findOAuthAccountBy } from "../service/crud.js";
+import { findOAuthProviderById, UserRole, UserRolePermissions } from "@fumix/fu-blog-common";
+import { OAuthAccountEntity } from "../entity/OAuthAccount.entity.js";
 
 const router: Router = express.Router();
+
+const SESSION_COOKIE = "session";
+
 enum StatusCode {
   Unauthorized = 401
 }
@@ -42,28 +46,47 @@ router.get("/callback", async (req: Request, res: Response) => {
     const checks = { code_verifier: req.app.codeVerifier };
     const tokenSet: TokenSet = await client.callback(getRedirectURI(), params, checks);
     const userInfo = await client.userinfo(tokenSet);
-
+    // console.log("THE ID TOKEN: ", tokenSet.id_token);
+    console.log("What the hell is session state? ", tokenSet.session_state);
+    const userPermissions: UserRolePermissions = {} as UserRolePermissions;
     const issuerId = req.app.authIssuer?.metadata.issuer;
     if (issuerId) {
-      const supported = findOAuthProviderById(issuerId);
-      if (supported) {
-        const account = await findOAuthAccountBy(userInfo.sub, supported);
-        // Create the new OAuth account with the user id and supported provider
+      const provider = findOAuthProviderById(issuerId);
+      if (provider) {
+        let account: OAuthAccountEntity | null = await findOAuthAccountBy(userInfo.sub, provider);
         if (!account) {
-          console.log("No Such accounts exist");
+          const firstName = userInfo.name as string;
+          const lastName = userInfo.family_name as string;
+          const email = userInfo.email as string;
+          const bloggerRoles: UserRole[] = ["POST_CREATE", "POST_EDIT"];
+          const user = await createUser(firstName, email, bloggerRoles, firstName, lastName);
+          account = await createOAuthAccount(userInfo.sub, provider, user);
         }
+        // const userId = account.user.id as number;
+        // userPermissions = await getUserPermissions(userId);
       }
     }
-    res.status(200).json(userInfo);
+
+    console.log("Headers / Cookies ", res.getHeaderNames(), req.cookies);
+    // res.location("http://localhost:5010/auth");
+    // res.send(302);
+    // res.redirect("http://localhost:5010/auth");
+    res.setHeader("Authorization", tokenSet.access_token as string);
+    res.redirect("http://localhost:5010/api/posts/page/1/count/5");
   }
 });
 
 export function authenticate(req: Request, res: Response, next: NextFunction) {
+  console.log("[authenticate} req.origianUrl: ", req.originalUrl);
+
+  const reqHeaders = req.headers.authorization;
+  const resHeaders = res.getHeader("Authorization");
+  const accessTokenHeaderValue = req.headers["x-access-token"];
+  const resAccessToken = res.getHeader("x-access-token");
+
   const client = req.app.authClient;
   if (client) {
-    const accessToken = req.headers["x-access-token"];
-    console.log("X-Access-Token", accessToken);
-    if (accessToken) {
+    if (accessTokenHeaderValue) {
       // //     const params: CallbackParamsType = client.callbackParams(req);
       // //     const checks = { code_verifier: req.app.codeVerifier };
       // //     const tokens: TokenSet = await client.callback(getRedirectURI(), params, checks);
@@ -82,5 +105,36 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
   }
   // next();
 }
+
+/**
+ * Sets an authentication cookie
+ * @param {Response} res The server response
+ * @param {string} value The value of the cookie
+ * */
+export function setAuthCookie(res: Response, value: string): void {
+  /**
+   * @property {number} maxAge The maximum time (in seconds) before the cookie
+   * will be removed by the web browser
+   * @property {boolean} httpOnly
+   * Disables access from JavaScript resulting in queries like:
+   * <code>document.cookie</code> returning undefined
+   * @property {boolean} secure Should be turned on in a production environment
+   */
+  const options: CookieOptions = {
+    maxAge: 3600 * 24 * 182,
+    httpOnly: true,
+    // only access from our site
+    // Unfortunately the cookie behavior has recently changed
+    // and so we need to do this in order for the redirects to carry on our state cookie
+    sameSite: false,
+    secure: false
+  };
+  res.cookie(SESSION_COOKIE, value, options);
+}
+
+export function getAuthCookie(req: Request): string {
+  return req.cookies[SESSION_COOKIE];
+}
+
 
 export default router;

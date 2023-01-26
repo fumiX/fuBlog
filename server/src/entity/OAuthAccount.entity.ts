@@ -7,7 +7,7 @@ import { OAuthAccount, SupportedOAuthProviders } from "@fumix/fu-blog-common";
 @Unique(["oauthId", "provider"])
 export class OAuthAccountEntity implements OAuthAccount {
   @PrimaryGeneratedColumn()
-  id: number;
+  id?: number;
   @Column({ nullable: false, name: "oauth_id" })
   oauthId: string;
 

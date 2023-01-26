@@ -88,15 +88,15 @@ export default defineComponent({
           totalPages.value = Math.ceil((await response.data[1]) / itemsPerPage);
           currentPage.value = pageIndex;
         } else {
+          // Unauthorized
           if (res.status === 401) {
-            // const response = await res.json();
-            // const reason = response.data.error;
-
+            // Retrieve the url to the OAuth provider
             const authUrlRequest = new Request("http://localhost:5000/auth/url", {
               method: "GET",
             });
             const response = await fetch(authUrlRequest);
             const data = await response.json();
+            // Authenticate using the url
             window.location.href = data.authUrl;
           }
         }
