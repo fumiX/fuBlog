@@ -1,10 +1,13 @@
 import express, { Request, Response, Router } from "express";
+import multer from "multer";
 import { AppDataSource } from "../data-source.js";
 import { PostEntity } from "../entity/Post.entity.js";
 import { UserEntity } from "../entity/User.entity.js";
 import { MarkdownConverterServer } from "../markdown-converter-server.js";
+import { AttachmentEntity } from "../entity/Attachment.entity.js";
 
 const router: Router = express.Router();
+const upload = multer();
 
 // create or get dummy user
 async function getUser() {
@@ -81,23 +84,41 @@ router.get("/:id", async (req: Request, res: Response) => {
   }
 });
 
+function convertAttachment(filename: string, buffer: Buffer, mimeType: string, post: PostEntity) : AttachmentEntity {
+  return {
+    filename: filename,
+    binaryData: buffer,
+    mimeType: mimeType,
+    post: post,
+  };
+}
+
 // CREATE NEW POST
-router.post("/new", async (req: Request, res: Response) => {
+router.post("/new", upload.single("file"), async (req: Request, res: Response) => {
+  const bodyJson = JSON.parse(req.body.body);
+  // TODO handle
   try {
     const post: PostEntity = {
-      title: req.body.title,
-      description: req.body.description,
-      markdown: req.body.markdown,
+      title: bodyJson.title,
+      description: bodyJson.description,
+      markdown: bodyJson.markdown,
       createdBy: await getUser(),
       createdAt: new Date(),
       updatedAt: new Date(),
-      sanitizedHtml: await MarkdownConverterServer.Instance.convert(req.body.markdown),
+      sanitizedHtml: await MarkdownConverterServer.Instance.convert(bodyJson.markdown),
       updatedBy: undefined,
-      draft: req.body.draft || true,
+      draft: bodyJson.draft,
       attachments: [],
     };
 
     const results = await AppDataSource.manager.getRepository(PostEntity).save<PostEntity>(post);
+    const file = req.file;
+    // const file = req.files['file'][0];
+    if (file) {
+      // let attachments = files?.map((file: Multer.File) => convertAttachment(file.filename, file.buffer, file.mimetype, post));
+      const attachmentEntity = convertAttachment(file.originalname, file.buffer, file.mimetype, post);
+      await AppDataSource.manager.getRepository(AttachmentEntity).save<AttachmentEntity>(attachmentEntity);
+    }
     res.status(200).send(results);
   } catch (e) {
     res.status(500).json({ error: "Fehler " + e });
@@ -120,7 +141,7 @@ router.post("/:id", async (req: Request, res: Response) => {
     post.sanitizedHtml = await MarkdownConverterServer.Instance.convert(req.body.markdown);
     post.updatedBy = await getUser();
     // TODO
-    post.draft = req.body.draft || true;
+    post.draft = req.body.draft;
     post.attachments = [];
 
     try {
