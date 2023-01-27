@@ -4,9 +4,16 @@ import path from "path";
 let numFoundErrors = 0;
 
 const rootDir = path.join(__dirname, "..");
-const excludedDirectories = [["node_modules"], [".git"], ["server", "src"], ["client", "src"], ["common", "src"]].map((it) =>
-  path.join(rootDir, ...it),
-);
+const excludedDirectories = [
+  ["node_modules"],
+  [".git"],
+  ["client", "node_modules"],
+  ["client", "src"],
+  ["common", "node_modules"],
+  ["common", "src"],
+  ["server", "node_modules"],
+  ["server", "src"],
+].map((it) => path.join(rootDir, ...it));
 
 const versionNumbers: {
   [index: string]: string;
