@@ -9,8 +9,12 @@
           {{ data.message }}
         </div>
         <div class="modal-footer" v-if="data">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="$emit('canceled')">{{ data.cancelTitle || "Nein" }}</button>
-          <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="$emit('confirmed')">{{ data.confirmTitle || "Ja" }}</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="$emit('canceled')">
+            {{ data.cancelTitle || "Nein" }}
+          </button>
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="$emit('confirmed')">
+            {{ data.confirmTitle || "Ja" }}
+          </button>
         </div>
       </div>
     </div>
