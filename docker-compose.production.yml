@@ -4,7 +4,7 @@ version: '3'
 services:
 
   postgres:
-    image: ghcr.io/fumix/fublog-postgres:docker
+    image: ghcr.io/fumix/fublog-postgres:main
     environment:
       # Example
       POSTGRES_USER: "fublog"
@@ -14,7 +14,7 @@ services:
       - "5120:5432"
 
   app:
-    image: ghcr.io/fumix/fublog-app:docker
+    image: ghcr.io/fumix/fublog-app:main
     environment:
       DATABASE_HOST: "postgres"
       DATABASE_PORT: "5432"
