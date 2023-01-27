@@ -75,6 +75,10 @@ jobs:
           if-no-files-found: error
 
   publish:
+    if: contains('
+        refs/heads/main
+        refs/heads/develop
+      ', github.ref)
     needs: build-app
     runs-on: ubuntu-latest
     permissions:
@@ -114,6 +118,10 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
   publish-db-image:
+    if: contains('
+      refs/heads/main
+      refs/heads/develop
+      ', github.ref)
     runs-on: ubuntu-latest
     permissions:
       contents: read
