@@ -69,7 +69,7 @@
 import { defineComponent, ref } from "vue";
 import { useRoute } from "vue-router";
 import type { ConfirmDialogData, Post } from "@fumix/fu-blog-common";
-import ConfirmDialog from "../components/ConfirmDialog.vue";
+import ConfirmDialog from "@/components/ConfirmDialog.vue";
 import { faArrowLeft, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { faClock } from "@fortawesome/free-regular-svg-icons";
 
