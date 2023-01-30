@@ -1,4 +1,3 @@
-import bodyParser from "body-parser";
 import cors from "cors";
 import express, { Application } from "express";
 import { init as initAuth } from "./auth/middleware.js";
@@ -18,7 +17,7 @@ console.log("Database initialized");
 
 app.use(cors(corsOptions));
 
-app.use(bodyParser.json());
+app.use(express.json());
 
 // The OAuth2 middleware (used for authentication)
 app.use(initAuth);

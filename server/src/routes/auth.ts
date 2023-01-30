@@ -26,7 +26,7 @@ router.get("/url", (req: Request, res: Response) => {
   const authUrl = req.app.authClient!.authorizationUrl({
     scope: "openid email profile",
     code_challenge: codeChallenge,
-    code_challenge_method: "S256"
+    code_challenge_method: "S256",
   });
 
   // TODO: This is only for testing - the code verifier should be stored in the session. In case of a cookie it
@@ -98,8 +98,8 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
     } else {
       res.status(StatusCode.Unauthorized.valueOf()).json({
         data: {
-          error: "Missing access token"
-        }
+          error: "Missing access token",
+        },
       });
     }
   }
@@ -127,7 +127,7 @@ export function setAuthCookie(res: Response, value: string): void {
     // Unfortunately the cookie behavior has recently changed
     // and so we need to do this in order for the redirects to carry on our state cookie
     sameSite: false,
-    secure: false
+    secure: false,
   };
   res.cookie(SESSION_COOKIE, value, options);
 }
@@ -135,6 +135,5 @@ export function setAuthCookie(res: Response, value: string): void {
 export function getAuthCookie(req: Request): string {
   return req.cookies[SESSION_COOKIE];
 }
-
 
 export default router;

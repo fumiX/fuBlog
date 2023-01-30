@@ -1,3 +1,6 @@
+import { OAuthProvider } from "@fumix/fu-blog-common";
+import { loadOAuthProvidersFromEnv } from "./load-oauth-providers-from-env.js";
+
 export class AppSettings {
   static readonly IS_PRODUCTION = process.env.NODE_ENV !== "development";
 }
@@ -23,9 +26,10 @@ export class ServerSettings {
 }
 
 export class OAuthSettings {
-  static readonly CLIENT_ID: string | undefined = process.env.OAUTH_CLIENT_ID;
-  static readonly CLIENT_SECRET: string | undefined = process.env.OAUTH_CLIENT_SECRET;
-  static readonly PROVIDER_URL: string = process.env.OAUTH_PROVIDER_URL ?? "https://accounts.google.com";
+  static readonly CLIENT_ID = "";
+  static readonly CLIENT_SECRET = "";
+  static readonly PROVIDER_URL = "";
+  static readonly PROVIDERS: OAuthProvider[] = loadOAuthProvidersFromEnv();
 }
 
 function toNumberOrDefault(value: string | undefined | null, defaultValue: number): number {

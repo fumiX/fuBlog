@@ -10,7 +10,7 @@ export async function init(req: Request, res: Response, next: NextFunction) {
       client_id: OAuthSettings.CLIENT_ID,
       client_secret: OAuthSettings.CLIENT_SECRET,
       redirect_uris: [`${getRedirectURI()}`],
-      response_types: ["code"]
+      response_types: ["code"],
     });
     req.app.authIssuer = issuer;
     req.app.authClient = client;

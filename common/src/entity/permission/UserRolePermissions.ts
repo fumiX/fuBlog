@@ -1,3 +1,6 @@
+import { User } from "@/entity/User.js";
+import { UserRoles } from "../UserRole.js";
+
 export type UserRolePermissionsType = {
   /**
    * This is `true` when the user is allowed to give any user additional permissions,
@@ -26,11 +29,11 @@ export type UserRolePermissionsType = {
  */
 export class UserRolePermissions implements UserRolePermissionsType {
   /** A user readable description of the permissions (in English) */
-  description: string;
-  canEditUserRoles = false;
-  canCreatePost = false;
-  canEditPost = false;
-  canDeletePost = false;
+  public readonly description: string;
+  public readonly canEditUserRoles = false;
+  public readonly canCreatePost = false;
+  public readonly canEditPost = false;
+  public readonly canDeletePost = false;
 
   /**
    * Constructor for easier instance creation.
@@ -38,6 +41,20 @@ export class UserRolePermissions implements UserRolePermissionsType {
    * @param partial
    */
   public constructor(description: string, partial: Partial<UserRolePermissionsType>) {
+    this.description = description;
     Object.assign(this, partial);
   }
+}
+
+export function permissionsForUser(user: User): UserRolePermissionsType {
+  return mergePermissions(user.roles.map((it) => UserRoles[it]));
+}
+
+function mergePermissions(permissions: UserRolePermissionsType[]): UserRolePermissionsType {
+  return {
+    canCreatePost: permissions.some((it) => it.canCreatePost),
+    canDeletePost: permissions.some((it) => it.canDeletePost),
+    canEditPost: permissions.some((it) => it.canEditPost),
+    canEditUserRoles: permissions.some((it) => it.canEditUserRoles),
+  };
 }

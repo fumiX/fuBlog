@@ -4,7 +4,7 @@ import { UserRolePermissions } from "./permission/UserRolePermissions.js";
  * Pseudo enum for the available user roles.
  * See https://youtu.be/jjMbPt_H3RQ for the reasoning behind doing it like this.
  */
-export const UserRoles: { [key: string]: UserRolePermissions } = {
+export const UserRoles = {
   ADMIN: new UserRolePermissions(
     "Can change roles of all users", //
     { canEditUserRoles: true },
