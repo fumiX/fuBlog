@@ -5,6 +5,7 @@ import { PostEntity } from "../entity/Post.entity.js";
 import { UserEntity } from "../entity/User.entity.js";
 import { MarkdownConverterServer } from "../markdown-converter-server.js";
 import { AttachmentEntity } from "../entity/Attachment.entity.js";
+import { DraftResponseDto } from "@fumix/fu-blog-common";
 
 const router: Router = express.Router();
 const upload = multer();
@@ -111,43 +112,95 @@ router.post("/new", upload.single("file"), async (req: Request, res: Response) =
       attachments: [],
     };
 
-    const results = await AppDataSource.manager.getRepository(PostEntity).save<PostEntity>(post);
-    const file = req.file;
-    // const file = req.files['file'][0];
-    if (file) {
-      // let attachments = files?.map((file: Multer.File) => convertAttachment(file.filename, file.buffer, file.mimetype, post));
-      const attachmentEntity = convertAttachment(file.originalname, file.buffer, file.mimetype, post);
+    const savedPost = await AppDataSource.manager.getRepository(PostEntity).save<PostEntity>(post);
+    const fileFromRequest = req.file;
+    let attachmentEntity = null;
+
+    // const filesFromRequest = req.files['fileFromRequest'][0];
+    if (fileFromRequest) {
+      // let attachments = files?.map((fileFromRequest: Multer.File) => convertAttachment(fileFromRequest.filename, fileFromRequest.buffer, fileFromRequest.mimetype, post));
+      attachmentEntity = convertAttachment(fileFromRequest.originalname, fileFromRequest.buffer, fileFromRequest.mimetype, post);
       await AppDataSource.manager.getRepository(AttachmentEntity).save<AttachmentEntity>(attachmentEntity);
-      results.attachments.push(attachmentEntity);
+      savedPost.attachments.push(attachmentEntity);
     }
-    res.status(200).send(results);
+    let responseDto: DraftResponseDto;
+    if (attachmentEntity !== null) {
+      responseDto = {
+        attachments: [
+          {
+            id: attachmentEntity?.id,
+            binaryData: attachmentEntity.binaryData,
+            mimeType: attachmentEntity.mimeType,
+            filename: attachmentEntity.filename,
+          },
+        ],
+        postId: savedPost.id,
+      };
+    } else {
+      responseDto = { postId: savedPost.id, attachments: [] };
+    }
+    res.status(200).send(responseDto);
   } catch (e) {
     res.status(500).json({ error: "Fehler " + e });
   }
 });
 
 // EDIT EXISTING POST
-router.post("/:id", async (req: Request, res: Response) => {
+router.post("/:id", upload.single("file"), async (req: Request, res: Response) => {
   const post = await AppDataSource.manager.getRepository(PostEntity).findOneBy({
     id: +req.params.id,
   });
 
-  if (post === null) {
-    res.status(404).json({ error: "No such post" });
-  } else {
-    post.title = req.body.title;
-    post.description = req.body.description;
-    post.markdown = req.body.markdown;
-    post.updatedAt = new Date();
-    post.sanitizedHtml = await MarkdownConverterServer.Instance.convert(req.body.markdown);
-    post.updatedBy = await getUser();
-    // TODO
-    post.draft = req.body.draft;
-    post.attachments = [];
-
+  const bodyJson = JSON.parse(req.body.body);
+  if (post) {
     try {
-      const results = await AppDataSource.manager.getRepository(PostEntity).save(post);
-      res.status(200).send(results);
+      // TODO handle attachments correctly
+      // update post
+      await AppDataSource.manager
+        .createQueryBuilder()
+        .update("post")
+        .set({
+          title: bodyJson.title,
+          description: bodyJson.description,
+          markdown: bodyJson.markdown,
+          createdBy: await getUser(),
+          updatedAt: new Date(),
+          sanitizedHtml: await MarkdownConverterServer.Instance.convert(bodyJson.markdown),
+          updatedBy: await getUser(),
+          draft: bodyJson.draft,
+          // attachments: [],
+        })
+        .where("id = :id", { id: post.id })
+        .execute();
+
+      const fileFromRequest = req.file;
+      let attachmentEntity = null;
+
+      // const filesFromRequest = req.files['fileFromRequest'][0];
+      if (fileFromRequest) {
+        // let attachments = files?.map((fileFromRequest: Multer.File) => convertAttachment(fileFromRequest.filename, fileFromRequest.buffer, fileFromRequest.mimetype, post));
+        attachmentEntity = convertAttachment(fileFromRequest.originalname, fileFromRequest.buffer, fileFromRequest.mimetype, post);
+        await AppDataSource.manager.getRepository(AttachmentEntity).save<AttachmentEntity>(attachmentEntity);
+        post.attachments = [];
+        post.attachments.push(attachmentEntity);
+      }
+      let responseDto: DraftResponseDto;
+      if (attachmentEntity !== null) {
+        responseDto = {
+          attachments: [
+            {
+              id: attachmentEntity?.id,
+              binaryData: attachmentEntity.binaryData,
+              mimeType: attachmentEntity.mimeType,
+              filename: attachmentEntity.filename,
+            },
+          ],
+          postId: post.id,
+        };
+      } else {
+        responseDto = { postId: post.id, attachments: [] };
+      }
+      res.status(200).send(responseDto);
     } catch (e) {
       res.status(500).json({ error: "Fehler " + e });
     }

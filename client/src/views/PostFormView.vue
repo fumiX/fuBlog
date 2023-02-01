@@ -158,6 +158,7 @@ export default defineComponent({
         console.log(fileSize, fileExtension, fileName, isImage);
         this.file = tempFile;
       }
+      this.saveDraft(this.postId);
     },
 
     submitForm(e: Event) {
@@ -174,10 +175,11 @@ export default defineComponent({
         body: postable,
       };
       const formAction = id ? `/api/posts/${id}` : `/api/posts/new`;
+      console.log("send " + formAction);
       const response = await fetch(formAction, requestOptions);
       const data = await response.json();
       const post = data;
-      this.$router.push(`/posts/post/${post.id}`);
+      this.$router.push(`/posts/post/${post.postId}`);
     },
 
     async saveDraft(id: number | null) {
@@ -189,10 +191,11 @@ export default defineComponent({
         body: postable,
       };
       const formAction = id ? `/api/posts/${id}` : `/api/posts/new`;
+      console.log("save draft" + formAction);
       const response = await fetch(formAction, requestOptions);
       const data = await response.json();
-      const post = data;
-      this.$router.push(`/posts/post/${post.id}`);
+      this.postId = data.postId;
+      this.isCreateMode = false;
     },
   },
 });
