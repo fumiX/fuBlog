@@ -14,11 +14,12 @@ router.get("/url", (req: Request, res: Response) => {
   // This is an extract from https://github.com/panva/node-openid-client#AuthorizationCodeFlow
   const codeVerifier = generators.codeVerifier();
   const codeChallenge = generators.codeChallenge(codeVerifier);
-  const authUrl = req.app.authClient!.authorizationUrl({
-    scope: "openid email profile",
-    code_challenge: codeChallenge,
-    code_challenge_method: "S256",
-  });
+  const authUrl =
+    req.app.authClient?.authorizationUrl({
+      scope: "openid email profile",
+      code_challenge: codeChallenge,
+      code_challenge_method: "S256",
+    }) ?? null;
 
   // TODO: This is only for testing - the code verifier should be stored in the session. In case of a cookie it
   //  should be httpOnly, encrypted and not readable by JavaScript

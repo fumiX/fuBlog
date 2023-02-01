@@ -20,6 +20,8 @@ export async function generate() {
   if (usersInDbAtStart !== 0) {
     console.log("Test data is already generated.");
     return;
+  } else {
+    console.log("No test data in DB. Generating new data …");
   }
 
   Array.from({ length: usersCount }).forEach(() => {

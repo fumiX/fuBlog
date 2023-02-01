@@ -1,6 +1,7 @@
 import bodyParser from "body-parser";
 import cors from "cors";
 import express, { Application } from "express";
+import path from "path";
 import { init as initAuth } from "./auth/middleware.js";
 import { corsOptions } from "./config/cors-config.js";
 import { AppDataSource } from "./data-source.js";
@@ -31,6 +32,9 @@ app.use(`${ServerSettings.API_PATH}/attachments`, attRoutes);
 // in production serve the built vue-app from static public folder:
 if (AppSettings.IS_PRODUCTION) {
   app.use(express.static("./public"));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "public/index.html"));
+  });
 }
 
 app.listen(ServerSettings.PORT, () => {
