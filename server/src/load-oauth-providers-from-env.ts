@@ -51,7 +51,7 @@ export function loadOAuthProvidersFromEnv() {
         const clientId: string | undefined = keyvalue["CLIENT_ID"];
         const clientSecret: string | undefined = keyvalue["CLIENT_SECRET"];
         const domain: string | undefined = keyvalue["DOMAIN"];
-        if (type === FakeOAuthProvider.TYPE) {
+        if (type === "FAKE") {
           if (AppSettings.IS_PRODUCTION) {
             console.error("Fake OAuth is not allowed in production!");
             return null;
@@ -67,12 +67,12 @@ export function loadOAuthProvidersFromEnv() {
         }
 
         switch (type) {
-          case GitlabOAuthProvider.TYPE:
+          case "GITLAB":
             return new GitlabOAuthProvider(clientId, clientSecret, domain);
-          case GoogleOAuthProvider.TYPE:
+          case "GOOGLE":
             return new GoogleOAuthProvider(clientId, clientSecret, domain);
-          case FakeOAuthProvider.TYPE:
-            return new FakeOAuthProvider(clientId, clientSecret, domain, process.env["OAUTH_FAKE_HTTPS"] === "true");
+          case "FAKE":
+            return new FakeOAuthProvider(clientId, clientSecret, domain, process.env["OAUTH_FAKE_HTTPS"] !== "false");
           default:
             console.error(`Unrecognized OAuth provider type: ${type}`);
         }
