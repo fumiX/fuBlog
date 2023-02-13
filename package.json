@@ -8,7 +8,8 @@
   "workspaces": [
     "client",
     "common",
-    "server"
+    "server",
+    "testdata"
   ],
   "scripts": {
     "build": "npm run -w common build && npm run -ws build",
@@ -16,7 +17,7 @@
     "check-packages": "ts-node scripts/check-packages.ts",
     "lint": "prettier --check --config .prettierrc '*/src/**/*.(ts|vue)' && npm run --workspaces lint",
     "lintfix": "prettier --config .prettierrc '*/src/**/*.(ts|vue)' --write && npm run --workspaces lint --fix",
-    "start": "concurrently \"npm run start-client\" \"npm run start-server\"",
+    "start":  "docker compose up -d && NODE_ENV='development' concurrently \"npm run start-client\" \"npm run start-server\"",
     "start-client": "npm run dev --workspace client",
     "start-server": "npm run dev --workspace server",
     "test": "npm run --workspaces test"
