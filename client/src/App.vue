@@ -20,9 +20,6 @@
               <RouterLink to="/auth" class="nav-link">Login</RouterLink>
             </li>
             <li class="nav-item">
-              <RouterLink to="/" class="nav-link">Home</RouterLink>
-            </li>
-            <li class="nav-item">
               <RouterLink to="/posts" class="nav-link">Posts</RouterLink>
             </li>
           </ul>
