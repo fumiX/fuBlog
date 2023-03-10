@@ -35,15 +35,20 @@
             <h1 class="mb-0 display-4 font-italic">
               {{ post.title }}
             </h1>
-            <div class="mb-2 text-muted">
+
+            <div class="mb-1 text-muted creator">
               <fa-icon :icon="faClock" />
               {{ $luxonDateTime.fromISO(post.createdAt.toString()).toRelativeCalendar() }}
-              <span v-if="post.createdBy">
-                von
-                <i>{{ post.createdBy.firstName }} {{ post.createdBy.lastName }}</i>
-              </span>
+              <span v-if="post.createdBy"> von </span>
+              <i v-if="post.createdBy">{{ post.createdBy.firstName }} {{ post.createdBy.lastName }}</i>
             </div>
-            <!-- <p class="card-text my-4">{{ post.description }}</p> -->
+
+            <div v-if="post.updatedBy && post.updatedAt" class="mb-1 text-muted editor">
+              <fa-icon :icon="faEdit" />
+              {{ $luxonDateTime.fromISO(post.updatedAt.toString()).toRelativeCalendar() }}
+              <span> von </span>
+              <i>{{ post.updatedBy.firstName }} {{ post.updatedBy.lastName }}</i>
+            </div>
 
             <div v-html="post.sanitizedHtml" class="mt-4"></div>
           </div>
@@ -62,6 +67,17 @@
   background-size: cover;
   background-position: center center;
   min-height: 250px;
+}
+
+.editor {
+  display: inline-block;
+  font-size: 0.8rem;
+  margin-left: 1rem;
+}
+
+.creator {
+  display: inline-block;
+  font-size: 0.8rem;
 }
 </style>
 
@@ -99,6 +115,8 @@ export default defineComponent({
       const response = await res.json();
       this.post = response.data;
       this.loading = false;
+
+      console.log("POST", this.post);
     } catch (e) {
       console.log("ERROR: ", e);
       this.loading = false;
