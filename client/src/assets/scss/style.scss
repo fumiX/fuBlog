@@ -66,6 +66,16 @@ pre {
     &:focus {
         outline: 0;
         box-shadow: none !important;
-        background-color: $form-control-background-color;
     }
+}
+
+form {
+    label {
+        color: $label-color;
+    }
+}
+
+.bg-custom {
+    border-bottom: 1px solid #202020;
+    background-color: #252525;
 }

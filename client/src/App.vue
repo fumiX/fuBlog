@@ -1,8 +1,10 @@
 <template>
   <div>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-custom mb-4">
       <div class="container">
-        <a class="navbar-brand" href="/">fumiX Blog</a>
+        <a class="navbar-brand" href="/">
+          <img src="@/assets/images/logo.png" alt="..." height="50" />
+        </a>
         <button
           class="navbar-toggler"
           type="button"
@@ -32,14 +34,16 @@
       </div>
     </nav>
 
-    <RouterView />
+    <RouterView :userPermissions="userPermissions" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from "vue";
+import { defineComponent, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import SearchComponent from "./components/SearchComponent.vue";
+
+import Permission from "./permissions.js";
 
 export default defineComponent({
   components: { SearchComponent },
@@ -48,8 +52,10 @@ export default defineComponent({
     const searchQuery = ref<string>("");
     const router = useRouter();
 
+    const userPermissions = ref<Permission[]>([]);
+
     const setOperator = (operator: string) => {
-      console.log("OP", operator);
+      // console.log("OP", operator);
       router.replace({ query: { ...route.query, operator: operator } });
     };
 
@@ -60,7 +66,13 @@ export default defineComponent({
       }
     });
 
+    onMounted(() => {
+      // TODO: get user permissions from server
+      userPermissions.value = [Permission.CREATE, Permission.READ, Permission.WRITE, Permission.DELETE];
+    });
+
     return {
+      userPermissions,
       searchQuery,
       setOperator,
     };
@@ -69,6 +81,10 @@ export default defineComponent({
   methods: {
     startSearch(search: string, operator: string = "and") {
       this.$router.push(`/posts/?search=${search}&operator=${operator}`);
+    },
+
+    hasWritePermission() {
+      return this.userPermissions.includes(Permission.WRITE);
     },
   },
 });
