@@ -1,5 +1,10 @@
 import { OAuthType } from "@/dto/oauth/OAuthType.js";
-import { AuthorizationParameters, Client, Issuer } from "openid-client";
+
+type AuthorizationParameters = {
+  response_type?: string;
+  scope?: string;
+  access_type?: string;
+};
 
 export abstract class OAuthProvider {
   public readonly type: OAuthType;
@@ -9,9 +14,8 @@ export abstract class OAuthProvider {
   public readonly clientId: string;
   public readonly clientSecret: string;
   public readonly https: boolean;
-  public readonly client: Promise<Client | null>;
 
-  protected getAuthorizeQueryParams(): Partial<AuthorizationParameters> {
+  public getAuthorizeQueryParams(): Partial<AuthorizationParameters> {
     return { response_type: "code" };
   }
 
@@ -21,28 +25,11 @@ export abstract class OAuthProvider {
     this.clientSecret = clientSecret;
     this.domain = domain;
     this.https = https;
-    this.client = Issuer.discover(`https://${domain}`)
-      .then((issuer) => {
-        return new issuer.Client({
-          client_id: clientId,
-          client_secret: clientSecret,
-          redirect_uris: ["http://localhost:5010/auth"],
-        });
-      })
-      .catch((reason) => {
-        console.error("Failed to initialize OAuth client: ", reason);
-        return null;
-      });
-    console.log(`Initialized OAuth provider ${this.type}/${domain}`);
+    console.log(`Loaded OAuth provider ${this.getIdentifier()}`);
   }
 
-  public async getAuthorizationUrl(redirect_uri: string, state: string): Promise<string | undefined> {
-    return this.client.then((client) =>
-      client?.authorizationUrl({
-        ...this.getAuthorizeQueryParams(),
-        ...{ client_id: this.clientId, redirect_uri, state },
-      }),
-    );
+  public getIdentifier(): string {
+    return `${this.type}/${this.domain}`;
   }
 }
 
@@ -61,7 +48,7 @@ export class GitlabOAuthProvider extends OAuthProvider {
     super("GITLAB", clientId, clientSecret, domain ?? "gitlab.com", true);
   }
 
-  protected getAuthorizeQueryParams(): AuthorizationParameters {
+  public getAuthorizeQueryParams(): AuthorizationParameters {
     return {
       ...super.getAuthorizeQueryParams(),
       scope: "profile email",
@@ -77,7 +64,7 @@ export class GoogleOAuthProvider extends OAuthProvider {
     super("GOOGLE", clientId, clientSecret, domain ?? "accounts.google.com", true);
   }
 
-  protected getAuthorizeQueryParams(): AuthorizationParameters {
+  public getAuthorizeQueryParams(): AuthorizationParameters {
     return {
       ...super.getAuthorizeQueryParams(),
       ...{

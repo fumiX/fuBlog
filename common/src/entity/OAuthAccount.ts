@@ -1,9 +1,10 @@
-import { OAuthProvider } from "@/entity/OAuthProvider.js";
-import type { User } from "./User.js";
+import { OAuthType } from "@/dto/oauth/OAuthType.js";
+import type { User } from "@/entity/User.js";
 
 export type OAuthAccount = {
   id?: number;
   oauthId: string;
   user: User;
-  provider: OAuthProvider;
+  type: OAuthType;
+  domain: string;
 };
