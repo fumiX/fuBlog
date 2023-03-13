@@ -5,8 +5,8 @@ node_modules/
 # TypeScript cache
 *.tsbuildinfo
 
-/testdata/certs/ca.crt
-/testdata/certs/ca.key
+/certs/ca.crt
+/certs/ca.key
 
 ###
 

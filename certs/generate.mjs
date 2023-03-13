@@ -7,8 +7,8 @@ import { dirname } from "path";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const numMillisecondsPerDay = 1000 * 60 * 60 * 24;
 
-const caCrtPath = `${__dirname}/certs/ca.crt`;
-const caKeyPath = `${__dirname}/certs/ca.key`;
+const caCrtPath = `${__dirname}/ca.crt`;
+const caKeyPath = `${__dirname}/ca.key`;
 
 let skipCaGeneration = false;
 try {
@@ -16,11 +16,13 @@ try {
   const caKey = readFileSync(caKeyPath);
 
   if (caCert && caKey) {
+    // Check if CA cert is still valid
     const caCertParsed = new X509Certificate(caCert);
     console.log(caCertParsed.validTo);
     const numValidMilliseconds = Date.parse(caCertParsed.validTo) - Date.now();
     const numValidDays = Math.floor(numValidMilliseconds / numMillisecondsPerDay);
     console.log(`CA is valid for ${numValidDays} days and ${(numValidMilliseconds - numValidDays * numMillisecondsPerDay) / 1000} seconds`);
+    // If CA cert is valid more than 30 days, skip regeneration
     if (numValidDays > 30) {
       skipCaGeneration = true;
     }
@@ -29,22 +31,21 @@ try {
 
 if (!skipCaGeneration) {
   console.log("Generate new certificate authority …");
-  mkdirSync("certs/", { recursive: true });
 
   await createCA({
-    organization: "_ fuBlog test data portal (development)",
+    organization: "_ FumiX/fuBlog (development)",
     countryCode: "DE",
     state: "some state",
     locality: "somewhere",
     validityDays: 365,
   }).then(async (ca) => {
     writeFileSync(
-      "certs/ca.crt",
+      caCrtPath,
       `CA certificate used for testdata portal.\nIn order to regenerate this, delete the file and restart the testdata portal.\n${ca.cert}`,
       { encoding: "utf8" },
     );
-    writeFileSync("certs/ca.key", ca.key);
+    writeFileSync(caKeyPath, ca.key);
   });
 } else {
-  console.log("Certificate authority is not generated, the existing one can be reused.");
+  console.log("Certificate authority is not regenerated, the existing one can be reused.");
 }

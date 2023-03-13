@@ -1,15 +1,15 @@
 {
-  "name": "@fumix/fu-blog-testdata",
+  "name": "@fumix/fu-blog-portal",
   "version": "0.1.0",
   "private": true,
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "gen-ca": "node gen-ca.js",
     "start": "nodemon ./src/index.ts",
     "build": "tsc"
   },
   "dependencies": {
+    "typeorm": "0.3.12",
     "ts-node": "10.9.1",
     "@fumix/fu-blog-server": "*"
   },
