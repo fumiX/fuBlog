@@ -195,6 +195,8 @@ export default defineComponent({
       const response = await fetch(formAction, requestOptions);
       const data = await response.json();
       this.postId = data.postId;
+      const baseAttachmentUrl = "/api/attachments/attachment/";
+      this.form.markdown += "![](" + baseAttachmentUrl + data.attachments[0]?.id + "/" + encodeURI(data.attachments[0].filename) + ")";
       this.isCreateMode = false;
     },
   },
