@@ -1,5 +1,5 @@
 enum Permission {
-  CREATE = "create",
+  POST_CREATE = "create",
   READ = "read",
   WRITE = "write",
   DELETE = "delete",

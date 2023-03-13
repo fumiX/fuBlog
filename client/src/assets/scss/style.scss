@@ -34,6 +34,10 @@ pre {
     svg {
         max-width: 100%;
         background: transparent !important;
+
+        g > * :not(text) {
+            stroke: #CCC!important;
+          }
     }
     img {
         max-width: 100%;

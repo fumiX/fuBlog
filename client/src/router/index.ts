@@ -13,6 +13,11 @@ const router = createRouter({
       component: () => import("@/views/AuthView.vue"),
     },
     {
+      path: "/administration",
+      name: "administration",
+      component: () => import("@/views/AdministrationView.vue"),
+    },
+    {
       path: "/posts",
       name: "posts",
       // route level code-splitting
