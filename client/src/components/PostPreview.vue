@@ -35,10 +35,14 @@
           <p class="card-text my-4">{{ post.description }}</p>
 
           <div class="my-4">
-            <button class="btn btn-sm btn-primary" @click="$router.push('/posts/post/' + post.id)">
+            <!-- <button class="btn btn-sm btn-primary" @click="$router.push('/posts/post/' + post.id)">
               <fa-icon :icon="faBookReader" />
               Lesen
-            </button>
+            </button> -->
+            <router-link :to="'/posts/post/' + post.id" class="text-decoration-none">
+              <fa-icon :icon="faBookReader" />
+              Lesen
+            </router-link>
           </div>
         </div>
       </div>
