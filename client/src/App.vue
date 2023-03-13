@@ -27,6 +27,7 @@
             </li>
           </ul>
           <search-component :searchString="searchQuery" @searched="startSearch($event)" @operatorChanged="setOperator($event)"></search-component>
+          <login-button></login-button>
         </div>
       </div>
     </nav>
@@ -36,12 +37,13 @@
 </template>
 
 <script lang="ts">
+import LoginButton from "@/components/LoginButton.vue";
 import { defineComponent, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import SearchComponent from "./components/SearchComponent.vue";
 
 export default defineComponent({
-  components: { SearchComponent },
+  components: { LoginButton, SearchComponent },
   setup() {
     const route = useRoute();
     const searchQuery = ref<string>("");

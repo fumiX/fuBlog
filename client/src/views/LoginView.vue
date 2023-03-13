@@ -3,14 +3,12 @@
     <h2>Login</h2>
     <div v-if="code && returnedType && returnedDomain && returnedState">
       <div v-if="isStateMatching()">
-        Welcome back with code <code>{{ code }}</code>!
+        Welcome back with code <code>{{ code }}</code
+        >!
         <pre>{{ returnedType }} {{ returnedDomain }} {{ returnedState }}</pre>
         <button @click="login">Login</button>
       </div>
-      <div v-else class="alert alert-danger">
-        State does not match! Retry <a href="/login">Login</a>
-      </div>
-
+      <div v-else class="alert alert-danger">State does not match! Retry <a href="/login">Login</a></div>
     </div>
     <div v-else-if="!loading">
       <ul v-if="providers">
@@ -24,7 +22,8 @@
 </template>
 
 <script lang="ts">
-import type { OAuthProvidersDto } from "@fumix/fu-blog-common";
+import type { OAuthProvidersDto, OAuthCodeDto, OAuthType } from "@fumix/fu-blog-common";
+import { isOAuthType } from "@fumix/fu-blog-common";
 import { Buffer } from "buffer";
 import { defineComponent, ref } from "vue";
 import { useRoute } from "vue-router";
@@ -33,21 +32,34 @@ export default defineComponent({
   name: "AuthView",
   methods: {
     async login() {
+      if (!this.returnedType) {
+        return;
+      }
+      const code: OAuthCodeDto = {
+        type: this.returnedType,
+        issuer: this.returnedDomain,
+        code: this.code + "",
+      };
       await fetch(`/api/auth/code`, {
         headers: {
           "Content-Type": "application/json",
         },
         method: "POST",
-        body: JSON.stringify({ code: this.code, domain: this.returnedDomain, type: this.returnedType }),
+        body: JSON.stringify(code),
       });
     },
     isStateMatching(): boolean {
       const savedState = window.sessionStorage.getItem("state");
       if (savedState && this.returnedState) {
-        return JSON.parse(savedState).state === this.returnedState
+        try {
+          console.log("Comparing states: ", JSON.parse(savedState).state, " == ", this.returnedState, "?");
+          return JSON.parse(savedState).state === this.returnedState;
+        } catch (e) {
+          return false;
+        }
       }
       return false;
-    }
+    },
   },
   setup() {
     const route = useRoute();
@@ -68,7 +80,7 @@ export default defineComponent({
       providers,
       code: route.query.code,
       redirect: route.query.redirect,
-      returnedType,
+      returnedType: isOAuthType(returnedType) ? (returnedType as OAuthType) : null,
       returnedDomain,
       returnedState,
     };

@@ -1,4 +1,3 @@
-export * from "./SelectDialogConfig.js";
 export * from "./confirmdialog.js";
 export * from "./dto/OAuthProvidersDto.js";
 export * from "./dto/UserDto.js";
