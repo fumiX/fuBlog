@@ -1,5 +1,6 @@
 import { FakeOAuthProvider, GitlabOAuthProvider, GoogleOAuthProvider, isNotNull, OAuthProvider } from "@fumix/fu-blog-common";
 import { AppSettings } from "./settings.js";
+import Dict = NodeJS.Dict;
 
 const REGEX_OAUTH_ENV_VARS = /^OAUTH_([A-Z]+)(_([1-9]\d*))?_([A-Z_]+)$/g;
 
@@ -18,13 +19,13 @@ type GroupedOAuthEnvVars = {
   };
 };
 
-function loadGroupedOAuthEnvVars(): GroupedOAuthEnvVars {
-  return Object.keys(process.env)
+function loadGroupedOAuthEnvVars(envDictionary: Dict<string>): GroupedOAuthEnvVars {
+  return Object.keys(envDictionary)
     .map<OAuthEnvVar | null>((it) => {
       const [match] = it.matchAll(REGEX_OAUTH_ENV_VARS);
       if (match) {
         const [env, type, , i, varKey] = match;
-        const varValue: string | undefined = process.env[env];
+        const varValue: string | undefined = envDictionary[env];
         const index = +(i ?? "0");
         if (type && varKey && varValue) {
           return { type, index, varKey, varValue };
@@ -45,7 +46,7 @@ function loadGroupedOAuthEnvVars(): GroupedOAuthEnvVars {
 }
 
 export function loadOAuthProvidersFromEnv() {
-  const providers = Object.entries(loadGroupedOAuthEnvVars()).flatMap<OAuthProvider>(([type, value]) => {
+  const providers = Object.entries(loadGroupedOAuthEnvVars(process.env)).flatMap<OAuthProvider>(([type, value]) => {
     return Object.entries(value)
       .map(([i, keyvalue]) => {
         const clientId: string | undefined = keyvalue["CLIENT_ID"];

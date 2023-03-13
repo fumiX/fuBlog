@@ -1,9 +1,8 @@
+import { OAuthProvider, UserRole, UserRolePermissions, UserRoles } from "@fumix/fu-blog-common";
+import { EntityTarget, ObjectLiteral, Repository } from "typeorm";
 import { AppDataSource } from "../data-source.js";
 import { OAuthAccountEntity } from "../entity/OAuthAccount.entity.js";
 import { UserEntity } from "../entity/User.entity.js";
-import { UserRole, UserRolePermissions, UserRoles } from "@fumix/fu-blog-common";
-import { EntityTarget, ObjectLiteral, Repository } from "typeorm";
-import { SupportedOAuthProvider } from "@fumix/fu-blog-common";
 
 /** A name for the tuples representing {@link UserRolePermissions} entries */
 type PermissionKeyValue = [string, boolean];
@@ -15,23 +14,25 @@ type PermissionKeyValue = [string, boolean];
  * @param provider The name of the OAuth provider
  * @return The user account information or null if the user was not authenticated yet
  */
-export async function findOAuthAccountBy(id: string, provider: SupportedOAuthProvider): Promise<OAuthAccountEntity | null> {
+export async function findOAuthAccountBy(id: string, provider: OAuthProvider): Promise<OAuthAccountEntity | null> {
   return await getRepositoryFor(OAuthAccountEntity).findOne({
     where: {
       oauthId: id,
-      provider
+      type: provider.type,
+      domain: provider.domain,
     },
     relations: {
-      user: true
-    }
+      user: true,
+    },
   });
 }
 
-export async function createOAuthAccount(id: string, provider: SupportedOAuthProvider, user: UserEntity) {
+export async function createOAuthAccount(id: string, provider: OAuthProvider, user: UserEntity) {
   const account: OAuthAccountEntity = {
     oauthId: id,
-    provider,
-    user
+    type: provider.type,
+    domain: provider.domain,
+    user,
   };
   return getRepositoryFor(OAuthAccountEntity).save(account);
 }
@@ -42,7 +43,8 @@ export function createUser(username: string, email: string, roles: UserRole[], f
     firstName,
     lastName,
     email,
-    roles
+    roles,
+    isActive: true,
   };
   return getRepositoryFor(UserEntity).save(user);
 }
@@ -57,15 +59,15 @@ export function createUser(username: string, email: string, roles: UserRole[], f
 export async function getUserPermissions(userId: number): Promise<UserRolePermissions> {
   const user = await getRepositoryFor(UserEntity).findOne({
     where: {
-      id: userId
-    }
+      id: userId,
+    },
   });
   let permissions = new UserRolePermissions("Blogger permissions", {});
   if (user) {
     const roles: UserRolePermissions[] = user.roles.map((role: UserRole) => UserRoles[role]);
     // Filter the collection of key-value pairs that are set to true
     const granted: Array<PermissionKeyValue> = roles.flatMap((role: UserRolePermissions) =>
-      Object.entries(role).filter(([key, value]) => value !== false)
+      Object.entries(role).filter(([key, value]) => value !== false),
     );
     // These are the merged permissions
     permissions = { ...permissions, ...Object.fromEntries(granted) };

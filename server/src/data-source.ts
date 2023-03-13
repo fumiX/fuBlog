@@ -1,6 +1,6 @@
+import path from "path";
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-import path from "path";
 import { DatabaseSettings } from "./settings.js";
 
 // This is the full URL to the current module which in Node.js is the file path
@@ -17,7 +17,7 @@ export const AppDataSource = new DataSource({
   database: DatabaseSettings.NAME,
   synchronize: false,
   logging: false,
-  entities: [path.join(baseDir, "entity/*.ts")],
+  entities: [path.join(baseDir, "entity/*.{js,ts}")],
   migrations: ["./src/migration/*.ts"],
   migrationsRun: true,
   subscribers: [],

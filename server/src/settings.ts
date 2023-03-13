@@ -1,13 +1,14 @@
-import { OAuthProvider } from "@fumix/fu-blog-common";
+import { OAuthProvider, OAuthType } from "@fumix/fu-blog-common";
 import { loadOAuthProvidersFromEnv } from "./load-oauth-providers-from-env.js";
 
 export class AppSettings {
   static readonly IS_PRODUCTION = process.env.NODE_ENV !== "development";
+  static readonly RUN_MODE: "development" | "production" = AppSettings.IS_PRODUCTION ? "production" : "development";
 }
 
 export class ClientSettings {
-  static readonly BASE_URL: string = process.env.CLIENT_BASE_URL ?? "http://localhost:5010";
   static readonly PORT: number = toNumberOrDefault(process.env.CLIENT_PORT, 5010);
+  static readonly BASE_URL: string = process.env.CLIENT_BASE_URL ?? `http://localhost:${ClientSettings.PORT}`;
 }
 
 export class DatabaseSettings {
@@ -30,6 +31,13 @@ export class OAuthSettings {
   static readonly CLIENT_SECRET = "";
   static readonly PROVIDER_URL = "";
   static readonly PROVIDERS: OAuthProvider[] = loadOAuthProvidersFromEnv();
+
+  static findByType(type: OAuthType): OAuthProvider[] {
+    return OAuthSettings.PROVIDERS.filter((it) => it.type === type);
+  }
+  static findByTypeAndDomain(type: OAuthType, domain: string): OAuthProvider | undefined {
+    return this.findByType(type).find((it) => it.domain === domain);
+  }
 }
 
 function toNumberOrDefault(value: string | undefined | null, defaultValue: number): number {

@@ -1,17 +1,127 @@
+import { isNotNull, OAuthProvider, OAuthProvidersDto, UserRole, UserRolePermissions } from "@fumix/fu-blog-common";
 import express, { CookieOptions, NextFunction, Request, Response, Router } from "express";
-import { CallbackParamsType, generators, TokenSet } from "openid-client";
+import fetch from "node-fetch";
+import { BaseClient, CallbackParamsType, generators, Issuer, TokenSet } from "openid-client";
 import { getRedirectURI } from "../auth/middleware.js";
-import { createOAuthAccount, createUser, findOAuthAccountBy } from "../service/crud.js";
-import { findOAuthProviderById, UserRole, UserRolePermissions } from "@fumix/fu-blog-common";
 import { OAuthAccountEntity } from "../entity/OAuthAccount.entity.js";
+import { createOAuthAccount, createUser, findOAuthAccountBy } from "../service/crud.js";
+import { OAuthSettings } from "../settings.js";
 
 const router: Router = express.Router();
 
-const SESSION_COOKIE = "session";
-
 enum StatusCode {
-  Unauthorized = 401
+  Unauthorized = 401,
 }
+
+const oauthClients: { [provider: string]: BaseClient | undefined } = {};
+OAuthSettings.PROVIDERS.forEach((p) => {
+  oauthClients[p.getIdentifier()] = undefined;
+});
+
+router.post("/providers", async (req: Request, res: Response) => {
+  const state = req.body.state;
+  if (!state || state.length < 5) {
+    res.status(400).json({ error: "Insufficient state!" });
+  } else {
+    const result: OAuthProvidersDto = {
+      providers: (
+        await Promise.all(
+          OAuthSettings.PROVIDERS.map(async (it) => {
+            const fullStateString = `${it.type}/${it.domain}/${state}`;
+            const url = await getAuthorizationUrl(it, "http://localhost:5010/login", fullStateString);
+            return url
+              ? {
+                  label: "Login via " + it.domain,
+                  url,
+                }
+              : null;
+          }),
+        )
+      ).filter(isNotNull),
+    };
+    res.status(200).json(result);
+  }
+});
+
+async function getAuthorizationUrl(oauthProvider: OAuthProvider, redirect_uri: string, state: string): Promise<string | undefined> {
+  if (!oauthClients[oauthProvider.getIdentifier()]) {
+    oauthClients[oauthProvider.getIdentifier()] = await Issuer.discover(`https://${oauthProvider.domain}`)
+      .then((issuer) => {
+        return new issuer.Client({
+          client_id: oauthProvider.clientId,
+          client_secret: oauthProvider.clientSecret,
+          redirect_uris: ["http://localhost:5010/auth"],
+        });
+      })
+      .catch((reason) => {
+        console.error("Failed to initialize OAuth client: ", reason);
+        return undefined;
+      });
+  }
+  return (
+    oauthClients[oauthProvider.getIdentifier()]?.authorizationUrl({
+      ...oauthProvider.getAuthorizeQueryParams(),
+      ...{ client_id: oauthProvider.clientId, redirect_uri, state },
+    }) ?? undefined
+  );
+}
+
+router.post("/code", async (req, res) => {
+  const code = req.body.code;
+  const domain = req.body.domain;
+  const type = req.body.type;
+  const provider = OAuthSettings.PROVIDERS.find((it) => it.domain === domain && it.type === type);
+  if (!code || !domain || !type || !provider) {
+    res.status(400);
+  } else {
+    const client = oauthClients[OAuthSettings.findByTypeAndDomain(type, domain)?.getIdentifier() ?? ""];
+    if (client) {
+      const params = client.callbackParams(req);
+      const tokenSet = await client.callback("http://localhost:5010/login", params);
+      console.log("Token set ", tokenSet);
+    }
+    const token = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        code: code,
+        client_id: provider.clientId,
+        client_secret: provider.clientSecret,
+        redirect_uri: "http://localhost:5010/login",
+        grant_type: "authorization_code",
+      }),
+    });
+    token.json().then((tokenJson) => {
+      console.log("Token", tokenJson);
+    });
+    /*
+    token
+      .json()
+      .then((tokenJson) => {
+        console.log("Token", tokenJson);
+        console.log("Client", provider.client);
+        provider.client
+          .then((client) => {
+            console.log("Token2", tokenJson);
+            client?.userinfo((tokenJson as bla).access_token).then((userinfo) => console.log("UserInfo", userinfo));
+            client
+              ?.grant({
+                grant_type: "idToken",
+              })
+              .then((g) => {
+                console.log("g", g);
+              });
+          })
+          .catch((reason) => {
+            res.status(402);
+          });
+        res.status(200).json(tokenJson);
+      })
+      .catch((reason) => {
+        res.status(401);
+      });*/
+  }
+});
 
 /**
  * Provides the URL used for authentication / authorization used to redirect the client to the OAuth authorization server.
@@ -51,7 +161,7 @@ router.get("/callback", async (req: Request, res: Response) => {
     const userPermissions: UserRolePermissions = {} as UserRolePermissions;
     const issuerId = req.app.authIssuer?.metadata.issuer;
     if (issuerId) {
-      const provider = findOAuthProviderById(issuerId);
+      const provider = OAuthSettings.PROVIDERS.find((it) => it.type === issuerId);
       if (provider) {
         let account: OAuthAccountEntity | null = await findOAuthAccountBy(userInfo.sub, provider);
         if (!account) {
@@ -77,7 +187,7 @@ router.get("/callback", async (req: Request, res: Response) => {
 });
 
 export function authenticate(req: Request, res: Response, next: NextFunction) {
-  console.log("[authenticate} req.origianUrl: ", req.originalUrl);
+  console.log("[authenticate] req.originalUrl: ", req.originalUrl);
 
   const reqHeaders = req.headers.authorization;
   const resHeaders = res.getHeader("Authorization");
@@ -104,36 +214,6 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
     }
   }
   // next();
-}
-
-/**
- * Sets an authentication cookie
- * @param {Response} res The server response
- * @param {string} value The value of the cookie
- * */
-export function setAuthCookie(res: Response, value: string): void {
-  /**
-   * @property {number} maxAge The maximum time (in seconds) before the cookie
-   * will be removed by the web browser
-   * @property {boolean} httpOnly
-   * Disables access from JavaScript resulting in queries like:
-   * <code>document.cookie</code> returning undefined
-   * @property {boolean} secure Should be turned on in a production environment
-   */
-  const options: CookieOptions = {
-    maxAge: 3600 * 24 * 182,
-    httpOnly: true,
-    // only access from our site
-    // Unfortunately the cookie behavior has recently changed
-    // and so we need to do this in order for the redirects to carry on our state cookie
-    sameSite: false,
-    secure: false,
-  };
-  res.cookie(SESSION_COOKIE, value, options);
-}
-
-export function getAuthCookie(req: Request): string {
-  return req.cookies[SESSION_COOKIE];
 }
 
 export default router;
