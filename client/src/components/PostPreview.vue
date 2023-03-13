@@ -18,13 +18,24 @@
             </button>
           </div>
           <!-- <strong class="d-inline-block mb-2 text-primary">Kategorie</strong> -->
-          <h3 class="mb-0 display-4 clickable" @click="goTo('/posts/post/' + post.id)">{{ post.title }}</h3>
-          <div class="mb-1 text-muted">
+          <h3 class="mb-0 display-4 clickable" @click="goTo('/posts/post/' + post.id)">
+            {{ post.title }}
+          </h3>
+
+          <div class="mb-1 text-muted creator">
             <fa-icon :icon="faClock" />
             {{ $luxonDateTime.fromISO(post.createdAt.toString()).toRelativeCalendar() }}
             <span v-if="post.createdBy"> von </span>
             <i v-if="post.createdBy">{{ post.createdBy.firstName }} {{ post.createdBy.lastName }}</i>
           </div>
+
+          <div v-if="post.updatedBy && post.updatedAt" class="mb-1 text-muted editor">
+            <fa-icon :icon="faEdit" />
+            {{ $luxonDateTime.fromISO(post.updatedAt.toString()).toRelativeCalendar() }}
+            <span> von </span>
+            <i>{{ post.updatedBy.firstName }} {{ post.updatedBy.lastName }}</i>
+          </div>
+
           <p class="card-text my-4">{{ post.description }}</p>
         </div>
       </div>
@@ -32,7 +43,17 @@
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.editor {
+  display: inline-block;
+  font-size: 0.8rem;
+  margin-left: 1rem;
+}
+.creator {
+  display: inline-block;
+  font-size: 0.8rem;
+}
+</style>
 
 <script lang="ts">
 import type { PropType } from "vue";
@@ -52,6 +73,8 @@ export default defineComponent({
   emits: ["deletePost", "changePost"],
 
   setup(props, emits) {
+    console.log("POST", props.post);
+
     return {
       props,
       emits,

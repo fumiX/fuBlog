@@ -3,8 +3,8 @@ import multer from "multer";
 import { AppDataSource } from "../data-source.js";
 import { PostEntity } from "../entity/Post.entity.js";
 import { UserEntity } from "../entity/User.entity.js";
-import { MarkdownConverterServer } from "../markdown-converter-server.js";
 import { AttachmentEntity } from "../entity/Attachment.entity.js";
+import { MarkdownConverterServer } from "../markdown-converter-server.js";
 import { DraftResponseDto } from "@fumix/fu-blog-common";
 
 const router: Router = express.Router();
@@ -23,10 +23,8 @@ async function getUser() {
       lastName: "Neumann",
       roles: ["ADMIN", "POST_CREATE"],
     };
-
     createdUser = await AppDataSource.manager.getRepository(UserEntity).save(user);
   }
-
   return createdUser;
 }
 
@@ -67,15 +65,19 @@ router.get("/page/:page/count/:count/", async (req: Request, res: Response) => {
     },
     skip: skipEntries,
     take: itemsPerPage,
+    relations: ["createdBy", "updatedBy"],
   });
 
   res.status(200).json({ data: allPosts });
 });
 
-// GET POST BY ID
+// GET POST BY ID WITH RELATIONS TO USER
 router.get("/:id", async (req: Request, res: Response) => {
-  const post = await AppDataSource.manager.getRepository(PostEntity).findOneBy({
-    id: +req.params.id,
+  const post = await AppDataSource.manager.getRepository(PostEntity).findOne({
+    where: {
+      id: +req.params.id,
+    },
+    relations: ["createdBy", "updatedBy"],
   });
 
   if (post === null) {
@@ -210,6 +212,8 @@ router.post("/:id", upload.single("file"), async (req: Request, res: Response) =
 // DELETE POST
 router.get("/delete/:id", async (req: Request, res: Response) => {
   try {
+    // find all attachments of post and delete them
+    await AppDataSource.manager.getRepository(AttachmentEntity).delete({ post: { id: +req.params.id } });
     // find post in DB and delete it
     const result = await AppDataSource.manager.getRepository(PostEntity).delete(+req.params.id);
     res.status(200).send(result);
