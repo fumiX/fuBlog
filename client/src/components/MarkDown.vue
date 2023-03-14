@@ -40,9 +40,7 @@ export default defineComponent({
     watch(props, async () => {
       try {
         emits.emit("loading", true);
-        sanitizedHtml.value = await MarkdownConverterClient.Instance.convert(
-          props.markdown ?? "",
-        );
+        sanitizedHtml.value = await MarkdownConverterClient.Instance.convert(props.markdown ?? "");
       } catch (e) {
         // TODO erro handling
       } finally {
