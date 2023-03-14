@@ -4,15 +4,11 @@
       <div class="card flex-md-row mb-4 box-shadow h-md-250">
         <div class="card-body">
           <div class="clearfix mb-4">
-            <button class="btn btn-sm btn-primary" @click="$router.push('/posts/post/' + post.id)">
-              <fa-icon :icon="faBookReader" />
-              Lesen
-            </button>
-            <button class="btn btn-sm btn-danger float-end" @click="$emit('deletePost', post)">
+            <button v-if="hasPermission('delete')" class="btn btn-sm btn-danger float-end" @click="$emit('deletePost', post)">
               <fa-icon :icon="faTrash" />
               Löschen
             </button>
-            <button class="btn btn-sm btn-secondary float-end mx-2" @click="$emit('changePost', post)">
+            <button v-if="hasPermission('write')" class="btn btn-sm btn-secondary float-end mx-2" @click="$emit('changePost', post)">
               <fa-icon :icon="faEdit" />
               Ändern
             </button>
@@ -37,6 +33,17 @@
           </div>
 
           <p class="card-text my-4">{{ post.description }}</p>
+
+          <div class="my-4">
+            <!-- <button class="btn btn-sm btn-primary" @click="$router.push('/posts/post/' + post.id)">
+              <fa-icon :icon="faBookReader" />
+              Lesen
+            </button> -->
+            <router-link :to="'/posts/post/' + post.id" class="text-decoration-none">
+              <fa-icon :icon="faBookReader" />
+              Lesen
+            </router-link>
+          </div>
         </div>
       </div>
     </div>
@@ -61,6 +68,7 @@ import { defineComponent } from "vue";
 import type { Post } from "@fumix/fu-blog-common";
 import { faBookReader, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { faClock } from "@fortawesome/free-regular-svg-icons";
+import type Permission from "../permissions.js";
 
 export default defineComponent({
   props: {
@@ -68,13 +76,14 @@ export default defineComponent({
       type: Object as PropType<Post>,
       required: true,
     },
+    userPermissions: {
+      type: Array as PropType<Permission[]>,
+    },
   },
 
   emits: ["deletePost", "changePost"],
 
   setup(props, emits) {
-    console.log("POST", props.post);
-
     return {
       props,
       emits,
@@ -88,6 +97,11 @@ export default defineComponent({
   methods: {
     goTo(path: string) {
       this.$router.push(path);
+    },
+
+    hasPermission(permission: String) {
+      const perm = permission as Permission;
+      return this.props.userPermissions?.includes(perm);
     },
   },
 });

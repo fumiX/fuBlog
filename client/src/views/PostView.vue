@@ -1,12 +1,9 @@
 <template>
   <div class="container" v-if="post">
-    <div class="jumbotron rounded mb-4 p-3 p-md-5 post-bg">
+    <!-- <div class="jumbotron rounded mb-4 p-3 p-md-5 post-bg">
       <div class="col-md-6 px-0">
-        <!-- <h1 class="display-2 font-italic">{{ post.title }}</h1> -->
-        <!-- <p class="lead my-3">Liste aller Blogposts.</p> -->
-        <!-- <p class="lead mb-0"><a href="#" class="text-white font-weight-bold">Continue reading...</a></p> -->
       </div>
-    </div>
+    </div> -->
 
     <div v-if="loading" class="loader">
       <div class="spinner-border text-secondary" role="status">
@@ -19,15 +16,19 @@
         <div class="card flex-md-row mb-4 box-shadow h-md-250">
           <div class="card-body">
             <div class="clearfix mb-4">
-              <button class="btn btn-sm btn-primary" @click="$router.push('/posts')">
+              <button class="btn btn-sm btn-outline-primary" @click="$router.push('/posts')">
                 <fa-icon :icon="faArrowLeft" />
                 Zurück
               </button>
-              <button class="btn btn-sm btn-danger float-end" @click="showConfirm(post)">
+              <button v-if="hasPermission('delete')" class="btn btn-sm btn-danger float-end" @click="showConfirm(post)">
                 <fa-icon :icon="faTrash" />
                 Löschen
               </button>
-              <button class="btn btn-sm btn-secondary float-end mx-2" @click="$router.push(`/posts/post/form/?id=${post?.id}`)">
+              <button
+                v-if="hasPermission('write')"
+                class="btn btn-sm btn-secondary float-end mx-2"
+                @click="$router.push(`/posts/post/form/?id=${post?.id}`)"
+              >
                 <fa-icon :icon="faEdit" />
                 Ändern
               </button>
@@ -82,18 +83,27 @@
 </style>
 
 <script lang="ts">
+import type { PropType } from "vue";
 import { defineComponent, ref } from "vue";
 import { useRoute } from "vue-router";
 import type { ConfirmDialogData, Post } from "@fumix/fu-blog-common";
 import ConfirmDialog from "../components/ConfirmDialog.vue";
 import { faArrowLeft, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { faClock } from "@fortawesome/free-regular-svg-icons";
+import type Permission from "../permissions.js";
 
 export default defineComponent({
   components: {
     ConfirmDialog,
   },
-  setup() {
+
+  props: {
+    userPermissions: {
+      type: Array as PropType<Permission[]>,
+    },
+  },
+
+  setup(props) {
     return {
       loading: ref(true),
       post: ref<Post | null>(null),
@@ -104,6 +114,7 @@ export default defineComponent({
       faTrash,
       faEdit,
       faClock,
+      props,
     };
   },
 
@@ -115,8 +126,6 @@ export default defineComponent({
       const response = await res.json();
       this.post = response.data;
       this.loading = false;
-
-      console.log("POST", this.post);
     } catch (e) {
       console.log("ERROR: ", e);
       this.loading = false;
@@ -132,6 +141,11 @@ export default defineComponent({
       } catch (e) {
         console.log("ERROR: ", e);
       }
+    },
+
+    hasPermission(permission: String) {
+      const perm = permission as Permission;
+      return this.props.userPermissions?.includes(perm);
     },
 
     showConfirm(post: Post | null) {

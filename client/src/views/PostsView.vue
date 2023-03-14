@@ -2,13 +2,13 @@
   <div class="container">
     <div class="jumbotron rounded mb-4 p-3 p-md-5 blog-bg">
       <div class="col-md-6 px-0">
-        <h1 class="display-2 font-italic">Blogposts</h1>
-        <!-- <p class="lead my-3">Liste aller Blogposts.</p> -->
+        <h1 class="display-2 font-italic">{{ blogTitle }}</h1>
+        <p class="display-6 my-1 text-dark">{{ blogShortDescription }}</p>
         <!-- <p class="lead mb-0"><a href="#" class="text-white font-weight-bold">Continue reading...</a></p> -->
       </div>
     </div>
 
-    <div class="clearfix mb-4">
+    <div v-if="hasPermission('create')" class="clearfix mb-4">
       <button type="button" class="btn btn-sm btn-secondary float-end" @click="goTo('/posts/post/form')">
         <fa-icon :icon="faAdd" /> Post erstellen
       </button>
@@ -25,6 +25,7 @@
         v-for="post in posts"
         :key="post.id"
         :post="post"
+        :userPermissions="userPermissions"
         @deletePost="showConfirm($event)"
         @changePost="changePost($event)"
       ></post-preview>
@@ -60,6 +61,7 @@
 </style>
 
 <script lang="ts">
+import type { PropType } from "vue";
 import { defineComponent, onMounted, ref, watch } from "vue";
 import PostPreview from "../components/PostPreview.vue";
 import ConfirmDialog from "../components/ConfirmDialog.vue";
@@ -68,6 +70,7 @@ import { faAdd } from "@fortawesome/free-solid-svg-icons";
 import { faSadTear } from "@fortawesome/free-regular-svg-icons";
 import Paginate from "vuejs-paginate-next";
 import { useRoute } from "vue-router";
+import type Permission from "../permissions.js";
 
 export default defineComponent({
   components: {
@@ -75,7 +78,14 @@ export default defineComponent({
     ConfirmDialog,
     Paginate,
   },
-  setup() {
+
+  props: {
+    userPermissions: {
+      type: Array as PropType<Permission[]>,
+    },
+  },
+
+  setup(props) {
     const route = useRoute();
     const itemsPerPage = 5;
     const loading = ref(true);
@@ -85,6 +95,9 @@ export default defineComponent({
     const currentPost = ref<Post | null>(null);
     const currentPage = ref<number>(1);
     const totalPages = ref<number>(1);
+
+    const blogTitle = ref<string>("");
+    const blogShortDescription = ref<string>("");
 
     const loadPostsWithPagination = async (pageIndex: number, search: string, operator: string) => {
       try {
@@ -121,6 +134,10 @@ export default defineComponent({
     onMounted(() => {
       const searchValue = (route.query?.search || "") as string;
       const operator = (route.query?.operator || "and") as string;
+
+      blogTitle.value = "fumiX Blog";
+      blogShortDescription.value = "Alle Beiträge auf einen Blick";
+
       loadPostsWithPagination(1, searchValue, operator);
     });
 
@@ -138,6 +155,9 @@ export default defineComponent({
       paginate,
       loadPostsWithPagination,
       route,
+      blogTitle,
+      blogShortDescription,
+      props,
     };
   },
 
@@ -165,6 +185,11 @@ export default defineComponent({
         message: `Wilst du "${this.currentPost.title}" echt löschen ?`,
       };
       this.showDialog = true;
+    },
+
+    hasPermission(permission: String) {
+      const perm = permission as Permission;
+      return this.props.userPermissions?.includes(perm);
     },
 
     canceled() {

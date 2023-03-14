@@ -1,8 +1,10 @@
 <template>
   <div>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-custom mb-4">
       <div class="container">
-        <a class="navbar-brand" href="/">fumiX Blog</a>
+        <a class="navbar-brand" href="/">
+          <img src="@/assets/images/logo.png" alt="..." height="50" />
+        </a>
         <button
           class="navbar-toggler"
           type="button"
@@ -16,13 +18,20 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
+            <li v-if="!loggedInUser" class="nav-item">
               <RouterLink to="/auth" class="nav-link">Login</RouterLink>
+            </li>
+            <li v-if="loggedInUser" class="nav-item">
+              <RouterLink to="/logout" class="nav-link">Logout</RouterLink>
             </li>
             <li class="nav-item">
               <RouterLink to="/posts" class="nav-link">Posts</RouterLink>
             </li>
+            <li v-if="hasPermission('admin')" class="nav-item">
+              <RouterLink to="/administration" class="nav-link">Admin Panel</RouterLink>
+            </li>
           </ul>
+          <div v-if="loggedInUser" class="username">{{ loggedInUser.firstName }} {{ loggedInUser.lastName }}</div>
           <search-component
             :searchString="searchQuery"
             @searched="startSearch($event)"
@@ -32,14 +41,24 @@
       </div>
     </nav>
 
-    <RouterView />
+    <RouterView :userPermissions="userPermissions" />
   </div>
 </template>
 
+<style lang="scss">
+.username {
+  color: white;
+  margin: 0 auto;
+  font-style: italic;
+}
+</style>
+
 <script lang="ts">
-import { defineComponent, ref, watch } from "vue";
+import { defineComponent, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import SearchComponent from "./components/SearchComponent.vue";
+import type { User } from "@fumix/fu-blog-common";
+import Permission from "./permissions.js";
 
 export default defineComponent({
   components: { SearchComponent },
@@ -47,9 +66,12 @@ export default defineComponent({
     const route = useRoute();
     const searchQuery = ref<string>("");
     const router = useRouter();
+    const loggedInUser = ref<User>();
+
+    const userPermissions = ref<Permission[]>([]);
 
     const setOperator = (operator: string) => {
-      console.log("OP", operator);
+      // console.log("OP", operator);
       router.replace({ query: { ...route.query, operator: operator } });
     };
 
@@ -60,15 +82,36 @@ export default defineComponent({
       }
     });
 
+    onMounted(() => {
+      // TODO: get user permissions from server
+      userPermissions.value = [Permission.POST_CREATE, Permission.WRITE, Permission.DELETE, Permission.ADMIN];
+
+      // TODO: get loggedin user data:
+      loggedInUser.value = {
+        username: "AlfredENeumann",
+        email: "test@test.de",
+        firstName: "Alfred E.",
+        lastName: "Neumann",
+        roles: ["ADMIN", "POST_CREATE"],
+      };
+    });
+
     return {
+      userPermissions,
       searchQuery,
       setOperator,
+      loggedInUser,
     };
   },
 
   methods: {
     startSearch(search: string, operator: string = "and") {
       this.$router.push(`/posts/?search=${search}&operator=${operator}`);
+    },
+
+    hasPermission(permission: String) {
+      const perm = permission as Permission;
+      return this.userPermissions?.includes(perm);
     },
   },
 });
