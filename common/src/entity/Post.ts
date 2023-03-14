@@ -12,4 +12,5 @@ export type Post = {
   updatedAt?: Date;
   updatedBy?: User;
   attachments?: Attachment[];
+  draft?: boolean;
 };

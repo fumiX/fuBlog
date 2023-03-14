@@ -107,6 +107,8 @@ export default defineComponent({
         const res = await fetch(link);
         const response = await res.json();
         posts.value = response.data[0];
+
+        console.log("POSTS", response.data[0]);
         totalPages.value = Math.ceil((await response.data[1]) / itemsPerPage);
         currentPage.value = pageIndex;
         loading.value = false;

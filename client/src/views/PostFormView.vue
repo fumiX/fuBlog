@@ -4,8 +4,6 @@
       <div class="col-md-6 px-0">
         <h1 v-if="isCreateMode" class="display-2 font-italic">Post erstellen</h1>
         <h1 v-if="!isCreateMode" class="display-2 font-italic">Post bearbeiten</h1>
-        <!-- <p class="lead my-3">Liste aller Blogposts.</p> -->
-        <!-- <p class="lead mb-0"><a href="#" class="text-white font-weight-bold">Continue reading...</a></p> -->
       </div>
     </div>
 
@@ -30,6 +28,7 @@
                   class="form-control"
                   placeholder="Blogpost"
                   id="markdown"
+                  ref="markdownArea"
                   style="height: 40vh; min-height: 200px"
                   aria-describedby="markdownHelp"
                   required
@@ -77,7 +76,7 @@
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center center;
-  min-height: 250px;
+  // min-height: 250px;
 }
 
 .w-50 {
@@ -166,6 +165,15 @@ export default defineComponent({
       this.send(this.postId);
     },
 
+    insertIntoTextarea(newText: string, area: HTMLTextAreaElement): string {
+      const start = area.selectionStart;
+      const end = area.selectionEnd;
+      const text = area.value;
+      const before = text.substring(0, start);
+      const after = text.substring(end, text.length);
+      return before + newText + after;
+    },
+
     async send(id: number | null) {
       let postable = new FormData();
       postable.append("body", JSON.stringify(this.form));
@@ -175,7 +183,6 @@ export default defineComponent({
         body: postable,
       };
       const formAction = id ? `/api/posts/${id}` : `/api/posts/new`;
-      console.log("send " + formAction);
       const response = await fetch(formAction, requestOptions);
       const data = await response.json();
       const post = data;
@@ -191,12 +198,14 @@ export default defineComponent({
         body: postable,
       };
       const formAction = id ? `/api/posts/${id}` : `/api/posts/new`;
-      console.log("save draft" + formAction);
       const response = await fetch(formAction, requestOptions);
       const data = await response.json();
       this.postId = data.postId;
       const baseAttachmentUrl = "/api/attachments/attachment/";
-      this.form.markdown += "![](" + baseAttachmentUrl + data.attachments[0]?.id + "/" + encodeURI(data.attachments[0].filename) + ")";
+
+      const insertImageMD = "![](" + baseAttachmentUrl + data.attachments[0]?.id + "/" + encodeURI(data.attachments[0].filename) + ")";
+      this.form.markdown = this.insertIntoTextarea(insertImageMD, this.$refs.markdownArea as HTMLTextAreaElement);
+
       this.isCreateMode = false;
     },
   },
