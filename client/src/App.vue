@@ -22,7 +22,7 @@
               <RouterLink to="/posts" class="nav-link">Posts</RouterLink>
             </li>
             <li v-if="hasPermission('admin')" class="nav-item">
-              <RouterLink to="/administration" class="nav-link">{{ $t('nav.home') }}</RouterLink>
+              <RouterLink to="/administration" class="nav-link">{{ this.t('nav.home') }}</RouterLink>
             </li>
           </ul>
           <div class="username"><login-button></login-button></div>
@@ -56,6 +56,11 @@ import type { User } from "@fumix/fu-blog-common";
 import Permission from "./permissions.js";
 import { useI18n } from "vue-i18n";
 
+const { t } = useI18n({
+  inheritLocale: true,
+  useScope: 'local'
+});
+
 export default defineComponent({
   components: { LoginButton, SearchComponent },
   setup() {
@@ -65,7 +70,6 @@ export default defineComponent({
     const loggedInUser = ref<User>();
 
     const userPermissions = ref<Permission[]>([]);
-    const t = useI18n();
 
     const setOperator = (operator: string) => {
       // console.log("OP", operator);
