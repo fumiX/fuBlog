@@ -50,7 +50,8 @@ router.get("/page/:page/count/:count/search/:search/operator/:operator", async (
   const allSearchedPosts = await AppDataSource.manager
     .getRepository(PostEntity)
     .createQueryBuilder()
-    .where("ts @@ to_tsquery(:searchTerm)", { words: searchTerm })
+    // .where("ts @@ to_tsquery(:searchTerm)", { words: searchTerm })
+    .where(searchTerm)
     .skip(skipEntries)
     .take(itemsPerPage)
     // .orderBy("createdAt", "DESC")
