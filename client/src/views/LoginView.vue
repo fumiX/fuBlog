@@ -88,7 +88,7 @@ export default defineComponent({
         this.loading = true;
         const res = await fetch(`/api/auth/code`, {
           method: "POST",
-          headers: {"Content-Type": "application/json"},
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ code: this.code, issuer: this.returnedIssuer, type: this.returnedType }),
         });
         this.userInfo = await res.json();
