@@ -1,7 +1,4 @@
-import { createJwtToken } from "@fumix/fu-blog-common";
 import { AppDataSource } from "@fumix/fu-blog-server/dist/src/data-source.js";
-import { OAuthAccountEntity } from "@fumix/fu-blog-server/dist/src/entity/OAuthAccount.entity.js";
-import { UserEntity } from "@fumix/fu-blog-server/dist/src/entity/User.entity.js";
 import { X509Certificate } from "crypto";
 import express from "express";
 import { readFileSync } from "fs";
@@ -12,20 +9,27 @@ import * as path from "path";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import loginRoute from "./routes/login.js";
+import tokenRoute from "./routes/token.js";
+import userinfoRoute from "./routes/userinfo.js";
+import { UserInfo } from "./user-info.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const port = 5030;
 
-console.log("Token", createJwtToken("test", { bli: "bla" }));
-
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+export const userInfosById: { [oauthId: string]: UserInfo } = {};
+
 const authorizationPath = "/login";
 const tokenPath = "/token";
-app.use("/login", loginRoute);
+const userinfoPath = "/userinfo";
+
+app.use(authorizationPath, loginRoute);
+app.use(tokenPath, tokenRoute);
+app.use(userinfoPath, userinfoRoute);
 
 app.get("/bootstrap.min.css", (req, res) => {
   res //
@@ -48,7 +52,10 @@ app.get("/.well-known/openid-configuration", (req, res) => {
       issuer: `https://localhost:${port}`,
       authorization_endpoint: `https://localhost:${port}${authorizationPath}`,
       token_endpoint: `https://localhost:${port}${tokenPath}`,
-      response_types_supported: ["code"],
+      grant_types_supported: ["authorization_code"],
+      response_types_supported: ["code", "token", "id_token"],
+      token_endpoint_auth_methods_supported: ["client_secret_post"],
+      userinfo_endpoint: `https://localhost:${port}${userinfoPath}`,
     });
 });
 
@@ -56,18 +63,6 @@ export const dataSource = await AppDataSource.initialize();
 
 app.get("/*", async (req, res) => {
   console.log("Unmatched GET request", req.path, req.headers, req.body);
-  dataSource.manager
-    .createQueryBuilder(OAuthAccountEntity, "oauth_account")
-    .innerJoinAndSelect(UserEntity, "user", "oauth_account.user_id = user.id")
-    .getMany()
-    .then((it) => console.table(it));
-  /*.getRepository(UserEntity)
-    .find()
-    .then((it) => {
-      it.forEach((u) => {
-        console.log(u.id + " " + u.firstName);
-      });
-    });*/
 
   res.status(404).json({});
 });

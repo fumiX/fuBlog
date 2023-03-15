@@ -15,6 +15,10 @@ export abstract class OAuthProvider {
   public readonly clientSecret: string;
   public readonly https: boolean;
 
+  public getIdTokenSignedResponseAlg(): "HS256" | "RS256" {
+    return "RS256";
+  }
+
   public getAuthorizeQueryParams(): Partial<AuthorizationParameters> {
     return { response_type: "code" };
   }
@@ -38,6 +42,10 @@ export class FakeOAuthProvider extends OAuthProvider {
 
   constructor(clientId?: string | undefined, clientSecret?: string | undefined, domain?: string | undefined, https?: boolean) {
     super("FAKE", clientId ?? "ID", clientSecret ?? "secret", domain ?? "localhost:5030", https ?? false);
+  }
+
+  public getIdTokenSignedResponseAlg(): "HS256" {
+    return "HS256";
   }
 }
 
@@ -68,7 +76,7 @@ export class GoogleOAuthProvider extends OAuthProvider {
     return {
       ...super.getAuthorizeQueryParams(),
       ...{
-        scope: "openid email",
+        scope: "openid email profile",
         access_type: "online",
       },
     };

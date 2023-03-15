@@ -1,16 +1,11 @@
 import { faker } from "@faker-js/faker/locale/de";
-import { createJwtToken } from "@fumix/fu-blog-common";
 import { OAuthAccountEntity } from "@fumix/fu-blog-server/dist/src/entity/OAuthAccount.entity.js";
 import { UserEntity } from "@fumix/fu-blog-server/dist/src/entity/User.entity.js";
 import express, { Router } from "express";
-import { dataSource } from "../index.js";
+import { dataSource, userInfosById } from "../index.js";
 import { UserInfo } from "../user-info.js";
 
-const OAUTH_SECRET = "fake";
-
 const router: Router = express.Router();
-
-const userInfosById: { [oauthId: string]: UserInfo } = {};
 
 router.get("/", async (req, res) => {
   const dbUserAccounts = await dataSource.manager.getRepository(OAuthAccountEntity).find({
@@ -20,7 +15,6 @@ router.get("/", async (req, res) => {
   dbUserAccounts.forEach((acc) => {
     const prev: Omit<UserInfo, "profile"> = userInfosById[acc.oauthId] ?? {
       code: faker.random.alphaNumeric(20),
-      token: createJwtToken("fake", {}),
     };
 
     userInfosById[acc.oauthId] = Object.assign(prev, {
@@ -179,7 +173,6 @@ router.post("/", (req, res) => {
 function saveUser(userId: string, code: string, firstName: string, lastName: string, email: string) {
   userInfosById[userId] = {
     code,
-    token: createJwtToken(OAUTH_SECRET, { sub: userId, name: `${firstName} ${lastName}` }),
     profile: {
       firstName,
       lastName,

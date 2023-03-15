@@ -27,9 +27,7 @@ export class ServerSettings {
 }
 
 export class OAuthSettings {
-  static readonly CLIENT_ID = "";
-  static readonly CLIENT_SECRET = "";
-  static readonly PROVIDER_URL = "";
+  static readonly REDIRECT_URI = process.env.OAUTH_REDIRECT_URI ?? ClientSettings.BASE_URL + "/login";
   static readonly PROVIDERS: OAuthProvider[] = loadOAuthProvidersFromEnv();
 
   static findByType(type: OAuthType): OAuthProvider[] {

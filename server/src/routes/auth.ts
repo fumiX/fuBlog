@@ -1,8 +1,8 @@
-import { isNotNull, OAuthProvider, OAuthProvidersDto, UserRole, UserRolePermissions } from "@fumix/fu-blog-common";
-import express, { CookieOptions, NextFunction, Request, Response, Router } from "express";
+import { isNotNull, OAuthProvider, OAuthProvidersDto, OAuthUserInfoDto, UserRole, UserRolePermissions } from "@fumix/fu-blog-common";
+import express, { NextFunction, Request, Response, Router } from "express";
 import fetch from "node-fetch";
 import { BaseClient, CallbackParamsType, generators, Issuer, TokenSet } from "openid-client";
-import { getRedirectURI } from "../auth/middleware.js";
+import { AppDataSource } from "../data-source.js";
 import { OAuthAccountEntity } from "../entity/OAuthAccount.entity.js";
 import { createOAuthAccount, createUser, findOAuthAccountBy } from "../service/crud.js";
 import { OAuthSettings } from "../settings.js";
@@ -28,7 +28,7 @@ router.post("/providers", async (req: Request, res: Response) => {
         await Promise.all(
           OAuthSettings.PROVIDERS.map(async (it) => {
             const fullStateString = `${it.type}/${it.domain}/${state}`;
-            const url = await getAuthorizationUrl(it, "http://localhost:5010/login", fullStateString);
+            const url = await getAuthorizationUrl(it, OAuthSettings.REDIRECT_URI, fullStateString);
             return url
               ? {
                   label: "Login via " + it.domain,
@@ -51,6 +51,7 @@ async function getAuthorizationUrl(oauthProvider: OAuthProvider, redirect_uri: s
           client_id: oauthProvider.clientId,
           client_secret: oauthProvider.clientSecret,
           redirect_uris: ["http://localhost:5010/auth"],
+          id_token_signed_response_alg: oauthProvider.getIdTokenSignedResponseAlg(),
         });
       })
       .catch((reason) => {
@@ -68,58 +69,52 @@ async function getAuthorizationUrl(oauthProvider: OAuthProvider, redirect_uri: s
 
 router.post("/code", async (req, res) => {
   const code = req.body.code;
-  const domain = req.body.domain;
+  const issuer = req.body.issuer;
   const type = req.body.type;
-  const provider = OAuthSettings.PROVIDERS.find((it) => it.domain === domain && it.type === type);
-  if (!code || !domain || !type || !provider) {
+  const provider = OAuthSettings.findByTypeAndDomain(type, issuer);
+  if (!code || !issuer || !type || !provider) {
     res.status(400);
   } else {
-    const client = oauthClients[OAuthSettings.findByTypeAndDomain(type, domain)?.getIdentifier() ?? ""];
+    const client = oauthClients[OAuthSettings.findByTypeAndDomain(type, issuer)?.getIdentifier() ?? ""];
     if (client) {
-      const params = client.callbackParams(req);
-      const tokenSet = await client.callback("http://localhost:5010/login", params);
+      const tokenSet = await client.callback(OAuthSettings.REDIRECT_URI, client.callbackParams(req));
+      const userInfo = await client.userinfo(tokenSet, { method: "POST", via: "body" });
+      const dbUser = await AppDataSource.manager.getRepository(OAuthAccountEntity).findOne({
+        where: {
+          type: type,
+          domain: issuer,
+          oauthId: userInfo.sub,
+        },
+        relations: ["user"],
+      });
       console.log("Token set ", tokenSet);
+      console.log("User info ", userInfo);
+      console.log("DB user", dbUser);
+
+      if (tokenSet.id_token) {
+        const result: OAuthUserInfoDto = {
+          id_token: tokenSet.id_token,
+          user: {
+            firstName: dbUser?.user?.firstName ?? userInfo.given_name,
+            lastName: dbUser?.user?.lastName ?? userInfo.family_name,
+            email: dbUser?.user?.email ?? userInfo.email,
+            profilePicture: dbUser?.user?.profilePicture,
+            username: dbUser?.user?.username ?? userInfo.preferred_username,
+          },
+          isExisting: true,
+        };
+        if (!result.user.profilePicture && userInfo.picture) {
+          try {
+            result.user.profilePicture = new Uint8Array(await (await fetch(userInfo.picture)).arrayBuffer());
+          } catch (e) {
+            // Ignore failing download of profile pic
+          }
+        }
+        res.status(200).json(result);
+        return;
+      }
     }
-    const token = await fetch("https://oauth2.googleapis.com/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        code: code,
-        client_id: provider.clientId,
-        client_secret: provider.clientSecret,
-        redirect_uri: "http://localhost:5010/login",
-        grant_type: "authorization_code",
-      }),
-    });
-    token.json().then((tokenJson) => {
-      console.log("Token", tokenJson);
-    });
-    /*
-    token
-      .json()
-      .then((tokenJson) => {
-        console.log("Token", tokenJson);
-        console.log("Client", provider.client);
-        provider.client
-          .then((client) => {
-            console.log("Token2", tokenJson);
-            client?.userinfo((tokenJson as bla).access_token).then((userinfo) => console.log("UserInfo", userinfo));
-            client
-              ?.grant({
-                grant_type: "idToken",
-              })
-              .then((g) => {
-                console.log("g", g);
-              });
-          })
-          .catch((reason) => {
-            res.status(402);
-          });
-        res.status(200).json(tokenJson);
-      })
-      .catch((reason) => {
-        res.status(401);
-      });*/
+    res.status(403);
   }
 });
 
@@ -154,7 +149,7 @@ router.get("/callback", async (req: Request, res: Response) => {
   if (client) {
     const params: CallbackParamsType = client.callbackParams(req);
     const checks = { code_verifier: req.app.codeVerifier };
-    const tokenSet: TokenSet = await client.callback(getRedirectURI(), params, checks);
+    const tokenSet: TokenSet = await client.callback(OAuthSettings.REDIRECT_URI, params, checks);
     const userInfo = await client.userinfo(tokenSet);
     // console.log("THE ID TOKEN: ", tokenSet.id_token);
     console.log("What the hell is session state? ", tokenSet.session_state);

@@ -1,11 +1,10 @@
 import cors from "cors";
 import express, { Application } from "express";
-import { init as initAuth } from "./auth/middleware.js";
 import { corsOptions } from "./config/cors-config.js";
 import { AppDataSource } from "./data-source.js";
 import adminRoutes from "./routes/admin.js";
 import attRoutes from "./routes/attachments.js";
-import authRoutes, { authenticate } from "./routes/auth.js";
+import authRoutes from "./routes/auth.js";
 import postRoutes from "./routes/posts.js";
 import { initDatabase } from "./service/testdata-generator.js";
 import { AppSettings, ClientSettings, DatabaseSettings, ServerSettings } from "./settings.js";
@@ -18,9 +17,6 @@ await initDatabase();
 app.use(cors(corsOptions));
 
 app.use(express.json());
-
-// The OAuth2 middleware (used for authentication)
-app.use(initAuth);
 
 // Check the authentication status
 //app.all(`${ServerSettings.API_PATH}/posts/*`, authenticate);

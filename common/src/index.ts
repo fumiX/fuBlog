@@ -3,6 +3,7 @@ export * from "./dto/OAuthProvidersDto.js";
 export * from "./dto/UserDto.js";
 export * from "./dto/oauth/OAuthCodeDto.js";
 export * from "./dto/oauth/OAuthType.js";
+export * from "./dto/oauth/OAuthUserInfoDto.js";
 export * from "./entity/OAuthAccount.js";
 export * from "./entity/OAuthProvider.js";
 export * from "./entity/Post.js";

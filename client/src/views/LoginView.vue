@@ -1,43 +1,52 @@
 <template>
   <div id="login" class="container">
     <h2>Login</h2>
-    <div v-if="code && returnedType && returnedDomain && returnedState">
-      <div v-if="isStateMatching()">
-        Welcome back with code <code>{{ code }}</code
-        >!
-        <pre>{{ returnedType }} {{ returnedDomain }} {{ returnedState }}</pre>
-        <button @click="login">Login</button>
+    <div v-if="!isStateMatching" class="alert alert-danger text-light">State does not match! Retry <login-button /></div>
+    <div v-else-if="code && returnedType && returnedIssuer && isStateMatching">
+      <div v-if="loading" class="loader">
+        <div class="spinner-border text-secondary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
       </div>
-      <div v-else class="alert alert-danger">State does not match! Retry <a href="/login">Login</a></div>
+      <div v-else-if="userInfo">
+        Welcome {{ userInfo.user.firstName }} {{ userInfo.user.lastName }} ({{ userInfo.user.email }})!
+      </div>
+      <div v-else>
+        User info not found.
+      </div>
     </div>
-    <div v-else-if="!loading">
-      <ul v-if="providers">
-        <li v-for="provider in providers.providers" :key="provider.url">
-          <a :href="provider.url ?? '#'">{{ provider.label }}</a>
-        </li>
-      </ul>
-      <span v-else>There are no OAuth providers setup for login!</span>
+    <div v-else>
+      <span v-on:load="redir()">X</span>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import type { OAuthProvidersDto, OAuthCodeDto, OAuthType } from "@fumix/fu-blog-common";
-import { isOAuthType } from "@fumix/fu-blog-common";
-import { Buffer } from "buffer";
+import LoginButton from "@/components/LoginButton.vue";
+import router from "@/router/index.js";
+import { loadOauthStateByKey } from "@/util/storage.js";
+import type { OAuthCodeDto, OAuthProvidersDto, OAuthUserInfoDto } from "@fumix/fu-blog-common";
+import { bytesToBase64URL, isOAuthType } from "@fumix/fu-blog-common";
 import { defineComponent, ref } from "vue";
 import { useRoute } from "vue-router";
 
 export default defineComponent({
   name: "AuthView",
+  components: { LoginButton },
   methods: {
+    redir() {
+      console.log("Redirecting");
+    },
+    router() {
+      return router
+    },
     async login() {
       if (!this.returnedType) {
         return;
       }
       const code: OAuthCodeDto = {
         type: this.returnedType,
-        issuer: this.returnedDomain,
+        issuer: this.returnedIssuer,
         code: this.code + "",
       };
       await fetch(`/api/auth/code`, {
@@ -48,64 +57,46 @@ export default defineComponent({
         body: JSON.stringify(code),
       });
     },
-    isStateMatching(): boolean {
-      const savedState = window.sessionStorage.getItem("state");
-      if (savedState && this.returnedState) {
-        try {
-          console.log("Comparing states: ", JSON.parse(savedState).state, " == ", this.returnedState, "?");
-          return JSON.parse(savedState).state === this.returnedState;
-        } catch (e) {
-          return false;
-        }
-      }
-      return false;
-    },
   },
   setup() {
     const route = useRoute();
-    const providers = ref<OAuthProvidersDto | null>(null);
+    const userInfo = ref<OAuthUserInfoDto | undefined>(undefined);
     const stateParam: string = "" + route.query.state;
-    const [returnedType, returnedDomain, returnedState] = stateParam.split("/");
+    const [returnedType, returnedIssuer, returnedStateKey] = stateParam.split("/");
 
     const newStateBytes = new Uint8Array(21);
     window.crypto.getRandomValues(newStateBytes);
-    const newState = Buffer.from(newStateBytes) // 21 bytes (=28 characters) of random base64url
-      .toString("base64") // TODO: Replace by `toString("base64url")` as soon as we are sure, it is supported everywhere.
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_");
+    const newState = bytesToBase64URL(newStateBytes); // 21 bytes (= 28 characters) of random base64url
+
+
+    const savedState = loadOauthStateByKey(returnedStateKey);
+    const isStateMatching = savedState && savedState.key === returnedStateKey;
 
     return {
       newState,
       loading: ref(true),
-      providers,
+      userInfo,
       code: route.query.code,
       redirect: route.query.redirect,
-      returnedType: isOAuthType(returnedType) ? (returnedType as OAuthType) : null,
-      returnedDomain,
-      returnedState,
+      returnedType: isOAuthType(returnedType) ? returnedType : null,
+      returnedIssuer,
+      isStateMatching,
     };
   },
   async mounted() {
     try {
-      const res = await fetch(`/api/auth/providers`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ state: this.newState }),
-      });
-      const response = await res.json();
-
-      if (!this.code || !this.returnedState || !this.returnedType || !this.returnedDomain) {
-        const session = {
-          state: this.newState,
-          redirect: this.redirect,
-        };
-        window.sessionStorage.setItem("state", JSON.stringify(session));
+      if (this.code && this.returnedType && this.returnedIssuer && this.isStateMatching) {
+        this.loading = true;
+        const res = await fetch(`/api/auth/code`, {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ code: this.code, issuer: this.returnedIssuer, type: this.returnedType }),
+        });
+        this.userInfo = await res.json();
+        this.loading = false;
       }
-
-      this.providers = response;
-      this.loading = false;
     } catch (e) {
-      console.error("Error", e);
+      console.error("Error loading user info", e);
       this.loading = false;
     }
   },
