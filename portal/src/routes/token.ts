@@ -12,7 +12,7 @@ router.post("/", (req, res) => {
   if (req.body.client_id !== "ID" || req.body.client_secret !== "secret") {
     throw new Error("Authentication failed!"); // TODO: Do a proper check of client ID and secret
   }
-  const [userId, userInfo]: [string, UserInfo] | undefined = Object.entries(userInfosById).find(([, acc]) => acc.code === req.body.code);
+  const [userId, userInfo]: [string, UserInfo] | undefined = Object.entries(userInfosById)?.find(([, acc]) => acc.code === req.body.code);
   if (userInfo) {
     const issuedAt = Math.floor(Date.now() / 1000);
     userInfosById[userId].tokens = {
