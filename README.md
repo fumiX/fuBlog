@@ -17,6 +17,7 @@ A blog software written in Typescript, with an Express.js backend and a Vue3 fro
 * [5000](http://localhost:5000): dev server
 * [5010](http://localhost:5010): dev client
 * [5020](http://localhost:5020): dev postgres
+* [5030](https://localhost:5030): login portal (fake OAuth)
 * [5100](http://localhost:5100): production app
 * [5120](http://localhost:5120): production postgres
 
@@ -75,6 +76,10 @@ At the moment this needs to be repeated every time the `common` module changes.
 ```bash
 npm start
 ```
+
+### Setup for user login
+
+See the [OAuth docs](./docs/oauth/README.md) for instructions how to setup login for different OAuth providers.
 
 ## Starting a task in the subprojects
 

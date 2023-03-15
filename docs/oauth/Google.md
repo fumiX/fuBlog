@@ -1,3 +1,5 @@
+> [Docs](../README.md) › [OAuth](./README.md) › **Google**
+
 # Setup OAuth with Google
 
 1. Go to https://console.cloud.google.com/projectcreate , choose a project name and create that project.
