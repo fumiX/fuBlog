@@ -13,6 +13,12 @@ export class UserEntity implements User {
   @Column({ nullable: false })
   username: string;
 
+  @Column({ name: "is_active", nullable: false })
+  isActive: boolean;
+
+  @Column({ nullable: true, type: "bytea", name: "profile_picture" })
+  profilePicture?: Uint8Array;
+
   @Column({ nullable: true })
   firstName?: string;
 

@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["ESNext"],
+    "module": "ESNext",
+    "moduleResolution": "NodeNext",
+    "sourceMap": true,
+    "outDir": "./dist/"
+  },
+  "include": [
+    "./src/**/*.ts"
+  ],
+  "references": [
+    { "path": "../common" },
+    { "path": "../server" }
+  ],
+  "ts-node": {
+    "esm": true
+  }
+}

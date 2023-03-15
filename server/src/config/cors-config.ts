@@ -1,7 +1,4 @@
-import dotenv from "dotenv";
 import { ClientSettings } from "../settings.js";
-
-dotenv.config();
 
 // Origins that are allowed to call our site / pull data off of our site!
 const corsWhiteList = [

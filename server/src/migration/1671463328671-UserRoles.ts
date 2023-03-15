@@ -25,9 +25,14 @@ export class UserRoles1671463328671 implements MigrationInterface {
             isNullable: false,
           },
           {
-            name: "provider",
+            name: "type",
             type: "enum",
-            enum: ["FAKE", "GOOGLE"],
+            enum: ["FAKE", "GITLAB", "GOOGLE"],
+          },
+          {
+            name: "domain",
+            type: "text",
+            isNullable: false,
           },
         ],
         foreignKeys: [
@@ -37,6 +42,7 @@ export class UserRoles1671463328671 implements MigrationInterface {
             referencedColumnNames: ["id"],
           },
         ],
+        indices: [{ columnNames: ["type", "domain"] }],
       }),
     );
     await queryRunner.addColumn(

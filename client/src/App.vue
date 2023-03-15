@@ -18,9 +18,6 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li v-if="!loggedInUser" class="nav-item">
-              <RouterLink to="/auth" class="nav-link">Login</RouterLink>
-            </li>
             <li v-if="loggedInUser" class="nav-item">
               <RouterLink to="/logout" class="nav-link">Logout</RouterLink>
             </li>
@@ -37,6 +34,7 @@
             @searched="startSearch($event)"
             @operatorChanged="setOperator($event)"
           ></search-component>
+          <login-button></login-button>
         </div>
       </div>
     </nav>
@@ -54,6 +52,7 @@
 </style>
 
 <script lang="ts">
+import LoginButton from "@/components/LoginButton.vue";
 import { defineComponent, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import SearchComponent from "./components/SearchComponent.vue";
@@ -61,7 +60,7 @@ import type { User } from "@fumix/fu-blog-common";
 import Permission from "./permissions.js";
 
 export default defineComponent({
-  components: { SearchComponent },
+  components: { LoginButton, SearchComponent },
   setup() {
     const route = useRoute();
     const searchQuery = ref<string>("");
@@ -93,6 +92,7 @@ export default defineComponent({
         firstName: "Alfred E.",
         lastName: "Neumann",
         roles: ["ADMIN", "POST_CREATE"],
+        isActive: true,
       };
     });
 

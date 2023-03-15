@@ -1,17 +1,10 @@
 import { UserRolePermissions } from "./permission/UserRolePermissions.js";
 
-type UserRolesType = {
-  ADMIN: UserRolePermissions;
-  POST_CREATE: UserRolePermissions;
-  POST_EDIT: UserRolePermissions;
-  POST_DELETE: UserRolePermissions;
-};
-
 /**
  * Pseudo enum for the available user roles.
  * See https://youtu.be/jjMbPt_H3RQ for the reasoning behind doing it like this.
  */
-export const UserRoles: UserRolesType = {
+export const UserRoles = {
   ADMIN: new UserRolePermissions(
     "Can change roles of all users", //
     { canEditUserRoles: true },
@@ -30,4 +23,5 @@ export const UserRoles: UserRolesType = {
   ),
 } as const;
 
+// The union of N property names comprising the UserRoles - "prop!" | "prop2" ... | "propN"
 export type UserRole = keyof typeof UserRoles;

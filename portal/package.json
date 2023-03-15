@@ -1,0 +1,20 @@
+{
+  "name": "@fumix/fu-blog-portal",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon ./src/index.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "typeorm": "0.3.12",
+    "ts-node": "10.9.1",
+    "@fumix/fu-blog-server": "*"
+  },
+  "devDependencies": {
+    "bootstrap": "5.2.3",
+    "mkcert": "1.5.1"
+  }
+}

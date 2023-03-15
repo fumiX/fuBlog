@@ -1,11 +1,11 @@
+import { DraftResponseDto } from "@fumix/fu-blog-common";
 import express, { Request, Response, Router } from "express";
 import multer from "multer";
 import { AppDataSource } from "../data-source.js";
+import { AttachmentEntity } from "../entity/Attachment.entity.js";
 import { PostEntity } from "../entity/Post.entity.js";
 import { UserEntity } from "../entity/User.entity.js";
-import { AttachmentEntity } from "../entity/Attachment.entity.js";
 import { MarkdownConverterServer } from "../markdown-converter-server.js";
-import { DraftResponseDto } from "@fumix/fu-blog-common";
 
 const router: Router = express.Router();
 const upload = multer();
@@ -22,6 +22,7 @@ async function getUser() {
       firstName: "Alfred E.",
       lastName: "Neumann",
       roles: ["ADMIN", "POST_CREATE"],
+      isActive: true,
     };
     createdUser = await AppDataSource.manager.getRepository(UserEntity).save(user);
   }

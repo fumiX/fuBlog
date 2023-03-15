@@ -8,15 +8,20 @@
   "workspaces": [
     "client",
     "common",
-    "server"
+    "server",
+    "portal"
   ],
   "scripts": {
     "build": "npm run clean && npm run -w common build && npm run -ws build",
     "clean": "ts-node scripts/clean-all.ts",
     "check-packages": "ts-node scripts/check-packages.ts",
+    "generate-ca": "node certs/generate.mjs",
     "lint": "prettier --check --config .prettierrc '*/src/**/*.(ts|vue)' && npm run --workspaces lint",
     "lintfix": "prettier --config .prettierrc '*/src/**/*.(ts|vue)' --write && npm run --workspaces lint --fix",
-    "start": "docker compose up -d && concurrently \"npm run --workspace client dev\" \"npm run --workspace server dev\"",
+    "start":  "npm run generate-ca && docker compose up -d && NODE_ENV='development' concurrently \"npm run start-portal\" \"npm run start-client\" \"npm run start-server\"",
+    "start-client": "npm run dev --workspace client",
+    "start-portal": "npm start --workspace portal",
+    "start-server": "npm run dev --workspace server",
     "test": "npm run --workspaces test"
   },
   "devDependencies": {
@@ -26,7 +31,7 @@
     "eslint-plugin-unused-imports": "2.0.0",
     "json-source-map": "0.6.1",
     "npm-run-all": "4.1.5",
-    "prettier": "2.8.1"
+    "prettier": "^2.8.4"
   },
   "author": "fumiX GmbH & Co KG",
   "bugs": {
@@ -43,9 +48,5 @@
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/fumiX/fuBlog.git"
-  },
-  "dependencies": {
-    "dotenv": "^16.0.3",
-    "multer": "^1.4.5-lts.1"
   }
 }
