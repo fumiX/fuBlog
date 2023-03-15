@@ -3,4 +3,12 @@
 @import "./themes/fumix.scss";
 // @import "./themes/dark.scss";
 
+@media (prefers-color-scheme: dark) {
+    // import DARK Theme
+}
+
+@media (prefers-color-scheme: light) {
+    // import LIGHT Theme
+}
+
 @import "./../../../../node_modules/bootstrap/scss/bootstrap.scss";

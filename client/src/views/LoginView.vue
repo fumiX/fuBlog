@@ -8,12 +8,8 @@
           <span class="visually-hidden">Loading...</span>
         </div>
       </div>
-      <div v-else-if="userInfo">
-        Welcome {{ userInfo.user.firstName }} {{ userInfo.user.lastName }} ({{ userInfo.user.email }})!
-      </div>
-      <div v-else>
-        User info not found.
-      </div>
+      <div v-else-if="userInfo">Welcome {{ userInfo.user.firstName }} {{ userInfo.user.lastName }} ({{ userInfo.user.email }})!</div>
+      <div v-else>User info not found.</div>
     </div>
     <div v-else>
       <span v-on:load="redir()">X</span>
@@ -38,7 +34,7 @@ export default defineComponent({
       console.log("Redirecting");
     },
     router() {
-      return router
+      return router;
     },
     async login() {
       if (!this.returnedType) {

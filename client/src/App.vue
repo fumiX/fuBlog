@@ -18,9 +18,6 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li v-if="loggedInUser" class="nav-item">
-              <RouterLink to="/logout" class="nav-link">Logout</RouterLink>
-            </li>
             <li class="nav-item">
               <RouterLink to="/posts" class="nav-link">Posts</RouterLink>
             </li>
@@ -28,13 +25,12 @@
               <RouterLink to="/administration" class="nav-link">Admin Panel</RouterLink>
             </li>
           </ul>
-          <div v-if="loggedInUser" class="username">{{ loggedInUser.firstName }} {{ loggedInUser.lastName }}</div>
+          <div class="username"><login-button></login-button></div>
           <search-component
             :searchString="searchQuery"
             @searched="startSearch($event)"
             @operatorChanged="setOperator($event)"
           ></search-component>
-          <login-button></login-button>
         </div>
       </div>
     </nav>
