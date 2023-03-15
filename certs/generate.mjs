@@ -33,7 +33,7 @@ if (!skipCaGeneration) {
   console.log("Generate new certificate authority …");
 
   await createCA({
-    organization: "FumiX/fuBlog (development)",
+    organization: "AAA FumiX/fuBlog (development)",
     countryCode: "DE",
     state: "some state",
     locality: "somewhere",

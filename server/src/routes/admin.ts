@@ -17,7 +17,7 @@ router.get("/users", async (req, res) => {
         permissions: permissionsForUser(u),
         username: u.username,
         email: u.email,
-        profilePictureUrl: u.profilePicture ? "data:image/jpeg;base64," + Buffer.from(u.profilePicture).toString("base64") : undefined
+        profilePictureUrl: u.profilePicture ? "data:image/jpeg;base64," + Buffer.from(u.profilePicture).toString("base64") : undefined,
       };
     }),
   );
