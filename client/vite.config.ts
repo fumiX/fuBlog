@@ -8,8 +8,7 @@ export default defineConfig({
   plugins: [
     vue(),
     VueI18nPlugin({
-      // runtimeOnly: false,
-      include: resolve(dirname(fileURLToPath(import.meta.url)), "./src/i18n/**"),
+      include: resolve(dirname(fileURLToPath(import.meta.url)), "./src/assets/i18n/**"),
     }),
   ],
   resolve: {
