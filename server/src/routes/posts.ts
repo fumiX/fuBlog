@@ -33,7 +33,7 @@ router.get("/page/:page/count/:count/search/:search/operator/:operator", async (
   const page = +req.params.page;
   const itemsPerPage = +req.params.count;
   const skipEntries = page * itemsPerPage - itemsPerPage;
-  let searchTerm = "true";
+  let searchTerm = "";
   if (req.params.search) {
     const splitSearchParams: string[] = req.params.search.trim().split(" ");
     const operator = req.params.operator === "or" ? " | " : " & ";
@@ -43,14 +43,14 @@ router.get("/page/:page/count/:count/search/:search/operator/:operator", async (
       .filter(Boolean)
       .join(operator);
 
-    console.log("WORDS", words);
+    // console.log("WORDS", words);
     searchTerm = "ts @@ to_tsquery('" + words + "')";
   }
 
   const allSearchedPosts = await AppDataSource.manager
     .getRepository(PostEntity)
     .createQueryBuilder()
-    .where(searchTerm)
+    .where("ts @@ to_tsquery(:searchTerm)", { words: searchTerm })
     .skip(skipEntries)
     .take(itemsPerPage)
     // .orderBy("createdAt", "DESC")
