@@ -35,10 +35,15 @@ router.get("/page/:page/count/:count/search/:search/operator/:operator", async (
   const skipEntries = page * itemsPerPage - itemsPerPage;
   let searchTerm = "true";
   if (req.params.search) {
-    const splitSearchParams: string[] = req.params.search.split(" ");
+    const splitSearchParams: string[] = req.params.search.trim().split(" ");
     const operator = req.params.operator === "or" ? " | " : " & ";
 
-    const words = splitSearchParams.map((word) => word).join(operator);
+    const words = splitSearchParams
+      .map((word) => escape(word))
+      .filter(Boolean)
+      .join(operator);
+
+    console.log("WORDS", words);
     searchTerm = "ts @@ to_tsquery('" + words + "')";
   }
 

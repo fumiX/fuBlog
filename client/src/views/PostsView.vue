@@ -103,7 +103,9 @@ export default defineComponent({
       try {
         let link = !search
           ? `/api/posts/page/${pageIndex}/count/${itemsPerPage}`
-          : `/api/posts/page/${pageIndex}/count/${itemsPerPage}/search/${search}/operator/${operator}`;
+          : `/api/posts/page/${pageIndex}/count/${itemsPerPage}/search/${encodeURIComponent(search)}/operator/${encodeURIComponent(
+              operator,
+            )}`;
         const res = await fetch(link);
         const response = await res.json();
         posts.value = response.data[0];
