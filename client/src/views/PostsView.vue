@@ -71,6 +71,8 @@ import { faSadTear } from "@fortawesome/free-regular-svg-icons";
 import Paginate from "vuejs-paginate-next";
 import { useRoute } from "vue-router";
 import type Permission from "../permissions.js";
+import { useI18n } from "vue-i18n";
+
 
 export default defineComponent({
   components: {
@@ -95,6 +97,7 @@ export default defineComponent({
     const currentPost = ref<Post | null>(null);
     const currentPage = ref<number>(1);
     const totalPages = ref<number>(1);
+    const { t } = useI18n();
 
     const blogTitle = ref<string>("");
     const blogShortDescription = ref<string>("");
@@ -185,7 +188,7 @@ export default defineComponent({
       this.currentPost = post as Post;
       this.dialogData = {
         title: "Post löschen",
-        message: `Wilst du "${this.currentPost.title}" echt löschen ?`,
+        message: `Willst du "${this.currentPost.title}" echt löschen ?`,
       };
       this.showDialog = true;
     },

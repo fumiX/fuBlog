@@ -39,7 +39,7 @@
 
             <div class="mb-1 text-muted creator">
               <fa-icon :icon="faClock" />
-              {{ $luxonDateTime.fromISO(post.createdAt.toString()).toRelativeCalendar() }}
+              {{ $luxonDateTime.fromISO(post.createdAt.toString(), { locale: "de-DE" }).toRelativeCalendar() }}
               <span v-if="post.createdBy"> von </span>
               <i v-if="post.createdBy">{{ post.createdBy.firstName }} {{ post.createdBy.lastName }}</i>
             </div>

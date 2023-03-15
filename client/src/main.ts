@@ -6,6 +6,7 @@ import "./assets/scss/custom.scss";
 import "./assets/scss/style.scss";
 import "bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import i18n from "@/assets/i18n/plugins/i18n.js";
 
 declare module "@vue/runtime-core" {
   export interface ComponentCustomProperties {
@@ -14,6 +15,8 @@ declare module "@vue/runtime-core" {
 }
 
 const app = createApp(App);
+
+app.use(i18n);
 
 app.config.globalProperties.$luxonDateTime = DateTime;
 
