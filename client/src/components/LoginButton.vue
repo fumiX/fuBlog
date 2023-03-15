@@ -6,7 +6,9 @@
     <fa-icon :icon="faArrowUpRightFromSquare" />
   </a>
   <div class="dropdown" v-else>
-    <button class="btn dropdown-toggle mx-1" type="button" data-bs-toggle="dropdown" aria-expanded="false"><fa-icon :icon="faUser" /> Login</button>
+    <button class="btn dropdown-toggle mx-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+      <fa-icon :icon="faUser" /> Login
+    </button>
     <ul class="dropdown-menu">
       <li v-for="provider in providers.providers" v-bind:key="provider.url">
         <a class="dropdown-item" :href="provider.url" onclick="">

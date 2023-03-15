@@ -57,7 +57,7 @@ async function generate(): Promise<void> {
 
 export async function createRandomFakeOauthAccount(user: UserEntity, seed?: number): Promise<OAuthAccount> {
   faker.seed(seed);
-  const domain = OAuthSettings.findByType("FAKE").find((it) => true)?.domain;
+  const domain = OAuthSettings.findByType("FAKE").find(() => true)?.domain;
   if (!domain) {
     throw new Error("No domain for fake OAuth found!");
   }

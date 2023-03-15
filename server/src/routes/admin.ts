@@ -23,8 +23,8 @@ router.get("/users", async (req, res) => {
   );
 });
 
-router.post("/users/roles/:userId/:roles", async (req, res) => {
-  res.status(200).json({ userId: req.params.userId, roles: req.params.roles.split(",") });
+router.post("/users/roles/:userId/:permissions", async (req, res) => {
+  res.status(200).json({ userId: req.params.userId, roles: req.params.permissions.split(",") });
 });
 
 export default router;

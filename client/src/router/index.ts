@@ -8,11 +8,6 @@ const router = createRouter({
       redirect: "/posts",
     },
     {
-      path: "/admin/users",
-      name: "User management",
-      component: () => import("@/views/admin/UsersView.vue"),
-    },
-    {
       path: "/login",
       name: "Login",
       component: () => import("@/views/LoginView.vue"),

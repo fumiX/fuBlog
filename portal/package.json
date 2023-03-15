@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "nodemon ./src/index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "lint": "eslint src/**/*.ts"
   },
   "dependencies": {
     "@fumix/fu-blog-server": "*",

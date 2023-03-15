@@ -163,8 +163,6 @@ router.post("/:id", upload.single("file"), async (req: Request, res: Response) =
   const bodyJson = JSON.parse(req.body.body);
   if (post) {
     try {
-      // TODO handle attachments correctly
-      // update post
       await AppDataSource.manager
         .createQueryBuilder()
         .update("post")
@@ -172,12 +170,10 @@ router.post("/:id", upload.single("file"), async (req: Request, res: Response) =
           title: bodyJson.title,
           description: bodyJson.description,
           markdown: bodyJson.markdown,
-          createdBy: await getUser(),
           updatedAt: new Date(),
           sanitizedHtml: await MarkdownConverterServer.Instance.convert(bodyJson.markdown),
           updatedBy: await getUser(),
           draft: bodyJson.draft,
-          // attachments: [],
         })
         .where("id = :id", { id: post.id })
         .execute();

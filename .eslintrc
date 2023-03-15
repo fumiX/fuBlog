@@ -13,6 +13,7 @@
     "quotes": [2, "double", "avoid-escape"],
     "object-curly-spacing": ["error", "always"],
     "unused-imports/no-unused-imports": "error",
+    "@typescript-eslint/no-unused-vars" : "off",
     "sort-imports": ["error", {
       "ignoreCase": true,
       "ignoreDeclarationSort": true
