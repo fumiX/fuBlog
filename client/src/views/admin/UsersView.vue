@@ -172,11 +172,10 @@ export default defineComponent({
     },
 
     async send(id: number | undefined, permissions: string[]) {
-      // const postable = new FormData();
-      // postable.append("body", JSON.stringify({ perm: permissions }));
       const requestOptions = {
         method: "POST",
-        body: JSON.stringify(permissions),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ permissions }),
       };
       const postUrl = `/api/admin/users/permissions/${id}`;
       const response = await fetch(postUrl, requestOptions);
