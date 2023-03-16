@@ -2,5 +2,9 @@
   "nav": {
     "home": "Startseite",
     "about": "Über uns"
+  },
+  "posts": {
+    "blogTitle": "fumiX Blog",
+    "blogShortDescription": "Technische Artikel und Gedanken",
   }
 }

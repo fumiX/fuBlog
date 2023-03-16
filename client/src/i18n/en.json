@@ -2,5 +2,9 @@
   "nav": {
     "home": "Home",
     "about": "About us"
+  },
+  "posts": {
+    "blogTitle": "fumiX Blog",
+    "blogShortDescription": "Tech articles and tutorials",
   }
 }

@@ -2,8 +2,8 @@
   <div class="container">
     <div class="jumbotron rounded mb-4 p-3 p-md-5 blog-bg">
       <div class="col-md-6 px-0">
-        <h1 class="display-2 font-italic">{{ blogTitle }}</h1>
-        <p class="display-6 my-1 text-dark">{{ blogShortDescription }}</p>
+        <h1 class="display-2 font-italic">{{ t("posts.blogTitle") }}</h1>
+        <p class="display-6 my-1 text-dark">{{ t("posts.blogShortDescription") }}</p>
         <!-- <p class="lead mb-0"><a href="#" class="text-white font-weight-bold">Continue reading...</a></p> -->
       </div>
     </div>
@@ -72,7 +72,6 @@ import Paginate from "vuejs-paginate-next";
 import { useRoute } from "vue-router";
 import type Permission from "../permissions.js";
 import { useI18n } from "vue-i18n";
-
 
 export default defineComponent({
   components: {
@@ -164,6 +163,7 @@ export default defineComponent({
       blogTitle,
       blogShortDescription,
       props,
+      t,
     };
   },
 
