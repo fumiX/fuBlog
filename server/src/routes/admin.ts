@@ -5,12 +5,6 @@ import { permissionsForUser, UserDto } from "@fumix/fu-blog-common";
 
 const router: Router = express.Router();
 
-router.post("/users/permissions/:userId", async (req: Request, res: Response) => {
-  // const user = await AppDataSource.manager.getRepository(UserEntity).findOneBy({ id: +req.params.userId });
-
-  res.status(200).json({ userId: req.params.userId, permissions: req.body });
-});
-
 router.get("/users", async (req, res) => {
   const users = await AppDataSource.manager.getRepository(UserEntity).find({ order: { id: "ASC" } });
   res.status(200).json(
@@ -27,6 +21,14 @@ router.get("/users", async (req, res) => {
       };
     }),
   );
+});
+
+router.post("/users/permissions/:userId", async (req: Request, res: Response) => {
+  console.log("PERMISSIONS --> ", req.body.permissions);
+  // const user = await AppDataSource.manager.getRepository(UserEntity).findOneBy({ id: +req.params.userId });
+  const rBody = { userId: req.params.userId, permissions: req.body.permissions };
+
+  res.status(200).json(rBody);
 });
 
 export default router;
