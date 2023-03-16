@@ -89,7 +89,7 @@ export default defineComponent({
         });
         this.userInfo = await res.json();
         if (this.userInfo?.isExisting) {
-          saveIdToken(this.userInfo.id_token);
+          saveIdToken(this.userInfo.token);
         }
         this.loading = false;
       }

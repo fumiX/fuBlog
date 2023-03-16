@@ -1,5 +1,7 @@
+import { SavedOAuthToken } from "@/dto/oauth/SavedOAuthToken.js";
+
 export type OAuthUserInfoDto = {
-  id_token: string;
+  token: SavedOAuthToken;
   user: {
     email?: string;
     firstName?: string;

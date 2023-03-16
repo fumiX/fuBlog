@@ -1,10 +1,11 @@
-import { isNotNull, OAuthProvider, OAuthProvidersDto, OAuthUserInfoDto, UserRole, UserRolePermissions } from "@fumix/fu-blog-common";
+import { isNotNull, OAuthProvider, OAuthProvidersDto, OAuthUserInfoDto, SavedOAuthToken } from "@fumix/fu-blog-common";
 import express, { NextFunction, Request, Response, Router } from "express";
+import { createRemoteJWKSet, jwtVerify } from "jose";
 import fetch from "node-fetch";
-import { BaseClient, CallbackParamsType, generators, Issuer, TokenSet } from "openid-client";
+import { BaseClient, Issuer } from "openid-client";
 import { AppDataSource } from "../data-source.js";
 import { OAuthAccountEntity } from "../entity/OAuthAccount.entity.js";
-import { createOAuthAccount, createUser, findOAuthAccountBy } from "../service/crud.js";
+import { findOAuthAccountBy } from "../service/crud.js";
 import { OAuthSettings } from "../settings.js";
 
 const router: Router = express.Router();
@@ -67,6 +68,29 @@ async function getAuthorizationUrl(oauthProvider: OAuthProvider, redirect_uri: s
   );
 }
 
+router.post("/loggedInUser", async (req, res) => {
+  const savedToken = req.body as SavedOAuthToken;
+  if (!savedToken) {
+    res.status(400).json("Error: Can't decode body to SavedOAuthToken!");
+  } else {
+    const provider = OAuthSettings.findByTypeAndDomain(savedToken.type, savedToken.issuer);
+    if (provider?.type === "FAKE") {
+      const result = await jwtVerify(savedToken.id_token, new TextEncoder().encode("secret"));
+      if (result?.payload?.sub) {
+        res.status(200).json(await findOAuthAccountBy(result.payload.sub, provider));
+      }
+      res.status(200);
+    } else if (provider?.type === "GOOGLE") {
+      const jwks = createRemoteJWKSet(new URL("https://www.googleapis.com/oauth2/v3/certs"));
+      const result = await jwtVerify(savedToken.id_token, jwks);
+      if (result?.payload?.sub) {
+        res.status(200).json(await findOAuthAccountBy(result.payload.sub, provider));
+      }
+      res.status(200).json({});
+    }
+  }
+});
+
 router.post("/code", async (req, res) => {
   const code = req.body.code;
   const issuer = req.body.issuer;
@@ -93,7 +117,11 @@ router.post("/code", async (req, res) => {
 
       if (tokenSet.id_token) {
         const result: OAuthUserInfoDto = {
-          id_token: tokenSet.id_token,
+          token: {
+            id_token: tokenSet.id_token,
+            type: provider.type,
+            issuer: provider.domain,
+          },
           user: {
             firstName: dbUser?.user?.firstName ?? userInfo.given_name,
             lastName: dbUser?.user?.lastName ?? userInfo.family_name,
@@ -101,7 +129,7 @@ router.post("/code", async (req, res) => {
             profilePicture: dbUser?.user?.profilePicture,
             username: dbUser?.user?.username ?? userInfo.preferred_username,
           },
-          isExisting: true,
+          isExisting: !!dbUser,
         };
         if (!result.user.profilePicture && userInfo.picture) {
           try {
@@ -115,70 +143,6 @@ router.post("/code", async (req, res) => {
       }
     }
     res.status(403);
-  }
-});
-
-/**
- * Provides the URL used for authentication / authorization used to redirect the client to the OAuth authorization server.
- * <p>Before retrieving authorization information the client must authenticate (provide credentials) first.
- * <p>It uses PKCE (Proof Key for Code Exchange) to prevent Cross-Site-Request-Forgery (CSRF) and authentication code
- * injections attacks. For more information visit: {@link https://oauth.net/2/pkce/}
- */
-router.get("/url", (req: Request, res: Response) => {
-  // This is an extract from https://github.com/panva/node-openid-client#AuthorizationCodeFlow
-  const codeVerifier = generators.codeVerifier();
-  const codeChallenge = generators.codeChallenge(codeVerifier);
-  const authUrl =
-    req.app.authClient?.authorizationUrl({
-      scope: "openid email profile",
-      code_challenge: codeChallenge,
-      code_challenge_method: "S256",
-    }) ?? null;
-
-  // TODO: This is only for testing - the code verifier should be stored in the session. In case of a cookie it
-  //  should be httpOnly, encrypted and not readable by JavaScript
-  req.app.codeVerifier = codeVerifier;
-  res.json({ authUrl });
-});
-
-/**
- * Retrieves a collection of requested tokens in exchange for an authorization code.
- */
-router.get("/callback", async (req: Request, res: Response) => {
-  // The params containing the authorization code
-  const client = req.app.authClient;
-  if (client) {
-    const params: CallbackParamsType = client.callbackParams(req);
-    const checks = { code_verifier: req.app.codeVerifier };
-    const tokenSet: TokenSet = await client.callback(OAuthSettings.REDIRECT_URI, params, checks);
-    const userInfo = await client.userinfo(tokenSet);
-    // console.log("THE ID TOKEN: ", tokenSet.id_token);
-    console.log("What the hell is session state? ", tokenSet.session_state);
-    const userPermissions: UserRolePermissions = {} as UserRolePermissions;
-    const issuerId = req.app.authIssuer?.metadata.issuer;
-    if (issuerId) {
-      const provider = OAuthSettings.PROVIDERS.find((it) => it.type === issuerId);
-      if (provider) {
-        let account: OAuthAccountEntity | null = await findOAuthAccountBy(userInfo.sub, provider);
-        if (!account) {
-          const firstName = userInfo.name as string;
-          const lastName = userInfo.family_name as string;
-          const email = userInfo.email as string;
-          const bloggerRoles: UserRole[] = ["POST_CREATE", "POST_EDIT"];
-          const user = await createUser(firstName, email, bloggerRoles, firstName, lastName);
-          account = await createOAuthAccount(userInfo.sub, provider, user);
-        }
-        // const userId = account.user.id as number;
-        // userPermissions = await getUserPermissions(userId);
-      }
-    }
-
-    console.log("Headers / Cookies ", res.getHeaderNames(), req.cookies);
-    // res.location("http://localhost:5010/auth");
-    // res.send(302);
-    // res.redirect("http://localhost:5010/auth");
-    res.setHeader("Authorization", tokenSet.access_token as string);
-    res.redirect("http://localhost:5010/api/posts/page/1/count/5");
   }
 });
 
