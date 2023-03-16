@@ -141,10 +141,13 @@ export default defineComponent({
     await this.loadList();
   },
   methods: {
-    saveSettings(savedKeys: string[]) {
-      console.log("TODO: Save Permissions");
-      console.log("Saved Permissions", savedKeys);
-      console.log("UserID", this.editUser?.id, this.editUser?.username);
+    async saveSettings(savedKeys: string[]) {
+      // console.log("TODO: Save Permissions");
+      // console.log("Saved Permissions", savedKeys);
+      // console.log("UserID", this.editUser?.id, this.editUser?.username);
+
+      await this.send(this.editUser?.id, savedKeys);
+
       this.closeDialog();
       this.loadList();
     },
@@ -166,6 +169,19 @@ export default defineComponent({
       this.loading = false;
       // document.getElementById("userRolesModal")?.addEventListener("confirmed", (e) => console.log("Event confirmed", e));
       // document.getElementById("userRolesModal")?.addEventListener("hidden.bs.modal", (e) => console.log("Event hide", e));
+    },
+
+    async send(id: number | undefined, permissions: string[]) {
+      // const postable = new FormData();
+      // postable.append("body", JSON.stringify({ perm: permissions }));
+      const requestOptions = {
+        method: "POST",
+        body: JSON.stringify(permissions),
+      };
+      const postUrl = `/api/admin/users/permissions/${id}`;
+      const response = await fetch(postUrl, requestOptions);
+      const data = await response.json();
+      console.log("HAS BEEN SEND -> Response: ", data);
     },
   },
 });

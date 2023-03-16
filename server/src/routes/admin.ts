@@ -1,9 +1,15 @@
-import express, { Router } from "express";
+import express, { Request, Response, Router } from "express";
 import { AppDataSource } from "../data-source.js";
 import { UserEntity } from "../entity/User.entity.js";
 import { permissionsForUser, UserDto } from "@fumix/fu-blog-common";
 
 const router: Router = express.Router();
+
+router.post("/users/permissions/:userId", async (req: Request, res: Response) => {
+  // const user = await AppDataSource.manager.getRepository(UserEntity).findOneBy({ id: +req.params.userId });
+
+  res.status(200).json({ userId: req.params.userId, permissions: req.body });
+});
 
 router.get("/users", async (req, res) => {
   const users = await AppDataSource.manager.getRepository(UserEntity).find({ order: { id: "ASC" } });
@@ -21,10 +27,6 @@ router.get("/users", async (req, res) => {
       };
     }),
   );
-});
-
-router.post("/users/roles/:userId/:permissions", async (req, res) => {
-  res.status(200).json({ userId: req.params.userId, roles: req.params.permissions.split(",") });
 });
 
 export default router;
