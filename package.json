@@ -25,7 +25,6 @@
     "test": "npm run --workspaces test"
   },
   "devDependencies": {
-    "@intlify/unplugin-vue-i18n": "^0.9.2",
     "@types/multer": "^1.4.7",
     "@types/vue-i18n": "^7.0.0",
     "concurrently": "7.6.0",
@@ -52,7 +51,6 @@
     "url": "git+ssh://git@github.com/fumiX/fuBlog.git"
   },
   "dependencies": {
-    "@intlify/unplugin-vue-i18n": "^0.9.2",
     "dotenv": "^16.0.3",
     "multer": "^1.4.5-lts.1",
     "vue-i18n": "^9.2.2"
