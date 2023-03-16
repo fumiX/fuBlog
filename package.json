@@ -6,8 +6,8 @@
   "name": "@fumix/fu-blog",
   "version": "0.1.0",
   "workspaces": [
-    "client",
     "common",
+    "client",
     "server",
     "portal"
   ],
@@ -27,6 +27,7 @@
   "devDependencies": {
     "@intlify/unplugin-vue-i18n": "^0.9.2",
     "@types/multer": "^1.4.7",
+    "@types/vue-i18n": "^7.0.0",
     "concurrently": "7.6.0",
     "eslint-plugin-prettier": "4.2.1",
     "eslint-plugin-unused-imports": "2.0.0",

@@ -22,7 +22,7 @@
               <RouterLink to="/posts" class="nav-link">Posts</RouterLink>
             </li>
             <li v-if="hasPermission('admin')" class="nav-item">
-              <RouterLink to="/administration" class="nav-link">{{ this.t('nav.home') }}</RouterLink>
+              <RouterLink to="/administration" class="nav-link">{{ t("nav.home") }}</RouterLink>
             </li>
           </ul>
           <div class="username"><login-button></login-button></div>
@@ -58,8 +58,9 @@ import { useI18n } from "vue-i18n";
 
 const { t } = useI18n({
   inheritLocale: true,
-  useScope: 'local'
+  useScope: "local",
 });
+
 
 export default defineComponent({
   components: { LoginButton, SearchComponent },
@@ -103,7 +104,7 @@ export default defineComponent({
       searchQuery,
       setOperator,
       loggedInUser,
-      t
+      t,
     };
   },
 
