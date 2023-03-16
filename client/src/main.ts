@@ -6,7 +6,7 @@ import "./assets/scss/custom.scss";
 import "./assets/scss/style.scss";
 import "bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import i18n from "@/assets/i18n/plugins/i18n.js";
+import i18n from "@/plugins/i18n.js";
 
 declare module "@vue/runtime-core" {
   export interface ComponentCustomProperties {

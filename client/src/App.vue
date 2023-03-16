@@ -56,15 +56,14 @@ import type { User } from "@fumix/fu-blog-common";
 import Permission from "./permissions.js";
 import { useI18n } from "vue-i18n";
 
-const { t } = useI18n({
-  inheritLocale: true,
-  useScope: "local",
-});
-
-
 export default defineComponent({
   components: { LoginButton, SearchComponent },
   setup() {
+    const { t } = useI18n({
+      inheritLocale: true,
+      useScope: "local",
+    });
+
     const route = useRoute();
     const searchQuery = ref<string>("");
     const router = useRouter();

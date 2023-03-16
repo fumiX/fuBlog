@@ -22,6 +22,7 @@
     "strict": true,
     "strictPropertyInitialization": false,
     "skipLibCheck": false,
+    "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
