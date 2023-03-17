@@ -28,6 +28,38 @@ export class ServerSettings {
 }
 
 export class OAuthSettings {
+  /**
+   * This is intended to be used to bootstrap the first user account.
+   * When a user with the given email address logs in via the given OAuthType and issuer domain, then that user gets the admin role.
+   * Set all three environment variables `OAUTH_ADMIN_EMAIL`, `OAUTH_ADMIN_ISSUER` and `OAUTH_ADMIN_TYPE` until the first user is created.
+   * Then unset the environment variables again.
+   */
+  static readonly ADMIN_LOGIN: { email: string; oauthIssuer: string; oauthType: OAuthType } | undefined = ((
+    email,
+    oauthIssuer,
+    oauthType,
+  ) => {
+    if (!email && !oauthIssuer && !oauthType) {
+      return undefined;
+    } else if (!email || !oauthIssuer || !oauthType) {
+      throw new Error(
+        "One or more of the environment variables `OAUTH_ADMIN_EMAIL`, `OAUTH_ADMIN_ISSUER` and `OAUTH_ADMIN_TYPE` is not set! Set either all of them or none.",
+      );
+    } else if (!email.includes("@") || oauthIssuer.includes("/") || !isOAuthType(oauthType)) {
+      throw new Error(
+        "Invalid format for one (or both) of the environment variables " +
+          "`OAUTH_ADMIN_EMAIL` (must contain an `@`), " +
+          "`OAUTH_ADMIN_ISSUER` (must not contain a `/`) " +
+          `or \`OAUTH_ADMIN_TYPE\` (must be one of \`${OAUTH_TYPES.join("`, `")}\`)!`,
+      );
+    } else {
+      return {
+        email,
+        oauthIssuer,
+        oauthType,
+      };
+    }
+  })(process.env.OAUTH_ADMIN_EMAIL, process.env.OAUTH_ADMIN_ISSUER, process.env.OAUTH_ADMIN_TYPE);
   static readonly REDIRECT_URI = process.env.OAUTH_REDIRECT_URI ?? ClientSettings.BASE_URL + "/login";
   static readonly PROVIDERS: OAuthProvider[] = loadOAuthProvidersFromEnv();
 
