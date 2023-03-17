@@ -9,7 +9,7 @@
       </div>
       <div v-else-if="userInfo">
         <div v-if="userInfo.isExisting">
-          Willkommen zurück {{ userInfo.user.firstName }} {{ userInfo.user.lastName }}! Du bist jetzt angemeldet.
+          Hallo {{ userInfo.user.firstName }} {{ userInfo.user.lastName }}! Du bist jetzt angemeldet.
           <!-- TODO: Redirect immediately -->
         </div>
         <div v-else>
@@ -29,7 +29,7 @@
             <label for="email">E-Mail *</label>
           </div>
           <div class="form-floating mb-2">
-            <input class="form-control" id="username" v-model="username" required />
+            <input class="form-control" id="username" v-model="username" required minlength="3" maxlength="64" />
             <label for="username">Username *</label>
           </div>
           <div class="form-floating mb-2">
@@ -55,9 +55,10 @@
 <script lang="ts">
 import LoginButton from "@/components/LoginButton.vue";
 import router from "@/router/index.js";
-import { loadOauthStateByKey, saveIdToken } from "@/util/storage.js";
-import type { OAuthCodeDto, OAuthUserInfoDto } from "@fumix/fu-blog-common";
+import { loadIdToken, loadOauthStateByKey, saveIdToken } from "@/util/storage.js";
+import type { OAuthCodeDto, OAuthUserInfoDto, SavedOAuthToken } from "@fumix/fu-blog-common";
 import { bytesToBase64URL, isNotNull, isOAuthType } from "@fumix/fu-blog-common";
+import type { OAuthUserInfo } from "@fumix/fu-blog-common/dist/entity/OAuthUserInfo.js";
 import { defineComponent, ref } from "vue";
 import { useRoute } from "vue-router";
 
@@ -65,8 +66,18 @@ export default defineComponent({
   name: "AuthView",
   components: { LoginButton },
   methods: {
-    register() {
-      console.log("Register " + this.username + ", " + this.firstName + ", " + this.lastName);
+    async register() {
+      await fetch(`/api/auth/userinfo/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ saved_token: this.userInfo?.token, first_name: this.firstName, last_name: this.lastName, username: this.username }),
+      }).then(async (it) => {
+        const registeredUserInfo = (await it.json()) as OAuthUserInfoDto;
+        if (registeredUserInfo) {
+          saveIdToken(registeredUserInfo.token);
+          this.userInfo = registeredUserInfo;
+        }
+      });
     },
     redir() {
       console.log("Redirecting");
@@ -126,7 +137,7 @@ export default defineComponent({
     try {
       if (this.code && this.returnedType && this.returnedIssuer && this.isStateMatching) {
         this.loading = true;
-        const res = await fetch(`/api/auth/code`, {
+        const res = await fetch(`/api/auth/userinfo`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ code: this.code, issuer: this.returnedIssuer, type: this.returnedType }),

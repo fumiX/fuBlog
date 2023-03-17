@@ -6,3 +6,7 @@ export type SavedOAuthToken = {
   type: OAuthType;
   issuer: string;
 };
+
+export type UserInfoOAuthToken = SavedOAuthToken & {
+  access_token: string;
+};

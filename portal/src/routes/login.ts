@@ -10,6 +10,9 @@ const router: Router = express.Router();
 router.get("/", async (req, res) => {
   const dbUserAccounts = await dataSource.manager.getRepository(OAuthAccountEntity).find({
     relations: ["user"],
+    where: {
+      type: "FAKE",
+    },
   });
   // Put all the existing accounts from the DB into the userInfosById array
   dbUserAccounts.forEach((acc) => {
@@ -85,7 +88,8 @@ router.get("/", async (req, res) => {
             <input name="lastName" value="${acc.lastName ?? ""}" readonly class="form-control-plaintext">
             <input name="email" value="${acc.email}" readonly class="form-control-plaintext">
             <input type="hidden" value="${req.query.state ?? ""}" name="state" readonly/>
-            <input type="submit" value="Login" class="btn btn-outline-primary"/>
+            <input type="hidden" value="${req.query.redirect_uri ?? ""}" name="redirectUri" readonly/>
+            <input type="submit" value="Mit Fake-OAuth-Portal verknüpfen" class="btn btn-outline-primary"/>
           </form>
         </div>
       </li>`;

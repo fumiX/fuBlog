@@ -1,10 +1,11 @@
-import { isNotNull, OAuthProvider, OAuthProvidersDto, OAuthUserInfoDto, SavedOAuthToken } from "@fumix/fu-blog-common";
+import { isNotNull, OAuthProvider, OAuthProvidersDto, OAuthUserInfoDto, SavedOAuthToken, UserInfoOAuthToken } from "@fumix/fu-blog-common";
 import express, { NextFunction, Request, Response, Router } from "express";
-import { createRemoteJWKSet, jwtVerify } from "jose";
+import { createRemoteJWKSet, JWTPayload, jwtVerify } from "jose";
 import fetch from "node-fetch";
-import { BaseClient, Issuer } from "openid-client";
+import { BaseClient, Issuer, TokenSet } from "openid-client";
 import { AppDataSource } from "../data-source.js";
 import { OAuthAccountEntity } from "../entity/OAuthAccount.entity.js";
+import { UserEntity } from "../entity/User.entity.js";
 import { findOAuthAccountBy } from "../service/crud.js";
 import { OAuthSettings } from "../settings.js";
 
@@ -77,25 +78,47 @@ async function getAuthorizationUrl(oauthProvider: OAuthProvider, redirect_uri: s
   }
 }
 
+async function checkIdToken(id_token: string, provider: OAuthProvider): Promise<JWTPayload> {
+  if (provider?.type === "FAKE") {
+    const result = await jwtVerify(id_token, new TextEncoder().encode("secret"));
+    if (result?.payload?.sub) {
+      return result.payload;
+    }
+  } else if (provider?.type === "GOOGLE") {
+    const jwks = createRemoteJWKSet(new URL("https://www.googleapis.com/oauth2/v3/certs"));
+    const result = await jwtVerify(id_token, jwks);
+    if (result?.payload?.sub) {
+      return result.payload;
+    }
+  } else if (provider?.type === "GITLAB") {
+    const jwks = createRemoteJWKSet(new URL(`https://${provider.domain}/oauth/discovery/keys`));
+    const result = await jwtVerify(id_token, jwks);
+    if (result?.payload?.sub) {
+      return result.payload;
+    }
+  }
+  return Promise.reject();
+}
+
 router.post("/loggedInUser", async (req, res) => {
   const savedToken = req.body as SavedOAuthToken;
   if (!savedToken) {
     res.status(400).json("Error: Can't decode body to SavedOAuthToken!");
   } else {
     const provider = OAuthSettings.findByTypeAndDomain(savedToken.type, savedToken.issuer);
-    if (provider?.type === "FAKE") {
-      const result = await jwtVerify(savedToken.id_token, new TextEncoder().encode("secret"));
-      if (result?.payload?.sub) {
-        res.status(200).json(await findOAuthAccountBy(result.payload.sub, provider));
-      }
-      res.status(200);
-    } else if (provider?.type === "GOOGLE") {
-      const jwks = createRemoteJWKSet(new URL("https://www.googleapis.com/oauth2/v3/certs"));
-      const result = await jwtVerify(savedToken.id_token, jwks);
-      if (result?.payload?.sub) {
-        res.status(200).json(await findOAuthAccountBy(result.payload.sub, provider));
-      }
-      res.status(200).json({});
+    if (provider) {
+      await checkIdToken(savedToken.id_token, provider)
+        .then(async (payload) => {
+          if (payload.sub) {
+            const account = await findOAuthAccountBy(payload.sub, provider);
+            if (account) {
+              res.status(200).json(account);
+            }
+          }
+        })
+        .catch(() => {
+          res.status(403).json({ error: "Unauthorized" });
+        });
     }
   }
 });
@@ -129,7 +152,7 @@ router.post("/userinfo", async (req, res) => {
         relations: ["user"],
       });
 
-      if (tokenSet.id_token) {
+      if (tokenSet.id_token && tokenSet.access_token) {
         const firstName = dbUser?.user?.firstName ?? userInfo.given_name;
         const lastName = dbUser?.user?.lastName ?? userInfo.family_name;
         const username =
@@ -139,6 +162,7 @@ router.post("/userinfo", async (req, res) => {
           [firstName, lastName].filter(isNotNull).join(".").replace(" ", ".").toLowerCase();
         const result: OAuthUserInfoDto = {
           token: {
+            access_token: tokenSet.access_token,
             id_token: tokenSet.id_token,
             type: provider.type,
             issuer: provider.domain,
@@ -165,6 +189,78 @@ router.post("/userinfo", async (req, res) => {
       }
     } catch (e) {
       res.status(403).json({ error: "Failed to get the token! " + e });
+    }
+  }
+});
+
+router.post("/userinfo/register", async (req, res) => {
+  const first_name = req.body.first_name ?? "";
+  const last_name = req.body.last_name ?? "";
+  const username = req.body.username;
+  const saved_token = req.body.saved_token as UserInfoOAuthToken;
+  if (!saved_token) {
+    res.status(403).json({ error: "Unauthorized!" });
+  } else if (!username || username.length < 3 || username.length > 64) {
+    res.status(400).json({ error: "A username with length between 3 and 64 is required!" });
+  } else {
+    const provider = OAuthSettings.findByTypeAndDomain(saved_token.type, saved_token.issuer);
+    if (!provider) {
+      res.status(400).json({ error: "Invalid provider " + saved_token.type + "/" + saved_token.issuer });
+    } else {
+      await checkIdToken(saved_token.id_token, provider)
+        .then(async (it) => {
+          const oauthUserId = it.sub;
+          if (oauthUserId) {
+            const client = await findOAuthClient(provider);
+            const tokenSet = new TokenSet({ id_token: saved_token.id_token, access_token: saved_token.access_token });
+            const userInfo = await client.userinfo(tokenSet, { method: "POST", via: "body" });
+            const userEmail = userInfo.email;
+            if (!userEmail) {
+              res.status(502).json({ error: "Could not retrieve email address!" });
+            } else {
+              const user: UserEntity = {
+                isActive: true,
+                firstName: first_name,
+                lastName: last_name,
+                username,
+                roles:
+                  OAuthSettings.ADMIN_LOGIN?.email === userEmail &&
+                  OAuthSettings.ADMIN_LOGIN?.oauthIssuer === provider.domain &&
+                  OAuthSettings.ADMIN_LOGIN.oauthType === provider.type &&
+                  (await AppDataSource.manager.getRepository(UserEntity).count()) <= 0
+                    ? ["ADMIN"]
+                    : [],
+                email: userEmail,
+              };
+              AppDataSource.manager
+                .transaction(async (mgr) => {
+                  await mgr.insert(UserEntity, [user]).then((it) => console.log("Raw result", it.raw));
+                  const oauthAccount: OAuthAccountEntity = {
+                    type: provider.type,
+                    domain: provider.domain,
+                    oauthId: oauthUserId,
+                    user,
+                  };
+                  await mgr.insert(OAuthAccountEntity, [oauthAccount]);
+                })
+                .then(async () => {
+                  const result: OAuthUserInfoDto = {
+                    isExisting: true,
+                    token: saved_token,
+                    oauthId: oauthUserId,
+                    user,
+                  };
+
+                  res.status(200).json(result);
+                })
+                .catch(() => res.status(403).json({ error: "Unauthorized" }));
+            }
+          }
+        })
+        .catch((err) => {
+          console.log("Error", err);
+          res.status(403).json({ error: "Unauthorized" });
+        });
     }
   }
 });
