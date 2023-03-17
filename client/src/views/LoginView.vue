@@ -69,7 +69,12 @@ export default defineComponent({
       await fetch(`/api/auth/userinfo/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ saved_token: this.userInfo?.token, first_name: this.firstName, last_name: this.lastName, username: this.username }),
+        body: JSON.stringify({
+          saved_token: this.userInfo?.token,
+          first_name: this.firstName,
+          last_name: this.lastName,
+          username: this.username,
+        }),
       }).then(async (it) => {
         const registeredUserInfo = (await it.json()) as OAuthUserInfoDto;
         if (registeredUserInfo) {

@@ -3,20 +3,21 @@
     <div class="jumbotron rounded mb-4 p-3 p-md-5 blog-bg">
       <div class="col-md-6 px-0">
         <h1 class="display-2 font-italic">{{ t("posts.blogTitle") }}</h1>
-        <p class="display-6 my-1 text-dark">{{ t("posts.blogShortDescription") }}</p>
-        <!-- <p class="lead mb-0"><a href="#" class="text-white font-weight-bold">Continue reading...</a></p> -->
+        <p class="display-6 my-1 text-dark">
+          {{ t("posts.blogShortDescription") }}
+        </p>
       </div>
     </div>
 
     <div v-if="hasPermission('create')" class="clearfix mb-4">
       <button type="button" class="btn btn-sm btn-secondary float-end" @click="goTo('/posts/post/form')">
-        <fa-icon :icon="faAdd" /> Post erstellen
+        <fa-icon :icon="faAdd" /> {{ t("app.base.create_post") }}
       </button>
     </div>
 
     <div v-if="loading" class="loader">
       <div class="spinner-border text-secondary" role="status">
-        <span class="visually-hidden">Loading...</span>
+        <span class="visually-hidden">{{ t("app.base.loading") }}</span>
       </div>
     </div>
 
@@ -31,7 +32,7 @@
       ></post-preview>
 
       <div v-if="!totalPages && route.query.search" class="alert alert-light text-center">
-        <fa-icon :icon="faSadTear" class="mx-3" />Keine Posts zu "{{ route.query.search }}" gefunden.
+        <fa-icon :icon="faSadTear" class="mx-3" />{{ t("search.noResults", { query: route.query.search }) }}
       </div>
 
       <paginate
@@ -187,8 +188,8 @@ export default defineComponent({
     showConfirm(post: Post) {
       this.currentPost = post as Post;
       this.dialogData = {
-        title: "Post löschen",
-        message: `Willst du "${this.currentPost.title}" echt löschen ?`,
+        title: this.t("posts.confirm.title"),
+        message: this.t("posts.confirm.message", { post: this.currentPost.title }),
       };
       this.showDialog = true;
     },

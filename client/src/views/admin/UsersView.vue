@@ -1,39 +1,34 @@
 <template>
   <div class="container">
-    <div class="jumbotron rounded mb-4 p-3 p-md-5 blog-bg">
-      <div class="col px-0">
-        <h1 class="display-2 font-italic">Benutzerverwaltung</h1>
-        <p class="display-6 my-1 text-dark">Benutzerrechte und Rollen vergeben.</p>
-      </div>
-    </div>
-
     <div class="row mb-2">
       <div class="col">
         <div class="card flex-md-row mb-4 box-shadow h-md-250">
           <div class="card-body">
+            <h1 class="display-4 font-italic">{{ t("admin.title") }}</h1>
+
             <div v-if="loading" style="position: relative; width: 100%; text-align: center">
               <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
+                <span class="visually-hidden">{{ t("app.base.loading") }}</span>
               </div>
             </div>
             <div v-else class="clearfix mb-4">
               <table class="table text-center table-bordered" aria-labelledby="h2">
                 <thead>
                   <tr>
-                    <th rowspan="2" scope="col">Benutzername</th>
-                    <th rowspan="2" scope="col">Name & E-Mail</th>
-                    <th rowspan="2" scope="col">Rollen</th>
+                    <th rowspan="2" scope="col">{{ t("admin.table.columns.username") }}</th>
+                    <th rowspan="2" scope="col">{{ t("admin.table.columns.name_and_email") }}</th>
+                    <th rowspan="2" scope="col">{{ t("admin.table.columns.roles") }}</th>
                     <th rowspan="2" scope="col"></th>
-                    <th scope="col">Nutzer</th>
-                    <th colspan="3" scope="col">Posts</th>
+                    <th scope="col">{{ t("admin.table.columns.user") }}</th>
+                    <th colspan="3" scope="col">{{ t("admin.table.columns.posts") }}</th>
                   </tr>
                   <tr>
                     <!-- Nutzer -->
-                    <th scope="col">Rechte bearbeiten</th>
+                    <th scope="col">{{ t("admin.table.columns.permissions.edit_rights") }}</th>
                     <!-- Posts -->
-                    <th scope="col">Erstellen</th>
-                    <th scope="col">Bearbeiten</th>
-                    <th scope="col">Löschen</th>
+                    <th scope="col">{{ t("admin.table.columns.permissions.create_post") }}</th>
+                    <th scope="col">{{ t("admin.table.columns.permissions.edit_post") }}</th>
+                    <th scope="col">{{ t("admin.table.columns.permissions.delete_post") }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -57,12 +52,13 @@
                         </span>
                       </div>
                     </td>
-                    <td>
+                    <td style="vertical-align: middle">
                       <button class="btn btn-outline-primary btn-sm ml-2" @click="setEditUser(user)">
                         <fa-icon :icon="faPencil" />
                       </button>
                     </td>
                     <td
+                      style="vertical-align: middle"
                       v-for="(value, index) in [
                         user.permissions.canEditUserRoles,
                         user.permissions.canCreatePost,
@@ -82,17 +78,11 @@
         </div>
       </div>
     </div>
-
     <multiselect-dialog :show="showModal" :user="editUser" :save-callback="saveSettings" @canceled="closeDialog()"></multiselect-dialog>
   </div>
 </template>
 
 <style lang="scss">
-.blog-bg {
-  background-image: url("@/assets/images/post-bg.jpg");
-  background-repeat: no-repeat;
-  background-size: cover;
-}
 .avatar {
   display: inline-block;
   width: 3rem;
@@ -104,6 +94,7 @@
 </style>
 
 <script lang="ts">
+import { useI18n } from "vue-i18n";
 import type { PropType } from "vue";
 import BooleanDisplay from "@/components/BooleanDisplay.vue";
 import MultiselectDialog from "@/components/MultiselectDialog.vue";
@@ -127,6 +118,7 @@ export default defineComponent({
   },
 
   setup(props) {
+    const { t } = useI18n();
     return {
       showModal: ref(false),
       loading: ref(true),
@@ -135,6 +127,7 @@ export default defineComponent({
       permissionsForUser: permissionsForUser,
       faPencil,
       props,
+      t,
     };
   },
   async mounted() {

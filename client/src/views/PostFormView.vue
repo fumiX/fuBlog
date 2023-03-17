@@ -1,12 +1,5 @@
 <template>
   <div class="container">
-    <div class="jumbotron rounded mb-4 p-3 p-md-5 post-bg">
-      <div class="col-md-6 px-0">
-        <h1 v-if="isCreateMode" class="display-2 font-italic">Post erstellen</h1>
-        <h1 v-if="!isCreateMode" class="display-2 font-italic">Post bearbeiten</h1>
-      </div>
-    </div>
-
     <div class="row mb-2">
       <div class="col w-50">
         <div class="card flex-md-row mb-4 box-shadow h-md-250">
@@ -14,12 +7,12 @@
             <form @submit="submitForm($event)">
               <div class="form-floating mb-3">
                 <input v-model="form.title" type="text" class="form-control" id="title" placeholder="Titel" required />
-                <label for="title">Titel</label>
+                <label for="title">{{ t("posts.form.title") }}</label>
               </div>
 
               <div class="form-floating mb-3">
                 <input v-model="form.description" type="text" class="form-control" id="description" placeholder="Beschreibung" />
-                <label for="description">Kurzbeschreibung</label>
+                <label for="description">{{ t("posts.form.description") }}</label>
               </div>
 
               <div class="form-floating mb-3">
@@ -33,35 +26,37 @@
                   aria-describedby="markdownHelp"
                   required
                 ></textarea>
-                <label for="markdown">Blogpost</label>
-                <div id="markdownHelp" class="form-text">Markdown wird unterstützt.</div>
+                <label for="markdown">{{ t("posts.form.message.label") }}</label>
+                <div id="markdownHelp" class="form-text">{{ t("posts.form.message.hint") }}</div>
               </div>
 
               <div class="form-check">
                 <input v-model="form.draft" type="checkbox" id="draft" placeholder="Entwurf" />
-                <label for="draft">Entwurf</label>
+                <label for="draft">{{ t("posts.form.draft") }}</label>
               </div>
 
               <div class="file-upload">
                 <input type="file" id="file" ref="file" v-on:change="handleFileChange($event)" accept="image/png, image/jpeg" />
               </div>
 
-              <button type="submit" class="btn btn-sm btn-primary float-end">Speichern</button>
-              <button type="button" class="btn btn-sm btn-secondary float-end mx-3" @click="$router.go(-1)">Abbrechen</button>
+              <button type="submit" class="btn btn-sm btn-primary float-end">{{ t("app.base.save") }}</button>
+              <button type="button" class="btn btn-sm btn-secondary float-end mx-3" @click="$router.go(-1)">
+                {{ t("app.base.cancel") }}
+              </button>
             </form>
           </div>
         </div>
       </div>
 
       <div class="col w-50">
+        <h2 class="display-6">{{ t("posts.form.preview.title") }}</h2>
         <div class="card flex-md-row mb-4 box-shadow h-md-250">
           <div class="card-body">
             <div v-if="loading" style="position: absolute; width: 100%; margin-top: 10vh; text-align: center">
               <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
+                <span class="visually-hidden">{{ t("app.base.loading") }}</span>
               </div>
             </div>
-
             <mark-down :markdown="md" @loading="loading = $event" :style="loading ? 'opacity:0.2' : 'opacity:1'"></mark-down>
           </div>
         </div>
@@ -76,7 +71,6 @@
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center center;
-  // min-height: 250px;
 }
 
 .w-50 {
@@ -85,6 +79,7 @@
 </style>
 
 <script lang="ts">
+import { useI18n } from "vue-i18n";
 import { defineComponent, reactive, ref } from "vue";
 import { useRoute } from "vue-router";
 import MarkDown from "@/components/MarkDown.vue";
@@ -93,6 +88,7 @@ import { debounce } from "@/debounce.js";
 export default defineComponent({
   components: { MarkDown },
   setup() {
+    const { t } = useI18n();
     const isCreateMode = ref(false);
     const postId = ref<number | null>(null);
     const md = ref<string | null>(null);
@@ -113,6 +109,7 @@ export default defineComponent({
       md,
       loading,
       file: "",
+      t,
     };
   },
 

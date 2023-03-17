@@ -8,7 +8,7 @@
           </h5>
         </div>
         <div class="modal-body">
-          <h6>Rechte</h6>
+          <h6 class="display-6">{{ t("app.base.roles") }}</h6>
           <div class="form-group" v-for="[key, value] in Object.entries(user.permissions)" v-bind:key="key">
             <div class="form-check">
               <input
@@ -25,10 +25,10 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="$emit('canceled')">
-            {{ "Abbrechen" }}
+            {{ t("app.base.cancel") }}
           </button>
           <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="saveCallback(value)">
-            {{ "Speichern" }}
+            {{ t("app.base.save") }}
           </button>
         </div>
       </div>
@@ -49,6 +49,7 @@
 </style>
 
 <script lang="ts">
+import { useI18n } from "vue-i18n";
 import { ref } from "vue";
 import type { PropType } from "vue";
 import { defineComponent, watch } from "vue";
@@ -73,6 +74,7 @@ export default defineComponent({
   emits: ["confirmed", "canceled", "input"],
 
   setup(props, emits) {
+    const { t } = useI18n();
     const value = ref<string[]>([]);
 
     watch(props, () => {
@@ -93,6 +95,7 @@ export default defineComponent({
       props,
       emits,
       value,
+      t,
     };
   },
 

@@ -19,10 +19,10 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <RouterLink to="/posts" class="nav-link">Posts</RouterLink>
+              <RouterLink to="/posts" class="nav-link">{{ t("nav.posts") }}</RouterLink>
             </li>
             <li v-if="hasPermission('admin')" class="nav-item">
-              <RouterLink to="/administration" class="nav-link">{{ t("nav.home") }}</RouterLink>
+              <RouterLink to="/administration" class="nav-link">{{ t("nav.administration") }}</RouterLink>
             </li>
           </ul>
           <div class="username"><login-button></login-button></div>

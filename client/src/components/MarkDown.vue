@@ -4,7 +4,7 @@
 
 <style lang="scss">
 .mdPreview {
-  min-height: 480px;
+  min-height: 520px;
   svg {
     max-width: 100% !important;
     height: auto !important;

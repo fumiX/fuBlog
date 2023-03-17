@@ -10,10 +10,10 @@
         </div>
         <div class="modal-footer" v-if="data">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="$emit('canceled')">
-            {{ data.cancelTitle || "Nein" }}
+            {{ data.cancelTitle || t("app.base.no") }}
           </button>
           <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="$emit('confirmed')">
-            {{ data.confirmTitle || "Ja" }}
+            {{ data.confirmTitle || t("app.base.yes") }}
           </button>
         </div>
       </div>
@@ -28,6 +28,7 @@ import type { PropType } from "vue";
 import { defineComponent, watch } from "vue";
 import { Modal } from "bootstrap";
 import type { ConfirmDialogData } from "@fumix/fu-blog-common";
+import { useI18n } from "vue-i18n";
 
 export default defineComponent({
   props: {
@@ -42,6 +43,8 @@ export default defineComponent({
   emits: ["confirmed", "canceled"],
 
   setup(props, emits) {
+    const { t } = useI18n();
+
     watch(props, () => {
       const myModal = new Modal(document.getElementById("confirmModal") || "", {});
       const show = props.show;
@@ -51,6 +54,7 @@ export default defineComponent({
     return {
       props,
       emits,
+      t,
     };
   },
 

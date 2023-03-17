@@ -6,11 +6,11 @@
           <div class="clearfix mb-4">
             <button v-if="hasPermission('delete')" class="btn btn-sm btn-danger float-end" @click="$emit('deletePost', post)">
               <fa-icon :icon="faTrash" />
-              Löschen
+              {{ t("app.base.delete") }}
             </button>
             <button v-if="hasPermission('write')" class="btn btn-sm btn-secondary float-end mx-2" @click="$emit('changePost', post)">
               <fa-icon :icon="faEdit" />
-              Ändern
+              {{ t("app.base.edit") }}
             </button>
           </div>
           <!-- <strong class="d-inline-block mb-2 text-primary">Kategorie</strong> -->
@@ -20,28 +20,22 @@
 
           <div class="mb-1 text-muted creator">
             <fa-icon :icon="faClock" />
-            {{ $luxonDateTime.fromISO(post.createdAt.toString(), { locale: "de-DE" }).toRelativeCalendar() }}
-            <span v-if="post.createdBy"> von </span>
+            {{ $luxonDateTime.fromISO(post.createdAt.toString(), { locale: locale }).toRelativeCalendar() }}
             <i v-if="post.createdBy">{{ post.createdBy.firstName }} {{ post.createdBy.lastName }}</i>
           </div>
 
           <div v-if="post.updatedBy && post.updatedAt" class="mb-1 text-muted editor">
             <fa-icon :icon="faEdit" />
-            {{ $luxonDateTime.fromISO(post.updatedAt.toString(), { locale: "de-DE" }).toRelativeCalendar() }}
-            <span> von </span>
+            {{ $luxonDateTime.fromISO(post.updatedAt.toString(), { locale: locale }).toRelativeCalendar() }}
             <i>{{ post.updatedBy.firstName }} {{ post.updatedBy.lastName }}</i>
           </div>
 
           <p class="card-text my-4">{{ post.description }}</p>
 
           <div class="my-4">
-            <!-- <button class="btn btn-sm btn-primary" @click="$router.push('/posts/post/' + post.id)">
-              <fa-icon :icon="faBookReader" />
-              Lesen
-            </button> -->
             <router-link :to="'/posts/post/' + post.id" class="text-decoration-none">
               <fa-icon :icon="faBookReader" />
-              Lesen
+              {{ t("app.base.read") }}
             </router-link>
           </div>
         </div>
@@ -63,6 +57,7 @@
 </style>
 
 <script lang="ts">
+import { useI18n } from "vue-i18n";
 import type { PropType } from "vue";
 import { defineComponent } from "vue";
 import type { Post } from "@fumix/fu-blog-common";
@@ -84,6 +79,9 @@ export default defineComponent({
   emits: ["deletePost", "changePost"],
 
   setup(props, emits) {
+    const { t } = useI18n();
+    const locale = useI18n().locale.value;
+
     return {
       props,
       emits,
@@ -91,6 +89,8 @@ export default defineComponent({
       faTrash,
       faEdit,
       faClock,
+      t,
+      locale,
     };
   },
 

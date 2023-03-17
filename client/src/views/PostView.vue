@@ -1,13 +1,8 @@
 <template>
   <div class="container" v-if="post">
-    <!-- <div class="jumbotron rounded mb-4 p-3 p-md-5 post-bg">
-      <div class="col-md-6 px-0">
-      </div>
-    </div> -->
-
     <div v-if="loading" class="loader">
       <div class="spinner-border text-secondary" role="status">
-        <span class="visually-hidden">Loading...</span>
+        <span class="visually-hidden">{{ t("app.base.loading") }}</span>
       </div>
     </div>
 
@@ -18,11 +13,11 @@
             <div class="clearfix mb-4">
               <button class="btn btn-sm btn-outline-primary" @click="$router.push('/posts')">
                 <fa-icon :icon="faArrowLeft" />
-                Zurück
+                {{ t("app.base.back") }}
               </button>
               <button v-if="hasPermission('delete')" class="btn btn-sm btn-danger float-end" @click="showConfirm(post)">
                 <fa-icon :icon="faTrash" />
-                Löschen
+                {{ t("app.base.delete") }}
               </button>
               <button
                 v-if="hasPermission('write')"
@@ -30,7 +25,7 @@
                 @click="$router.push(`/posts/post/form/?id=${post?.id}`)"
               >
                 <fa-icon :icon="faEdit" />
-                Ändern
+                {{ t("app.base.edit") }}
               </button>
             </div>
             <h1 class="mb-0 display-4 font-italic">
@@ -83,6 +78,7 @@
 </style>
 
 <script lang="ts">
+import { useI18n } from "vue-i18n";
 import type { PropType } from "vue";
 import { defineComponent, ref } from "vue";
 import { useRoute } from "vue-router";
@@ -104,6 +100,7 @@ export default defineComponent({
   },
 
   setup(props) {
+    const { t } = useI18n();
     return {
       loading: ref(true),
       post: ref<Post | null>(null),
@@ -115,6 +112,7 @@ export default defineComponent({
       faEdit,
       faClock,
       props,
+      t,
     };
   },
 
@@ -151,8 +149,8 @@ export default defineComponent({
     showConfirm(post: Post | null) {
       this.currentPost = post as Post;
       this.dialogData = {
-        title: "Post löschen",
-        message: `Willst du "${this.currentPost.title}" echt löschen ?`,
+        title: this.t("posts.confirm.title"),
+        message: this.t("posts.confirm.message", { post: this.currentPost.title }),
       };
       this.showDialog = true;
     },

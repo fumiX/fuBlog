@@ -1,10 +1,64 @@
 {
+  "app": {
+    "base": {
+      "yes": "Ja",
+      "no": "Nein",
+      "loading": "Lade ...",
+      "back": "Zurück",
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "read": "Lesen",
+      "create_post": "Post erstellen",
+      "roles": "Rollen"
+    }
+  },
   "nav": {
-    "home": "Startseite",
-    "about": "Über uns"
+    "administration": "Benutzerverwaltung",
+    "posts": "Alle Posts"
+  },
+  "search": {
+    "title": "Suche",
+    "placeholder": "Suche nach ...",
+    "noResults": "Keine Ergebnisse zu \"{query}\" gefunden"
   },
   "posts": {
     "blogTitle": "fumiX Blog",
     "blogShortDescription": "Technische Artikel und Gedanken",
+    "form": {
+      "title": "Titel",
+      "description": "Kurzbeschreibung",
+      "draft": "Entwurf",
+      "message": {
+        "label": "Blogpost",
+        "hint": "Markdown wird unterstützt"
+      },
+      "preview": {
+        "title": "Vorschau"
+      }
+    },
+    "confirm": {
+      "title": "Löschen bestätigen",
+      "message": "Willst du \"{post}\" wirklich löschen?"
+    }
+  },
+  "admin": {
+    "title": "Benutzerverwaltung",
+    "table": {
+      "columns": {
+        "username": "Benutzername",
+        "name_and_email": "Name & E-Mail",
+        "roles": "Rollen",
+        "user": "Nutzer",
+        "posts": "Posts",
+        "permissions": {
+          "edit_rights": "Rechte bearbeiten",
+          "create_post": "Erstellen",
+          "edit_post": "Bearbeiten",
+          "delete_post": "Löschen"
+        }
+      }
+    }
   }
 }

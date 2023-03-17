@@ -5,11 +5,13 @@
       class="form-control mx-2 search"
       v-model="search"
       type="search"
-      placeholder="Suche"
-      aria-label="Suche"
+      :placeholder="t('search.placeholder')"
+      :aria-label="t('search.title')"
       @keydown.enter="$emit('searched', search)"
     />
-    <button class="btn btn-sm btn-outline-primary" type="button" @click="$emit('searched', search)">Suche</button>
+    <button class="btn btn-sm btn-outline-primary" type="button" @click="$emit('searched', search)">
+      {{ t("search.title") }}
+    </button>
   </form>
 </template>
 
@@ -17,6 +19,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
 export default defineComponent({
   props: {
@@ -29,6 +32,7 @@ export default defineComponent({
   emits: ["searched", "operatorChanged"],
 
   setup(props, emits) {
+    const { t } = useI18n();
     const search = ref<string>("");
     const operator = ref<string>("and");
 
@@ -53,6 +57,7 @@ export default defineComponent({
       search,
       operator,
       toggleOperator,
+      t,
     };
   },
 });
