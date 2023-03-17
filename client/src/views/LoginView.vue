@@ -1,6 +1,5 @@
 <template>
   <div id="login" class="container">
-    <h2>Login</h2>
     <div v-if="!isStateMatching" class="alert alert-danger text-light">State does not match! Retry <login-button /></div>
     <div v-else-if="code && returnedType && returnedIssuer && isStateMatching">
       <div v-if="loading" class="loader">
@@ -8,7 +7,43 @@
           <span class="visually-hidden">Loading...</span>
         </div>
       </div>
-      <div v-else-if="userInfo">Welcome {{ userInfo.user.firstName }} {{ userInfo.user.lastName }} ({{ userInfo.user.email }})!</div>
+      <div v-else-if="userInfo">
+        <div v-if="userInfo.isExisting">
+          Willkommen zurück {{ userInfo.user.firstName }} {{ userInfo.user.lastName }}! Du bist jetzt angemeldet.
+          <!-- TODO: Redirect immediately -->
+        </div>
+        <div v-else>
+          <h2>Konto erstellen</h2>
+          <div>
+            Willkommen, gleich kann's losgehen.<br />
+            Die Daten unten haben wir vom Anmeldedienstleister abgerufen und würden diese gerne bei uns speichern.<br />
+            Passe sie ggf. an und suche dir einen Benutzernamen aus.
+          </div>
+
+          <div class="form-floating mb-2">
+            <input class="form-control" :value="userInfo.oauthId" readonly disabled />
+            <label for="oauthId">ID *</label>
+          </div>
+          <div class="form-floating mb-2">
+            <input class="form-control" :value="userInfo?.user?.email" readonly disabled />
+            <label for="email">E-Mail *</label>
+          </div>
+          <div class="form-floating mb-2">
+            <input class="form-control" id="username" v-model="username" required />
+            <label for="username">Username *</label>
+          </div>
+          <div class="form-floating mb-2">
+            <input class="form-control" id="firstName" v-model="firstName" />
+            <label for="firstName">First name</label>
+          </div>
+          <div class="form-floating mb-2">
+            <input class="form-control" id="lastName" v-model="lastName" />
+            <label for="lastName">Last name</label>
+          </div>
+          <input class="form-control" name="token" :value="userInfo.token" hidden />
+          <button class="btn btn-primary" @click="register">Anmelden</button>
+        </div>
+      </div>
       <div v-else>User info not found.</div>
     </div>
     <div v-else>
@@ -22,7 +57,7 @@ import LoginButton from "@/components/LoginButton.vue";
 import router from "@/router/index.js";
 import { loadOauthStateByKey, saveIdToken } from "@/util/storage.js";
 import type { OAuthCodeDto, OAuthUserInfoDto } from "@fumix/fu-blog-common";
-import { bytesToBase64URL, isOAuthType } from "@fumix/fu-blog-common";
+import { bytesToBase64URL, isNotNull, isOAuthType } from "@fumix/fu-blog-common";
 import { defineComponent, ref } from "vue";
 import { useRoute } from "vue-router";
 
@@ -30,6 +65,9 @@ export default defineComponent({
   name: "AuthView",
   components: { LoginButton },
   methods: {
+    register() {
+      console.log("Register " + this.username + ", " + this.firstName + ", " + this.lastName);
+    },
     redir() {
       console.log("Redirecting");
     },
@@ -57,6 +95,9 @@ export default defineComponent({
   setup() {
     const route = useRoute();
     const userInfo = ref<OAuthUserInfoDto | undefined>(undefined);
+    const username = ref<string>("");
+    const firstName = ref<string>("");
+    const lastName = ref<string>("");
     const stateParam: string = "" + route.query.state;
     const [returnedType, returnedIssuer, returnedStateKey] = stateParam.split("/");
 
@@ -71,6 +112,9 @@ export default defineComponent({
       newState,
       loading: ref(true),
       userInfo,
+      username,
+      firstName,
+      lastName,
       code: route.query.code,
       redirect: route.query.redirect,
       returnedType: isOAuthType(returnedType) ? returnedType : null,
@@ -88,6 +132,9 @@ export default defineComponent({
           body: JSON.stringify({ code: this.code, issuer: this.returnedIssuer, type: this.returnedType }),
         });
         this.userInfo = await res.json();
+        this.username = this.userInfo?.user?.username ?? "";
+        this.firstName = this.userInfo?.user?.firstName ?? "";
+        this.lastName = this.userInfo?.user?.lastName ?? "";
         if (this.userInfo?.isExisting) {
           saveIdToken(this.userInfo.token);
         }

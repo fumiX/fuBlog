@@ -19,8 +19,8 @@ router.get("/", async (req, res) => {
 
     userInfosById[acc.oauthId] = Object.assign(prev, {
       profile: {
-        firstName: acc.user.firstName,
-        lastName: acc.user.lastName,
+        given_name: acc.user.firstName,
+        family_name: acc.user.lastName,
         email: acc.user.email,
         profilePicture: acc.user.profilePicture,
       },
@@ -48,7 +48,7 @@ router.get("/", async (req, res) => {
             ${pfpDataUrl}
             <form method="get" action="${req.query.redirect_uri}" class="card-body">
               <span>ID <code>${it.oauthId}</code></span><br>
-              <span>${userInfosById[it.oauthId].profile.firstName} ${userInfosById[it.oauthId].profile.lastName} </span><br>
+              <span>${userInfosById[it.oauthId].profile.given_name} ${userInfosById[it.oauthId].profile.family_name} </span><br>
               <span>Code <code>${userInfosById[it.oauthId].code}</code></span><br>
               <a class="btn btn-outline-primary" href="${req.query.redirect_uri}?state=${req.query.state ?? ""}&code=${
           userInfosById[it.oauthId].code
@@ -117,19 +117,19 @@ router.get("/", async (req, res) => {
   <h2>Create custom login</h2>
   <form method="post">
     <div class="form-floating mb-2">
-      <input id="userId" name="userId" class="form-control" type="text" placeholder required value="${faker.random.alphaNumeric(20)}">
+      <input id="userId" name="userId" class="form-control" type="text" required value="${faker.random.alphaNumeric(20)}">
       <label for="userId">User-ID</label>
     </div>
     <div class="form-floating mb-2">
-      <input id="email" name="email" class="form-control" type="text" placeholder required value="${email}">
+      <input id="email" name="email" class="form-control" type="text" required value="${email}">
       <label for="email">E-Mail</label>
     </div>
     <div class="form-floating mb-2">
-      <input id="firstName" name="firstName" class="form-control" type="text" placeholder value="${firstName}">
+      <input id="firstName" name="firstName" class="form-control" type="text" value="${firstName}">
       <label for="firstName">First name</label>
     </div>
     <div class="form-floating mb-2">
-      <input id="lastName" name="lastName" class="form-control" type="text" placeholder value="${lastName}">
+      <input id="lastName" name="lastName" class="form-control" type="text" value="${lastName}">
       <label for="lastName">Last name</label>
     </div>
 
@@ -174,8 +174,8 @@ function saveUser(userId: string, code: string, firstName: string, lastName: str
   userInfosById[userId] = {
     code,
     profile: {
-      firstName,
-      lastName,
+      given_name: firstName,
+      family_name: lastName,
       email,
     },
   };

@@ -19,6 +19,27 @@ OAuthSettings.PROVIDERS.forEach((p) => {
   oauthClients[p.getIdentifier()] = undefined;
 });
 
+async function findOAuthClient(provider: OAuthProvider): Promise<BaseClient> {
+  const existingValue = oauthClients[provider.getIdentifier()];
+  if (!existingValue) {
+    try {
+      const newValue = await Issuer.discover(`https://${provider.domain}`).then((issuer) => {
+        return new issuer.Client({
+          client_id: provider.clientId,
+          client_secret: provider.clientSecret,
+          redirect_uris: [OAuthSettings.REDIRECT_URI],
+          id_token_signed_response_alg: provider.getIdTokenSignedResponseAlg(),
+        });
+      });
+      oauthClients[provider.getIdentifier()] = newValue;
+      return newValue;
+    } catch (e) {
+      return Promise.reject(new Error("Failed to initialize OAuth client " + provider.getIdentifier() + ": " + e));
+    }
+  }
+  return existingValue;
+}
+
 router.post("/providers", async (req: Request, res: Response) => {
   const state = req.body.state;
   if (!state || state.length < 5) {
@@ -45,27 +66,15 @@ router.post("/providers", async (req: Request, res: Response) => {
 });
 
 async function getAuthorizationUrl(oauthProvider: OAuthProvider, redirect_uri: string, state: string): Promise<string | undefined> {
-  if (!oauthClients[oauthProvider.getIdentifier()]) {
-    oauthClients[oauthProvider.getIdentifier()] = await Issuer.discover(`https://${oauthProvider.domain}`)
-      .then((issuer) => {
-        return new issuer.Client({
-          client_id: oauthProvider.clientId,
-          client_secret: oauthProvider.clientSecret,
-          redirect_uris: ["http://localhost:5010/auth"],
-          id_token_signed_response_alg: oauthProvider.getIdTokenSignedResponseAlg(),
-        });
-      })
-      .catch((reason) => {
-        console.error("Failed to initialize OAuth client: ", reason);
-        return undefined;
-      });
-  }
-  return (
-    oauthClients[oauthProvider.getIdentifier()]?.authorizationUrl({
+  try {
+    const client = await findOAuthClient(oauthProvider);
+    return client.authorizationUrl({
       ...oauthProvider.getAuthorizeQueryParams(),
       ...{ client_id: oauthProvider.clientId, redirect_uri, state },
-    }) ?? undefined
-  );
+    });
+  } catch (e) {
+    return Promise.reject(new Error("Failed to get authorization URL for provider " + oauthProvider.getIdentifier()));
+  }
 }
 
 router.post("/loggedInUser", async (req, res) => {
@@ -91,17 +100,25 @@ router.post("/loggedInUser", async (req, res) => {
   }
 });
 
-router.post("/code", async (req, res) => {
+/**
+ * Endpoint to get a {@link OAuthUserInfoDto}.
+ *
+ * This needs an authorization code from the OAuth provider as `code`. To identify the OAuth provider, this also needs `issuer` and `type`.
+ */
+router.post("/userinfo", async (req, res) => {
   const code = req.body.code;
   const issuer = req.body.issuer;
   const type = req.body.type;
   const provider = OAuthSettings.findByTypeAndDomain(type, issuer);
-  if (!code || !issuer || !type || !provider) {
-    res.status(400);
+  if (!code || !issuer || !type) {
+    res.status(400).json({ error: "Requires parameters `code`, `issuer` and `type`!" });
+  } else if (!provider) {
+    res.status(403).json({ error: "We don't accept logins from OAuth provider " + type + "/" + issuer });
   } else {
-    const client = oauthClients[OAuthSettings.findByTypeAndDomain(type, issuer)?.getIdentifier() ?? ""];
-    if (client) {
+    try {
+      const client = await findOAuthClient(provider);
       const tokenSet = await client.callback(OAuthSettings.REDIRECT_URI, client.callbackParams(req));
+      // TODO: Differentiate between being not authorized (403 error) and e.g. connection issues to OAuth server (502 error)
       const userInfo = await client.userinfo(tokenSet, { method: "POST", via: "body" });
       const dbUser = await AppDataSource.manager.getRepository(OAuthAccountEntity).findOne({
         where: {
@@ -111,23 +128,28 @@ router.post("/code", async (req, res) => {
         },
         relations: ["user"],
       });
-      console.log("Token set ", tokenSet);
-      console.log("User info ", userInfo);
-      console.log("DB user", dbUser);
 
       if (tokenSet.id_token) {
+        const firstName = dbUser?.user?.firstName ?? userInfo.given_name;
+        const lastName = dbUser?.user?.lastName ?? userInfo.family_name;
+        const username =
+          dbUser?.user?.username ??
+          userInfo.nickname ??
+          userInfo.preferred_username ??
+          [firstName, lastName].filter(isNotNull).join(".").replace(" ", ".").toLowerCase();
         const result: OAuthUserInfoDto = {
           token: {
             id_token: tokenSet.id_token,
             type: provider.type,
             issuer: provider.domain,
           },
+          oauthId: userInfo.sub,
           user: {
-            firstName: dbUser?.user?.firstName ?? userInfo.given_name,
-            lastName: dbUser?.user?.lastName ?? userInfo.family_name,
+            firstName,
+            lastName,
             email: dbUser?.user?.email ?? userInfo.email,
             profilePicture: dbUser?.user?.profilePicture,
-            username: dbUser?.user?.username ?? userInfo.preferred_username,
+            username,
           },
           isExisting: !!dbUser,
         };
@@ -141,8 +163,9 @@ router.post("/code", async (req, res) => {
         res.status(200).json(result);
         return;
       }
+    } catch (e) {
+      res.status(403).json({ error: "Failed to get the token! " + e });
     }
-    res.status(403);
   }
 });
 

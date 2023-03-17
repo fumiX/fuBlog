@@ -1,4 +1,5 @@
-import { OAuthProvider, OAuthType } from "@fumix/fu-blog-common";
+import { OAUTH_TYPES, OAuthProvider, OAuthType } from "@fumix/fu-blog-common";
+import { isOAuthType } from "@fumix/fu-blog-common";
 import { loadOAuthProvidersFromEnv } from "./load-oauth-providers-from-env.js";
 
 export class AppSettings {

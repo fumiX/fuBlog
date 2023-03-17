@@ -58,8 +58,9 @@ $table-bg-scale:              0 * 1% !default; // *1% because deprecation waring
 
 // Forms
 
-$input-bg:                          $white !default;
-$input-color:                       $gray-900 !default;
+$input-bg:                          $gray-600 !default;
+$input-disabled-bg:                 $gray-800 !default;
+$input-color:                       $gray-200 !default;
 $input-border-color:                $body-bg !default;
 $input-group-addon-color:           $gray-500 !default;
 $input-group-addon-bg:              $gray-700 !default;

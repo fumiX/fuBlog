@@ -59,7 +59,7 @@ export class GitlabOAuthProvider extends OAuthProvider {
   public getAuthorizeQueryParams(): AuthorizationParameters {
     return {
       ...super.getAuthorizeQueryParams(),
-      scope: "profile email",
+      scope: "openid profile email",
     };
   }
 }
