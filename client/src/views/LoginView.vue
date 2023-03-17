@@ -58,7 +58,6 @@ import router from "@/router/index.js";
 import { loadIdToken, loadOauthStateByKey, saveIdToken } from "@/util/storage.js";
 import type { OAuthCodeDto, OAuthUserInfoDto, SavedOAuthToken } from "@fumix/fu-blog-common";
 import { bytesToBase64URL, isNotNull, isOAuthType } from "@fumix/fu-blog-common";
-import type { OAuthUserInfo } from "@fumix/fu-blog-common/dist/entity/OAuthUserInfo.js";
 import { defineComponent, ref } from "vue";
 import { useRoute } from "vue-router";
 
