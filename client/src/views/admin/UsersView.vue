@@ -104,12 +104,12 @@
 </style>
 
 <script lang="ts">
-import type { PropType } from "vue";
 import BooleanDisplay from "@/components/BooleanDisplay.vue";
 import MultiselectDialog from "@/components/MultiselectDialog.vue";
 import { faPencil } from "@fortawesome/free-solid-svg-icons";
 import type { UserDto } from "@fumix/fu-blog-common";
 import { permissionsForUser } from "@fumix/fu-blog-common";
+import type { PropType } from "vue";
 import { defineComponent, ref } from "vue";
 import type Permission from "../../permissions.js";
 

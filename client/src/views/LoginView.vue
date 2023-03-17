@@ -55,15 +55,14 @@
 <script lang="ts">
 import LoginButton from "@/components/LoginButton.vue";
 import router from "@/router/index.js";
-import { loadIdToken, loadOauthStateByKey, saveIdToken } from "@/util/storage.js";
-import type { OAuthCodeDto, OAuthUserInfoDto, SavedOAuthToken } from "@fumix/fu-blog-common";
-import { bytesToBase64URL, isNotNull, isOAuthType } from "@fumix/fu-blog-common";
-import type { OAuthUserInfo } from "@fumix/fu-blog-common/dist/entity/OAuthUserInfo.js";
+import { loadOauthStateByKey, saveIdToken } from "@/util/storage.js";
+import type { OAuthCodeDto, OAuthUserInfoDto } from "@fumix/fu-blog-common";
+import { bytesToBase64URL, isOAuthType } from "@fumix/fu-blog-common";
 import { defineComponent, ref } from "vue";
 import { useRoute } from "vue-router";
 
 export default defineComponent({
-  name: "AuthView",
+  name: "LoginView",
   components: { LoginButton },
   methods: {
     async register() {
