@@ -151,7 +151,7 @@ export default defineComponent({
           // Check if file is an image
           isImage = ["jpg", "jpeg", "png", "gif"].includes(fileExtension);
         // Print to console
-        console.log(fileSize, fileExtension, fileName, isImage);
+        // console.log(fileSize, fileExtension, fileName, isImage);
         this.file = tempFile;
       }
       this.saveDraft(this.postId);
@@ -166,6 +166,7 @@ export default defineComponent({
       const start = area.selectionStart;
       const end = area.selectionEnd;
       const text = area.value;
+      console.log("TEXT", text);
       const before = text.substring(0, start);
       const after = text.substring(end, text.length);
       return before + newText + after;
