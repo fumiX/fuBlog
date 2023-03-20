@@ -21,11 +21,14 @@
             <li class="nav-item">
               <RouterLink to="/posts" class="nav-link">{{ t("nav.posts") }}</RouterLink>
             </li>
-            <li v-if="hasPermission('admin')" class="nav-item">
+            <li v-if="isAdmin()" class="nav-item">
               <RouterLink to="/administration" class="nav-link">{{ t("nav.administration") }}</RouterLink>
             </li>
           </ul>
-          <div class="username"><login-button></login-button></div>
+          <div class="username">
+            <login-button v-if="!loggedInUser"></login-button>
+            <user-name v-else :user="loggedInUser"></user-name>
+          </div>
           <search-component
             :searchString="searchQuery"
             @searched="startSearch($event)"
@@ -52,12 +55,16 @@ import LoginButton from "@/components/LoginButton.vue";
 import { defineComponent, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import SearchComponent from "./components/SearchComponent.vue";
-import type { User } from "@fumix/fu-blog-common";
-import Permission from "./permissions.js";
+import type { SavedOAuthToken, UserDto } from "@fumix/fu-blog-common";
 import { useI18n } from "vue-i18n";
+import { loadIdToken } from "@/util/storage.js";
+import UserName from "./components/UserName.vue";
+import { Buffer } from "buffer";
+import { permissionsForUser } from "@fumix/fu-blog-common";
+import type { UserRolePermissionsType } from "@fumix/fu-blog-common";
 
 export default defineComponent({
-  components: { LoginButton, SearchComponent },
+  components: { LoginButton, SearchComponent, UserName },
   setup() {
     const { t } = useI18n({
       inheritLocale: true,
@@ -67,12 +74,11 @@ export default defineComponent({
     const route = useRoute();
     const searchQuery = ref<string>("");
     const router = useRouter();
-    const loggedInUser = ref<User>();
+    const loggedInUser = ref<UserDto>();
 
-    const userPermissions = ref<Permission[]>([]);
+    const userPermissions = ref<UserRolePermissionsType | null>(null);
 
     const setOperator = (operator: string) => {
-      // console.log("OP", operator);
       router.replace({ query: { ...route.query, operator: operator } });
     };
 
@@ -83,19 +89,30 @@ export default defineComponent({
       }
     });
 
-    onMounted(() => {
-      // TODO: get user permissions from server
-      userPermissions.value = [Permission.POST_CREATE, Permission.WRITE, Permission.DELETE, Permission.ADMIN];
+    onMounted(async () => {
+      const tokenObj: SavedOAuthToken | undefined = loadIdToken();
 
-      // TODO: get loggedin user data:
-      loggedInUser.value = {
-        username: "AlfredENeumann",
-        email: "test@test.de",
-        firstName: "Alfred E.",
-        lastName: "Neumann",
-        roles: ["ADMIN", "POST_CREATE"],
-        isActive: true,
+      const requestOptions = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...tokenObj }),
       };
+
+      const postUrl = `/api/auth/loggedInUser/`;
+      const response = await fetch(postUrl, requestOptions);
+      const data = await response.json();
+
+      loggedInUser.value = data.user;
+      if (loggedInUser.value) {
+        loggedInUser.value.profilePictureUrl = data.user.profilePicture
+          ? "data:image/jpeg;base64," + Buffer.from(data.user.profilePicture).toString("base64")
+          : undefined;
+      }
+
+      userPermissions.value = permissionsForUser(data.user);
+
+      // console.log("LOGGEDIN USER ---->", data);
+      // console.log("PERMISSIONS FOR USER", permissionsForUser(data.user));
     });
 
     return {
@@ -112,12 +129,9 @@ export default defineComponent({
       this.$router.push(`/posts/?search=${search}&operator=${operator}`);
     },
 
-    hasPermission(permission: String) {
-      const perm = permission as Permission;
-      return this.userPermissions?.includes(perm);
+    isAdmin() {
+      return this.loggedInUser?.roles.includes("ADMIN");
     },
   },
 });
 </script>
-
-<style lang="scss"></style>

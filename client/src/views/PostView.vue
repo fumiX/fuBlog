@@ -15,12 +15,12 @@
                 <fa-icon :icon="faArrowLeft" />
                 {{ t("app.base.back") }}
               </button>
-              <button v-if="hasPermission('delete')" class="btn btn-sm btn-danger float-end" @click="showConfirm(post)">
+              <button v-if="props.userPermissions?.canDeletePost" class="btn btn-sm btn-danger float-end" @click="showConfirm(post)">
                 <fa-icon :icon="faTrash" />
                 {{ t("app.base.delete") }}
               </button>
               <button
-                v-if="hasPermission('write')"
+                v-if="props.userPermissions?.canEditPost"
                 class="btn btn-sm btn-secondary float-end mx-2"
                 @click="$router.push(`/posts/post/form/?id=${post?.id}`)"
               >
@@ -86,7 +86,7 @@ import type { ConfirmDialogData, Post } from "@fumix/fu-blog-common";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 import { faArrowLeft, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { faClock } from "@fortawesome/free-regular-svg-icons";
-import type Permission from "../permissions.js";
+import type { UserRolePermissionsType } from "@fumix/fu-blog-common";
 
 export default defineComponent({
   components: {
@@ -95,7 +95,7 @@ export default defineComponent({
 
   props: {
     userPermissions: {
-      type: Array as PropType<Permission[]>,
+      type: Object as PropType<UserRolePermissionsType>,
     },
   },
 
@@ -139,11 +139,6 @@ export default defineComponent({
       } catch (e) {
         console.log("ERROR: ", e);
       }
-    },
-
-    hasPermission(permission: String) {
-      const perm = permission as Permission;
-      return this.props.userPermissions?.includes(perm);
     },
 
     showConfirm(post: Post | null) {

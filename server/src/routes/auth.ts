@@ -102,6 +102,7 @@ async function checkIdToken(id_token: string, provider: OAuthProvider): Promise<
 
 router.post("/loggedInUser", async (req, res) => {
   const savedToken = req.body as SavedOAuthToken;
+
   if (!savedToken) {
     res.status(400).json("Error: Can't decode body to SavedOAuthToken!");
   } else {

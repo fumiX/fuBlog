@@ -4,11 +4,15 @@
       <div class="card flex-md-row mb-4 box-shadow h-md-250">
         <div class="card-body">
           <div class="clearfix mb-4">
-            <button v-if="hasPermission('delete')" class="btn btn-sm btn-danger float-end" @click="$emit('deletePost', post)">
+            <button v-if="props.userPermissions?.canDeletePost" class="btn btn-sm btn-danger float-end" @click="$emit('deletePost', post)">
               <fa-icon :icon="faTrash" />
               {{ t("app.base.delete") }}
             </button>
-            <button v-if="hasPermission('write')" class="btn btn-sm btn-secondary float-end mx-2" @click="$emit('changePost', post)">
+            <button
+              v-if="props.userPermissions?.canEditPost"
+              class="btn btn-sm btn-secondary float-end mx-2"
+              @click="$emit('changePost', post)"
+            >
               <fa-icon :icon="faEdit" />
               {{ t("app.base.edit") }}
             </button>
@@ -63,7 +67,7 @@ import { defineComponent } from "vue";
 import type { Post } from "@fumix/fu-blog-common";
 import { faBookReader, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { faClock } from "@fortawesome/free-regular-svg-icons";
-import type Permission from "../permissions.js";
+import type { UserRolePermissionsType } from "@fumix/fu-blog-common";
 
 export default defineComponent({
   props: {
@@ -72,7 +76,7 @@ export default defineComponent({
       required: true,
     },
     userPermissions: {
-      type: Array as PropType<Permission[]>,
+      type: Object as PropType<UserRolePermissionsType>,
     },
   },
 
@@ -97,11 +101,6 @@ export default defineComponent({
   methods: {
     goTo(path: string) {
       this.$router.push(path);
-    },
-
-    hasPermission(permission: String) {
-      const perm = permission as Permission;
-      return this.props.userPermissions?.includes(perm);
     },
   },
 });

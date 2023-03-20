@@ -9,7 +9,7 @@
 import { defineComponent } from "vue";
 
 export default defineComponent({
-  name: "AuthView",
+  name: "LoginView",
   methods: {
     async login() {
       const authUrlRequest = new Request("http://localhost:5000/auth/url", {

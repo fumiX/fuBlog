@@ -9,7 +9,7 @@
       </div>
     </div>
 
-    <div v-if="hasPermission('create')" class="clearfix mb-4">
+    <div v-if="props.userPermissions?.canCreatePost" class="clearfix mb-4">
       <button type="button" class="btn btn-sm btn-secondary float-end" @click="goTo('/posts/post/form')">
         <fa-icon :icon="faAdd" /> {{ t("app.base.create_post") }}
       </button>
@@ -71,8 +71,8 @@ import { faAdd } from "@fortawesome/free-solid-svg-icons";
 import { faSadTear } from "@fortawesome/free-regular-svg-icons";
 import Paginate from "vuejs-paginate-next";
 import { useRoute } from "vue-router";
-import type Permission from "../permissions.js";
 import { useI18n } from "vue-i18n";
+import type { UserRolePermissionsType } from "@fumix/fu-blog-common";
 
 export default defineComponent({
   components: {
@@ -83,7 +83,7 @@ export default defineComponent({
 
   props: {
     userPermissions: {
-      type: Array as PropType<Permission[]>,
+      type: Object as PropType<UserRolePermissionsType>,
     },
   },
 
@@ -192,11 +192,6 @@ export default defineComponent({
         message: this.t("posts.confirm.message", { post: this.currentPost.title }),
       };
       this.showDialog = true;
-    },
-
-    hasPermission(permission: String) {
-      const perm = permission as Permission;
-      return this.props.userPermissions?.includes(perm);
     },
 
     canceled() {

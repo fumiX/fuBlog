@@ -18,7 +18,7 @@
                     <th rowspan="2" scope="col">{{ t("admin.table.columns.username") }}</th>
                     <th rowspan="2" scope="col">{{ t("admin.table.columns.name_and_email") }}</th>
                     <th rowspan="2" scope="col">{{ t("admin.table.columns.roles") }}</th>
-                    <th rowspan="2" scope="col"></th>
+                    <th rowspan="2" scope="col" v-if="props.userPermissions?.canEditUserRoles"></th>
                     <th scope="col">{{ t("admin.table.columns.user") }}</th>
                     <th colspan="3" scope="col">{{ t("admin.table.columns.posts") }}</th>
                   </tr>
@@ -34,7 +34,7 @@
                 <tbody>
                   <tr v-for="user in users" v-bind:key="user.id">
                     <th scope="row" class="text-start">
-                      <span class="avatar">
+                      <span class="profileWrapper">
                         <img v-if="user.profilePictureUrl" :src="user.profilePictureUrl" style="max-width: 3rem; max-height: 3rem" />
                       </span>
                       <span class="mx-4">{{ user.username }}</span>
@@ -52,7 +52,7 @@
                         </span>
                       </div>
                     </td>
-                    <td style="vertical-align: middle">
+                    <td style="vertical-align: middle" v-if="props.userPermissions?.canEditUserRoles">
                       <button class="btn btn-outline-primary btn-sm ml-2" @click="setEditUser(user)">
                         <fa-icon :icon="faPencil" />
                       </button>
@@ -60,15 +60,15 @@
                     <td
                       style="vertical-align: middle"
                       v-for="(value, index) in [
-                        user.permissions.canEditUserRoles,
-                        user.permissions.canCreatePost,
-                        user.permissions.canEditPost,
-                        user.permissions.canDeletePost,
+                        user.permissions?.canEditUserRoles,
+                        user.permissions?.canCreatePost,
+                        user.permissions?.canEditPost,
+                        user.permissions?.canDeletePost,
                       ]"
                       v-bind:key="index"
                       :class="' bg-opacity-25 fs-6'"
                     >
-                      <boolean-display :value="value" />
+                      <boolean-display :value="!value ? false : true" />
                     </td>
                   </tr>
                 </tbody>
@@ -89,7 +89,7 @@
 </template>
 
 <style lang="scss">
-.avatar {
+.profileWrapper {
   display: inline-block;
   width: 3rem;
   height: 3rem;
@@ -108,7 +108,7 @@ import { faPencil } from "@fortawesome/free-solid-svg-icons";
 import type { UserDto } from "@fumix/fu-blog-common";
 import { permissionsForUser } from "@fumix/fu-blog-common";
 import { defineComponent, ref } from "vue";
-import type Permission from "../../permissions.js";
+import type { UserRolePermissionsType } from "@fumix/fu-blog-common";
 
 export default defineComponent({
   name: "UsersView",
@@ -119,7 +119,7 @@ export default defineComponent({
 
   props: {
     userPermissions: {
-      type: Array as PropType<Permission[]>,
+      type: Object as PropType<UserRolePermissionsType>,
     },
   },
 
@@ -176,7 +176,6 @@ export default defineComponent({
       };
       const postUrl = `/api/admin/users/roles/${id}`;
       await fetch(postUrl, requestOptions);
-      // const data = await response.json();
     },
   },
 });

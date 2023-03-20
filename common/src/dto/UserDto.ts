@@ -7,7 +7,7 @@ export type UserDto = {
   firstName?: string;
   lastName?: string;
   email: string;
-  permissions: UserRolePermissionsType;
+  permissions?: UserRolePermissionsType;
   roles: UserRole[];
   profilePictureUrl?: string;
 };
