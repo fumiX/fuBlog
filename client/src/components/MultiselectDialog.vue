@@ -9,17 +9,17 @@
         </div>
         <div class="modal-body">
           <h6 class="display-6">{{ t("app.base.roles") }}</h6>
-          <div class="form-group" v-for="[key, value] in Object.entries(user.permissions)" v-bind:key="key">
+          <div class="form-group" v-for="role in props.roles" v-bind:key="role">
             <div class="form-check">
               <input
                 class="form-check-input"
                 style="margin-left: 0"
                 type="checkbox"
-                :id="key"
-                :checked="value ? true : undefined"
-                @change="updateInput($event, key)"
+                :id="role"
+                :checked="value.includes(role)"
+                @change="updateInput($event, role)"
               />
-              <label class="form-check-label" :for="key">{{ key }}</label>
+              <label class="form-check-label" :for="role">{{ role }}</label>
             </div>
           </div>
         </div>
@@ -65,6 +65,10 @@ export default defineComponent({
     user: {
       type: Object as PropType<UserDto | null>,
     },
+    roles: {
+      type: Array as PropType<string[]>,
+      required: true,
+    },
     saveCallback: {
       type: Function as PropType<(selectedKeys: string[]) => void>,
       required: true,
@@ -78,13 +82,10 @@ export default defineComponent({
     const value = ref<string[]>([]);
 
     watch(props, () => {
-      const initialPermissions: string[] = props.user
-        ? Object.entries(props.user.permissions)
-            .filter(([key, value]) => value)
-            .map(([key, value]) => key)
-        : [];
+      const availableRoles = props.roles;
+      const initialRoles: string[] | undefined = props.user ? props.user.roles.filter((value) => value) : [];
 
-      value.value = initialPermissions;
+      value.value = initialRoles;
 
       const myModal = new Modal(document.getElementById("multiselectDialog") || "", {});
       const show = props.show;

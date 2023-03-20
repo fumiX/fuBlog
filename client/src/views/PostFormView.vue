@@ -166,7 +166,6 @@ export default defineComponent({
       const start = area.selectionStart;
       const end = area.selectionEnd;
       const text = area.value;
-      console.log("TEXT", text);
       const before = text.substring(0, start);
       const after = text.substring(end, text.length);
       return before + newText + after;

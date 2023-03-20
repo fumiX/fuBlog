@@ -78,7 +78,13 @@
         </div>
       </div>
     </div>
-    <multiselect-dialog :show="showModal" :user="editUser" :save-callback="saveSettings" @canceled="closeDialog()"></multiselect-dialog>
+    <multiselect-dialog
+      :show="showModal"
+      :user="editUser"
+      :save-callback="saveSettings"
+      :roles="getAllRoles()"
+      @canceled="closeDialog()"
+    ></multiselect-dialog>
   </div>
 </template>
 
@@ -135,10 +141,6 @@ export default defineComponent({
   },
   methods: {
     async saveSettings(savedKeys: string[]) {
-      // console.log("TODO: Save Permissions");
-      // console.log("Saved Permissions", savedKeys);
-      // console.log("UserID", this.editUser?.id, this.editUser?.username);
-
       await this.send(this.editUser?.id, savedKeys);
 
       this.closeDialog();
@@ -160,20 +162,21 @@ export default defineComponent({
       const response = await fetch(authUrlRequest);
       this.users = (await response.json()) as UserDto[];
       this.loading = false;
-      // document.getElementById("userRolesModal")?.addEventListener("confirmed", (e) => console.log("Event confirmed", e));
-      // document.getElementById("userRolesModal")?.addEventListener("hidden.bs.modal", (e) => console.log("Event hide", e));
+    },
+    getAllRoles(): string[] {
+      // TODO: Get all available Roles from endpoint
+      return ["ADMIN", "POST_CREATE", "POST_EDIT", "POST_DELETE"];
     },
 
-    async send(id: number | undefined, permissions: string[]) {
+    async send(id: number | undefined, roles: string[]) {
       const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ permissions }),
+        body: JSON.stringify({ roles }),
       };
-      const postUrl = `/api/admin/users/permissions/${id}`;
-      const response = await fetch(postUrl, requestOptions);
-      const data = await response.json();
-      console.log("HAS BEEN SEND -> Response: ", data);
+      const postUrl = `/api/admin/users/roles/${id}`;
+      await fetch(postUrl, requestOptions);
+      // const data = await response.json();
     },
   },
 });

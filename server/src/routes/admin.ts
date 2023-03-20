@@ -23,12 +23,23 @@ router.get("/users", async (req, res) => {
   );
 });
 
-router.post("/users/permissions/:userId", async (req: Request, res: Response) => {
-  console.log("PERMISSIONS --> ", req.body.permissions);
-  // const user = await AppDataSource.manager.getRepository(UserEntity).findOneBy({ id: +req.params.userId });
-  const rBody = { userId: req.params.userId, permissions: req.body.permissions };
-
-  res.status(200).json(rBody);
+// UPDATE USER ROLES
+router.post("/users/roles/:userId", async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+    const bodyJson = req.body;
+    await AppDataSource.manager
+      .createQueryBuilder()
+      .update("user")
+      .set({
+        roles: [...bodyJson.roles],
+      })
+      .where("id = :id", { id: userId })
+      .execute();
+    res.status(200).json({ message: "Successfuly updated userId --> " + userId });
+  } catch (e) {
+    res.status(500).json({ error: "Error " + e });
+  }
 });
 
 export default router;
