@@ -9,6 +9,7 @@ import authRoutes from "./routes/auth.js";
 import postRoutes from "./routes/posts.js";
 import { initDatabase } from "./service/testdata-generator.js";
 import { AppSettings, ClientSettings, DatabaseSettings, ServerSettings } from "./settings.js";
+import { logger } from "./logger.js";
 
 const app: Application = express();
 
@@ -39,9 +40,9 @@ if (AppSettings.IS_PRODUCTION) {
 }
 
 app.listen(ServerSettings.PORT, () => {
-  console.log(`fuBlog server running in ${AppSettings.RUN_MODE} mode on port: ${ServerSettings.PORT}`);
+  logger.info(`fuBlog server running in ${AppSettings.RUN_MODE} mode on port: ${ServerSettings.PORT}`);
   if (!AppSettings.IS_PRODUCTION) {
-    console.log(`Connected to Postgres DB at ${DatabaseSettings.HOST}:${DatabaseSettings.PORT}`);
-    console.log(`Client: ${ClientSettings.BASE_URL}`);
+    logger.info(`Connected to Postgres DB at ${DatabaseSettings.HOST}:${DatabaseSettings.PORT}`);
+    logger.info(`Client: ${ClientSettings.BASE_URL}`);
   }
 });

@@ -2,6 +2,7 @@ import express, { Request, Response, Router } from "express";
 import { AppDataSource } from "../data-source.js";
 import { UserEntity } from "../entity/User.entity.js";
 import { permissionsForUser, UserDto } from "@fumix/fu-blog-common";
+import logger from "../logger.js";
 
 const router: Router = express.Router();
 
@@ -24,7 +25,7 @@ router.get("/users", async (req, res) => {
 });
 
 router.post("/users/permissions/:userId", async (req: Request, res: Response) => {
-  console.log("PERMISSIONS --> ", req.body.permissions);
+  logger.info("PERMISSIONS --> ", req.body.permissions);
   // const user = await AppDataSource.manager.getRepository(UserEntity).findOneBy({ id: +req.params.userId });
   const rBody = { userId: req.params.userId, permissions: req.body.permissions };
 

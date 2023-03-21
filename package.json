@@ -48,5 +48,8 @@
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/fumiX/fuBlog.git"
+  },
+  "dependencies": {
+    "winston": "^3.8.2"
   }
 }

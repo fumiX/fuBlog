@@ -6,6 +6,7 @@ import { AttachmentEntity } from "../entity/Attachment.entity.js";
 import { PostEntity } from "../entity/Post.entity.js";
 import { UserEntity } from "../entity/User.entity.js";
 import { MarkdownConverterServer } from "../markdown-converter-server.js";
+import logger from "../logger.js";
 
 const router: Router = express.Router();
 const upload = multer();
@@ -44,7 +45,7 @@ router.get("/page/:page/count/:count/search/:search/operator/:operator", async (
       .filter(Boolean)
       .join(operator);
 
-    // console.log("WORDS", words);
+    // logger.info("WORDS", words);
     searchTerm = "ts @@ to_tsquery('" + words + "')";
   }
 

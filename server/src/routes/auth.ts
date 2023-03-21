@@ -8,6 +8,7 @@ import { OAuthAccountEntity } from "../entity/OAuthAccount.entity.js";
 import { UserEntity } from "../entity/User.entity.js";
 import { findOAuthAccountBy } from "../service/crud.js";
 import { OAuthSettings } from "../settings.js";
+import logger from "../logger.js";
 
 const router: Router = express.Router();
 
@@ -234,7 +235,7 @@ router.post("/userinfo/register", async (req, res) => {
               };
               AppDataSource.manager
                 .transaction(async (mgr) => {
-                  await mgr.insert(UserEntity, [user]).then((it) => console.log("Raw result", it.raw));
+                  await mgr.insert(UserEntity, [user]).then((it) => logger.info("Raw result", it.raw));
                   const oauthAccount: OAuthAccountEntity = {
                     type: provider.type,
                     domain: provider.domain,
@@ -258,7 +259,7 @@ router.post("/userinfo/register", async (req, res) => {
           }
         })
         .catch((err) => {
-          console.log("Error", err);
+          logger.error("Error", err);
           res.status(403).json({ error: "Unauthorized" });
         });
     }
@@ -266,7 +267,7 @@ router.post("/userinfo/register", async (req, res) => {
 });
 
 export function authenticate(req: Request, res: Response, next: NextFunction) {
-  console.log("[authenticate] req.originalUrl: ", req.originalUrl);
+  logger.info("[authenticate] req.originalUrl: ", req.originalUrl);
 
   const reqHeaders = req.headers.authorization;
   const resHeaders = res.getHeader("Authorization");
