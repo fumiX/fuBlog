@@ -36,7 +36,7 @@
       </div>
 
       <paginate
-        v-if="totalPages > 0"
+        v-if="totalPages > 1"
         :page-count="totalPages"
         :click-handler="paginate"
         :prev-text="'<'"
@@ -89,7 +89,7 @@ export default defineComponent({
 
   setup(props) {
     const route = useRoute();
-    const itemsPerPage = 5;
+    const itemsPerPage = 12;
     const loading = ref(true);
     const posts = ref<Post[]>([]);
     const showDialog = ref<boolean>(false);
