@@ -55,7 +55,7 @@
 
 <style lang="scss">
 .blog-bg {
-  background-image: url("@/assets/images/blog-bg.jpg");
+  background-image: url("@client/assets/images/blog-bg.jpg");
   background-repeat: no-repeat;
   background-size: cover;
 }

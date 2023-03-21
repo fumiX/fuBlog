@@ -67,7 +67,7 @@
 
 <style lang="scss">
 .post-bg {
-  background-image: url("@/assets/images/post-bg.jpg");
+  background-image: url("@client/assets/images/post-bg.jpg");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center center;
@@ -82,8 +82,8 @@
 import { useI18n } from "vue-i18n";
 import { defineComponent, reactive, ref } from "vue";
 import { useRoute } from "vue-router";
-import MarkDown from "@/components/MarkDown.vue";
-import { debounce } from "@/debounce.js";
+import MarkDown from "@client/components/MarkDown.vue";
+import { debounce } from "@client/debounce.js";
 
 export default defineComponent({
   components: { MarkDown },

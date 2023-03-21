@@ -1,5 +1,5 @@
-import { User } from "@/entity/User.js";
-import { UserRoles } from "../UserRole.js";
+import { User } from "@common/entity/User.js";
+import { UserRoles } from "@common/entity/UserRole.js";
 
 export type UserRolePermissionsType = {
   /**
@@ -44,17 +44,4 @@ export class UserRolePermissions implements UserRolePermissionsType {
     this.description = description;
     Object.assign(this, partial);
   }
-}
-
-export function permissionsForUser(user: User): UserRolePermissionsType {
-  return mergePermissions(user.roles.map((it) => UserRoles[it]));
-}
-
-function mergePermissions(permissions: UserRolePermissionsType[]): UserRolePermissionsType {
-  return {
-    canCreatePost: permissions.some((it) => it.canCreatePost),
-    canDeletePost: permissions.some((it) => it.canDeletePost),
-    canEditPost: permissions.some((it) => it.canEditPost),
-    canEditUserRoles: permissions.some((it) => it.canEditUserRoles),
-  };
 }

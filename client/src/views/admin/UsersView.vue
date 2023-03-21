@@ -102,8 +102,8 @@
 <script lang="ts">
 import { useI18n } from "vue-i18n";
 import type { PropType } from "vue";
-import BooleanDisplay from "@/components/BooleanDisplay.vue";
-import MultiselectDialog from "@/components/MultiselectDialog.vue";
+import BooleanDisplay from "@client/components/BooleanDisplay.vue";
+import MultiselectDialog from "@client/components/MultiselectDialog.vue";
 import { faPencil } from "@fortawesome/free-solid-svg-icons";
 import type { UserDto } from "@fumix/fu-blog-common";
 import { permissionsForUser } from "@fumix/fu-blog-common";

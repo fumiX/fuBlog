@@ -1,4 +1,5 @@
-import { UserRolePermissions } from "./permission/UserRolePermissions.js";
+import { User } from "@common/entity/User.js";
+import { UserRolePermissions, UserRolePermissionsType } from "./permission/UserRolePermissions.js";
 
 /**
  * Pseudo enum for the available user roles.
@@ -22,6 +23,18 @@ export const UserRoles = {
     { canDeletePost: true },
   ),
 } as const;
+
+export function permissionsForUser(user: User): UserRolePermissionsType {
+  return mergePermissions(user.roles.map((it) => UserRoles[it]));
+}
+function mergePermissions(permissions: UserRolePermissionsType[]): UserRolePermissionsType {
+  return {
+    canCreatePost: permissions.some((it) => it.canCreatePost),
+    canDeletePost: permissions.some((it) => it.canDeletePost),
+    canEditPost: permissions.some((it) => it.canEditPost),
+    canEditUserRoles: permissions.some((it) => it.canEditUserRoles),
+  };
+}
 
 // The union of N property names comprising the UserRoles - "prop!" | "prop2" ... | "propN"
 export type UserRole = keyof typeof UserRoles;

@@ -13,7 +13,8 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
+      "@common": fileURLToPath(new URL("../common/src", import.meta.url)),
+      "@client": fileURLToPath(new URL("./src", import.meta.url)),
       stream: "stream-browserify",
       buffer: "buffer",
     },
@@ -21,7 +22,7 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `@import "@/assets/scss/_variables.scss";`,
+        additionalData: `@import "@client/assets/scss/_variables.scss";`,
       },
     },
   },

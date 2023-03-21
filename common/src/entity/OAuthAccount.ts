@@ -1,5 +1,5 @@
-import { OAuthType } from "@/dto/oauth/OAuthType.js";
-import type { User } from "@/entity/User.js";
+import { OAuthType } from "@common/dto/oauth/OAuthType.js";
+import type { User } from "@common/entity/User.js";
 
 export type OAuthAccount = {
   id?: number;

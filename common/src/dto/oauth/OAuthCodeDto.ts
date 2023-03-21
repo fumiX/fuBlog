@@ -1,4 +1,4 @@
-import { OAuthType } from "@/dto/oauth/OAuthType.js";
+import { OAuthType } from "@common/dto/oauth/OAuthType.js";
 
 export type OAuthCodeDto = {
   code: string;

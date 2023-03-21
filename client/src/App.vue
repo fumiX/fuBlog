@@ -3,7 +3,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-custom mb-4">
       <div class="container">
         <a class="navbar-brand" href="/">
-          <img src="@/assets/images/logo.png" alt="..." height="50" />
+          <img src="@client/assets/images/logo.png" alt="..." height="50" />
         </a>
         <button
           class="navbar-toggler"
@@ -51,17 +51,16 @@
 </style>
 
 <script lang="ts">
-import LoginButton from "@/components/LoginButton.vue";
+import LoginButton from "@client/components/LoginButton.vue";
+import { loadIdToken, saveIdToken } from "@client/util/storage.js";
+import type { SavedOAuthToken, User, UserDto, UserRolePermissionsType } from "@fumix/fu-blog-common";
+import { permissionsForUser } from "@fumix/fu-blog-common";
+import { Buffer } from "buffer";
 import { defineComponent, onMounted, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import SearchComponent from "./components/SearchComponent.vue";
-import type { SavedOAuthToken, User, UserDto } from "@fumix/fu-blog-common";
-import { useI18n } from "vue-i18n";
-import { loadIdToken, saveIdToken } from "@/util/storage.js";
 import UserName from "./components/UserName.vue";
-import { Buffer } from "buffer";
-import { permissionsForUser } from "@fumix/fu-blog-common";
-import type { UserRolePermissionsType } from "@fumix/fu-blog-common";
 
 export default defineComponent({
   components: { LoginButton, SearchComponent, UserName },

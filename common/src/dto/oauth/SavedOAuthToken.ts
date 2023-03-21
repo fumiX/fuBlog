@@ -1,5 +1,5 @@
-import { JsonWebToken } from "@/dto/oauth/JwtToken.js";
-import { OAuthType } from "@/dto/oauth/OAuthType.js";
+import { JsonWebToken } from "@common/dto/oauth/JwtToken.js";
+import { OAuthType } from "@common/dto/oauth/OAuthType.js";
 
 export type SavedOAuthToken = {
   id_token: JsonWebToken;

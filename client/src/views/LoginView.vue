@@ -53,9 +53,9 @@
 </template>
 
 <script lang="ts">
-import LoginButton from "@/components/LoginButton.vue";
-import router from "@/router/index.js";
-import { loadIdToken, loadOauthStateByKey, saveIdToken } from "@/util/storage.js";
+import LoginButton from "@client/components/LoginButton.vue";
+import router from "@client/router/index.js";
+import { loadIdToken, loadOauthStateByKey, saveIdToken } from "@client/util/storage.js";
 import type { OAuthCodeDto, OAuthUserInfoDto, SavedOAuthToken } from "@fumix/fu-blog-common";
 import { bytesToBase64URL, isNotNull, isOAuthType } from "@fumix/fu-blog-common";
 import { defineComponent, ref } from "vue";

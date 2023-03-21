@@ -1,4 +1,4 @@
-import { loadIdToken } from "@/util/storage.js";
+import { loadIdToken } from "@client/util/storage.js";
 
 export type ApiUrl = `/api/${string}`;
 

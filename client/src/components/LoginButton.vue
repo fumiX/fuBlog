@@ -26,7 +26,7 @@
 </style>
 
 <script lang="ts">
-import { saveOauthState } from "@/util/storage.js";
+import { saveOauthState } from "@client/util/storage.js";
 import { faArrowUpRightFromSquare, faUser, faUserSlash } from "@fortawesome/free-solid-svg-icons";
 import type { OAuthProvidersDto } from "@fumix/fu-blog-common";
 import { bytesToBase64URL } from "@fumix/fu-blog-common";

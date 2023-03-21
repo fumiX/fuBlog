@@ -58,7 +58,7 @@
 
 <style lang="scss">
 .post-bg {
-  background-image: url("@/assets/images/post-bg.jpg");
+  background-image: url("@client/assets/images/post-bg.jpg");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center center;
@@ -83,7 +83,7 @@ import type { PropType } from "vue";
 import { defineComponent, ref } from "vue";
 import { useRoute } from "vue-router";
 import type { ConfirmDialogData, Post } from "@fumix/fu-blog-common";
-import ConfirmDialog from "@/components/ConfirmDialog.vue";
+import ConfirmDialog from "@client/components/ConfirmDialog.vue";
 import { faArrowLeft, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { faClock } from "@fortawesome/free-regular-svg-icons";
 import type { UserRolePermissionsType } from "@fumix/fu-blog-common";

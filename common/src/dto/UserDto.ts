@@ -1,5 +1,5 @@
-import { UserRolePermissionsType } from "@/entity/permission/UserRolePermissions.js";
-import { UserRole } from "@/entity/UserRole.js";
+import { UserRolePermissionsType } from "@common/entity/permission/UserRolePermissions.js";
+import { UserRole } from "@common/entity/UserRole.js";
 
 export type UserDto = {
   id?: number;
