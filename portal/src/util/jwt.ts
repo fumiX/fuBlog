@@ -1,4 +1,4 @@
-import { bytesToBase64URL } from "./base64.js";
+import { bytesToBase64URL } from "@fumix/fu-blog-common";
 import { Buffer } from "buffer";
 import * as crypto from "crypto";
 
