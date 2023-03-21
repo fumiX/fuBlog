@@ -3,9 +3,9 @@
     <div class="jumbotron rounded mb-4 p-3 p-md-5 blog-bg">
       <div class="col-md-6 px-0">
         <h1 class="display-2 font-italic">{{ t("posts.blogTitle") }}</h1>
-        <p class="display-6 my-1 text-dark">
+        <h1 class="display-6 my-1">
           {{ t("posts.blogShortDescription") }}
-        </p>
+        </h1>
       </div>
     </div>
 

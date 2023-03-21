@@ -3,8 +3,7 @@
     <span class="avatar">
       <img v-if="props.user.profilePictureUrl" :src="props.user.profilePictureUrl" />
     </span>
-    {{ props.user.firstName }} {{ props.user.lastName }}
-
+    <span>{{ props.user.firstName }} {{ props.user.lastName }}</span>
     <button type="button" class="btn btn-link" @click="$emit('logout')"><fa-icon :icon="faSignOut" /></button>
   </div>
 </template>

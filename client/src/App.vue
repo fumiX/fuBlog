@@ -1,6 +1,6 @@
 <template>
   <div>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-custom mb-4">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
       <div class="container">
         <a class="navbar-brand" href="/">
           <img src="@client/assets/images/logo.png" alt="..." height="50" />
@@ -97,6 +97,11 @@ export default defineComponent({
       return data.user;
     };
 
+    const setLoginUSerAndPermissions = async () => {
+      loggedInUser.value = await getLoggedInUser();
+      userPermissions.value = permissionsForUser(loggedInUser.value as User);
+    };
+
     watch(route, async (value) => {
       // prefill search input from queryParam
       if (value.query.search) {
@@ -104,14 +109,14 @@ export default defineComponent({
       }
     });
 
-    onMounted(() => {
+    onMounted(async () => {
       // listen for token-changed event to gracefully handle login/logout
       window.addEventListener("token-changed", async (event) => {
         if (!loggedInUser.value) {
-          loggedInUser.value = await getLoggedInUser();
-          userPermissions.value = permissionsForUser(loggedInUser.value as User);
+          setLoginUSerAndPermissions();
         }
       });
+      setLoginUSerAndPermissions();
     });
 
     return {

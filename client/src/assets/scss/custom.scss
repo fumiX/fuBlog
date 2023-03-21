@@ -1,7 +1,7 @@
-/* put your theme styles here */
+/* put custom theme styles here */
 
+// @import "./themes/default.scss";
 @import "./themes/fumix.scss";
-// @import "./themes/dark.scss";
 
 @media (prefers-color-scheme: dark) {
     // import DARK Theme
