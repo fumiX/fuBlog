@@ -152,6 +152,7 @@ export default defineComponent({
         this.lastName = this.userInfo?.user?.lastName ?? "";
         if (this.userInfo?.isExisting) {
           saveIdToken(this.userInfo.token);
+          this.$router.push(`/`);
         }
         this.loading = false;
       }

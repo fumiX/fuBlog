@@ -1,5 +1,4 @@
-import { isOAuthType, OAUTH_TYPES } from "@fumix/fu-blog-common";
-import type { OAuthType } from "@fumix/fu-blog-common";
+import { isOAuthType } from "@fumix/fu-blog-common";
 import type { SavedOAuthToken } from "@fumix/fu-blog-common";
 
 type OAuthState = { key: string; redirect_uri?: string };
@@ -18,10 +17,17 @@ export function loadOauthStateByKey(key: string | undefined | null): OAuthState 
   return loadFromStorageAsJson<OAuthState[]>(window.sessionStorage, recentOauthStatesKey, []).find((it) => it.key === key);
 }
 
-export function saveIdToken(token: SavedOAuthToken): void {
-  saveToStorageAsString(window.localStorage, idTokenKey, token.id_token);
-  saveToStorageAsString(window.localStorage, oauthTypeKey, token.type);
-  saveToStorageAsString(window.localStorage, oauthIssuerKey, token.issuer);
+export function saveIdToken(token: SavedOAuthToken | null): void {
+  if (token) {
+    saveToStorageAsString(window.localStorage, idTokenKey, token.id_token);
+    saveToStorageAsString(window.localStorage, oauthTypeKey, token.type);
+    saveToStorageAsString(window.localStorage, oauthIssuerKey, token.issuer);
+  } else {
+    removeKeyFromStorage(window.localStorage, idTokenKey);
+    removeKeyFromStorage(window.localStorage, oauthTypeKey);
+    removeKeyFromStorage(window.localStorage, oauthIssuerKey);
+  }
+  window.dispatchEvent(new CustomEvent("token-changed", { detail: token }));
 }
 
 export function loadIdToken(): SavedOAuthToken | undefined {
@@ -55,6 +61,10 @@ function saveToStorageAsString(storage: Storage, key: string, value: string): vo
  */
 function saveToStorageAsJson<T>(storage: Storage, key: string, value: T): void {
   saveToStorageAsString(storage, key, JSON.stringify(value));
+}
+
+function removeKeyFromStorage(storage: Storage, key: string): void {
+  storage.removeItem(key);
 }
 
 /**

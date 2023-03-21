@@ -1,6 +1,6 @@
 <template>
   <span class="mx-2 text-muted" v-if="!providers || providers.providers.length <= 0"><fa-icon :icon="faUserSlash" /></span>
-  <a class="btn btn-primary mx-1" v-else-if="providers && providers.providers.length === 1" :href="providers.providers[0].url">
+  <a class="btn btn-link mx-1 no-underline" v-else-if="providers && providers.providers.length === 1" :href="providers.providers[0].url">
     <fa-icon :icon="faUser" />
     {{ providers.providers[0].label ?? "Login" }}
     <fa-icon :icon="faArrowUpRightFromSquare" />
@@ -18,6 +18,12 @@
     </ul>
   </div>
 </template>
+
+<style lang="scss">
+.no-underline {
+  text-decoration: none;
+}
+</style>
 
 <script lang="ts">
 import { saveOauthState } from "@/util/storage.js";

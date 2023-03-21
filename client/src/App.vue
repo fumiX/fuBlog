@@ -27,7 +27,7 @@
           </ul>
           <div class="username">
             <login-button v-if="!loggedInUser"></login-button>
-            <user-name v-else :user="loggedInUser"></user-name>
+            <user-name v-else :user="loggedInUser" @logout="logoutUser($event)"></user-name>
           </div>
           <search-component
             :searchString="searchQuery"
@@ -57,7 +57,7 @@ import { useRoute, useRouter } from "vue-router";
 import SearchComponent from "./components/SearchComponent.vue";
 import type { SavedOAuthToken, User, UserDto } from "@fumix/fu-blog-common";
 import { useI18n } from "vue-i18n";
-import { loadIdToken } from "@/util/storage.js";
+import { loadIdToken, saveIdToken } from "@/util/storage.js";
 import UserName from "./components/UserName.vue";
 import { Buffer } from "buffer";
 import { permissionsForUser } from "@fumix/fu-blog-common";
@@ -66,16 +66,11 @@ import type { UserRolePermissionsType } from "@fumix/fu-blog-common";
 export default defineComponent({
   components: { LoginButton, SearchComponent, UserName },
   setup() {
-    const { t } = useI18n({
-      inheritLocale: true,
-      useScope: "local",
-    });
-
+    const { t } = useI18n();
     const route = useRoute();
     const searchQuery = ref<string>("");
     const router = useRouter();
-    const loggedInUser = ref<UserDto>();
-
+    const loggedInUser = ref<UserDto | null>(null);
     const userPermissions = ref<UserRolePermissionsType | null>(null);
 
     const setOperator = (operator: string) => {
@@ -100,9 +95,6 @@ export default defineComponent({
           ? "data:image/jpeg;base64," + Buffer.from(data.user.profilePicture).toString("base64")
           : undefined;
       }
-
-      console.log("DATA USER", data.user);
-
       return data.user;
     };
 
@@ -111,30 +103,23 @@ export default defineComponent({
       if (value.query.search) {
         searchQuery.value = value.query.search as string;
       }
-
-      setTimeout(async () => {
-        loggedInUser.value = await getLoggedInUser();
-        userPermissions.value = permissionsForUser(loggedInUser.value as User);
-      }, 250);
     });
 
-    onMounted(async () => {
-      // if (loggedInUser.value) {
-      //   loggedInUser.value.profilePictureUrl = data.user.profilePicture
-      //     ? "data:image/jpeg;base64," + Buffer.from(data.user.profilePicture).toString("base64")
-      //     : undefined;
-      // }
-      // userPermissions.value = permissionsForUser(data.user);
-      // loggedInUser.value = await getLoggedInUser();
-      // console.log("LOGGEDIN USER ---->", data);
-      // console.log("PERMISSIONS FOR USER", permissionsForUser(data.user));
+    onMounted(() => {
+      // listen for token-changed event to gracefully handle login/logout
+      window.addEventListener("token-changed", async (event) => {
+        if (!loggedInUser.value) {
+          loggedInUser.value = await getLoggedInUser();
+          userPermissions.value = permissionsForUser(loggedInUser.value as User);
+        }
+      });
     });
 
     return {
       userPermissions,
       searchQuery,
-      setOperator,
       loggedInUser,
+      setOperator,
       t,
     };
   },
@@ -146,6 +131,13 @@ export default defineComponent({
 
     isAdmin() {
       return this.loggedInUser?.roles.includes("ADMIN");
+    },
+
+    logoutUser(event: Event) {
+      saveIdToken(null); // clear localStorage
+      this.loggedInUser = null;
+      this.userPermissions = null;
+      this.$router.push(`/`);
     },
   },
 });

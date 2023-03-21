@@ -4,6 +4,8 @@
       <img v-if="props.user.profilePictureUrl" :src="props.user.profilePictureUrl" />
     </span>
     {{ props.user.firstName }} {{ props.user.lastName }}
+
+    <button type="button" class="btn btn-link" @click="$emit('logout')"><fa-icon :icon="faSignOut" /></button>
   </div>
 </template>
 
@@ -20,7 +22,7 @@
 
 <script lang="ts">
 import { defineComponent, type PropType } from "vue";
-import { faArrowUpRightFromSquare, faUser, faUserSlash } from "@fortawesome/free-solid-svg-icons";
+import { faSignOut } from "@fortawesome/free-solid-svg-icons";
 import type { UserDto } from "@fumix/fu-blog-common";
 
 export default defineComponent({
@@ -30,9 +32,12 @@ export default defineComponent({
       required: true,
     },
   },
-  setup(props) {
+  emits: ["logout"],
+  setup(props, emits) {
     return {
       props,
+      emits,
+      faSignOut,
     };
   },
 });
