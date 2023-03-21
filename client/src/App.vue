@@ -55,7 +55,7 @@ import LoginButton from "@/components/LoginButton.vue";
 import { defineComponent, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import SearchComponent from "./components/SearchComponent.vue";
-import type { SavedOAuthToken, UserDto } from "@fumix/fu-blog-common";
+import type { SavedOAuthToken, User, UserDto } from "@fumix/fu-blog-common";
 import { useI18n } from "vue-i18n";
 import { loadIdToken } from "@/util/storage.js";
 import UserName from "./components/UserName.vue";
@@ -82,14 +82,7 @@ export default defineComponent({
       router.replace({ query: { ...route.query, operator: operator } });
     };
 
-    watch(route, (value) => {
-      // prefill search input from queryParam
-      if (value.query.search) {
-        searchQuery.value = value.query.search as string;
-      }
-    });
-
-    onMounted(async () => {
+    const getLoggedInUser = async (): Promise<UserDto> => {
       const tokenObj: SavedOAuthToken | undefined = loadIdToken();
 
       const requestOptions = {
@@ -102,15 +95,37 @@ export default defineComponent({
       const response = await fetch(postUrl, requestOptions);
       const data = await response.json();
 
-      loggedInUser.value = data.user;
-      if (loggedInUser.value) {
-        loggedInUser.value.profilePictureUrl = data.user.profilePicture
+      if (data) {
+        data.user.profilePictureUrl = data.user.profilePicture
           ? "data:image/jpeg;base64," + Buffer.from(data.user.profilePicture).toString("base64")
           : undefined;
       }
 
-      userPermissions.value = permissionsForUser(data.user);
+      console.log("DATA USER", data.user);
 
+      return data.user;
+    };
+
+    watch(route, async (value) => {
+      // prefill search input from queryParam
+      if (value.query.search) {
+        searchQuery.value = value.query.search as string;
+      }
+
+      setTimeout(async () => {
+        loggedInUser.value = await getLoggedInUser();
+        userPermissions.value = permissionsForUser(loggedInUser.value as User);
+      }, 250);
+    });
+
+    onMounted(async () => {
+      // if (loggedInUser.value) {
+      //   loggedInUser.value.profilePictureUrl = data.user.profilePicture
+      //     ? "data:image/jpeg;base64," + Buffer.from(data.user.profilePicture).toString("base64")
+      //     : undefined;
+      // }
+      // userPermissions.value = permissionsForUser(data.user);
+      // loggedInUser.value = await getLoggedInUser();
       // console.log("LOGGEDIN USER ---->", data);
       // console.log("PERMISSIONS FOR USER", permissionsForUser(data.user));
     });
