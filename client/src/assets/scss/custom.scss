@@ -1,14 +1,8 @@
-/* put custom theme styles here */
+/* custom styles here */
 
 // @import "./themes/default.scss";
 @import "./themes/fumix.scss";
 
-@media (prefers-color-scheme: dark) {
-    // import DARK Theme
-}
-
-@media (prefers-color-scheme: light) {
-    // import LIGHT Theme
-}
+@import "./themes/light-dark-mode.scss";
 
 @import "./../../../../node_modules/bootstrap/scss/bootstrap.scss";

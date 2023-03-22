@@ -1,4 +1,11 @@
 /* GLOBAL STYLES */
+#app {
+  height: 100vh;
+  .content {
+    min-height: 100vh;
+    padding-bottom:1rem;
+  }
+}
 
 .loader {
   position: fixed;
@@ -34,12 +41,7 @@ pre {
   svg {
     max-width: 100%;
     background: transparent !important;
-
-    g > * :not(text) {
-      stroke: #CCC !important;
-    }
   }
-
   img {
     max-width: 100%;
   }
@@ -75,7 +77,6 @@ pre {
     box-shadow: none !important;
   }
 }
-
 
 .form-check {
   padding-left: 0;

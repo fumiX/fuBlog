@@ -1,44 +1,47 @@
 <template>
-  <div>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-      <div class="container">
-        <a class="navbar-brand" href="/">
-          <img src="@client/assets/images/logo.png" alt="..." height="50" />
-        </a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <RouterLink to="/posts" class="nav-link">{{ t("nav.posts") }}</RouterLink>
-            </li>
-            <li v-if="isAdmin()" class="nav-item">
-              <RouterLink to="/administration" class="nav-link">{{ t("nav.administration") }}</RouterLink>
-            </li>
-          </ul>
-          <div class="username">
-            <login-button v-if="!loggedInUser"></login-button>
-            <user-name v-else :user="loggedInUser" @logout="logoutUser($event)"></user-name>
+  <div :class="cssTheme">
+    <div class="content">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+          <a class="navbar-brand" href="/">
+            <img src="@client/assets/images/logo.png" alt="..." height="50" />
+          </a>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <button @click="toggleTheme($event)">THEME</button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <RouterLink to="/posts" class="nav-link">{{ t("nav.posts") }}</RouterLink>
+              </li>
+              <li v-if="isAdmin()" class="nav-item">
+                <RouterLink to="/administration" class="nav-link">{{ t("nav.administration") }}</RouterLink>
+              </li>
+            </ul>
+            <div class="username">
+              <login-button v-if="!loggedInUser"></login-button>
+              <user-name v-else :user="loggedInUser" @logout="logoutUser($event)"></user-name>
+            </div>
+            <search-component
+              :searchString="searchQuery"
+              @searched="startSearch($event)"
+              @operatorChanged="setOperator($event)"
+            ></search-component>
           </div>
-          <search-component
-            :searchString="searchQuery"
-            @searched="startSearch($event)"
-            @operatorChanged="setOperator($event)"
-          ></search-component>
         </div>
-      </div>
-    </nav>
+      </nav>
 
-    <RouterView :userPermissions="userPermissions" />
+      <RouterView :userPermissions="userPermissions" />
+    </div>
   </div>
 </template>
 
@@ -52,7 +55,7 @@
 
 <script lang="ts">
 import LoginButton from "@client/components/LoginButton.vue";
-import { loadIdToken, saveIdToken } from "@client/util/storage.js";
+import { loadIdToken, saveIdToken, saveCssPreference, loadCssPreference } from "@client/util/storage.js";
 import type { SavedOAuthToken, User, UserDto, UserRolePermissionsType } from "@fumix/fu-blog-common";
 import { permissionsForUser } from "@fumix/fu-blog-common";
 import { Buffer } from "buffer";
@@ -71,6 +74,7 @@ export default defineComponent({
     const router = useRouter();
     const loggedInUser = ref<UserDto | null>(null);
     const userPermissions = ref<UserRolePermissionsType | null>(null);
+    const cssTheme = ref<string | null>(null);
 
     const setOperator = (operator: string) => {
       router.replace({ query: { ...route.query, operator: operator } });
@@ -102,6 +106,15 @@ export default defineComponent({
       userPermissions.value = permissionsForUser(loggedInUser.value as User);
     };
 
+    const getMediaPreference = (): string => {
+      const hasDarkPreference = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      if (hasDarkPreference) {
+        return "darkTheme";
+      } else {
+        return "lightTheme";
+      }
+    };
+
     watch(route, async (value) => {
       // prefill search input from queryParam
       if (value.query.search) {
@@ -117,6 +130,8 @@ export default defineComponent({
         }
       });
       setLoginUSerAndPermissions();
+
+      cssTheme.value = loadCssPreference() || getMediaPreference();
     });
 
     return {
@@ -125,6 +140,7 @@ export default defineComponent({
       loggedInUser,
       setOperator,
       t,
+      cssTheme,
     };
   },
 
@@ -142,6 +158,15 @@ export default defineComponent({
       this.loggedInUser = null;
       this.userPermissions = null;
       this.$router.push(`/`);
+    },
+
+    toggleTheme(event: Event) {
+      if (this.cssTheme === "darkTheme") {
+        this.cssTheme = "lightTheme";
+      } else {
+        this.cssTheme = "darkTheme";
+      }
+      saveCssPreference(this.cssTheme);
     },
   },
 });

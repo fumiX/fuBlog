@@ -45,6 +45,14 @@ export function loadIdToken(): SavedOAuthToken | undefined {
   }
 }
 
+export function saveCssPreference(css: string) {
+  saveToStorageAsString(window.localStorage, "cssTheme", css);
+}
+
+export function loadCssPreference(): string {
+  return loadFromStorageAsString(window.localStorage, "cssTheme", null);
+}
+
 //
 // General purpose helper functions, should only be called indirectly
 //

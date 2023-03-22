@@ -34,8 +34,10 @@ $min-contrast-ratio: 1.9 !default;
 
 // Body
 
-$body-bg:                   $gray-300 !default;
-$body-color:                $gray-800 !default;
+$body-bg:                   $gray-800 !default;
+$body-color:                $gray-200 !default;
+$body-bg-light:             $gray-200 !default;
+$body-color-light:          $gray-800 !default;
 
 // Links
 
@@ -53,7 +55,7 @@ $text-muted:                  $gray-600 !default;
 // Tables
 
 $table-border-color:          $gray-700 !default;
-
+$table-border-color-light:    $gray-300 !default;
 $table-bg-scale:              0 * 1% !default; // *1% because deprecation waring: https://sass-lang.com/documentation/breaking-changes/function-units
 
 // Forms
@@ -116,9 +118,11 @@ $pagination-disabled-border-color:  transparent !default;
 
 // Cards
 
-$card-cap-bg:                       $gray-100 !default;
-$card-bg:                           $gray-100 !default;
+$card-cap-bg:                       $gray-300 !default;
+$card-bg:                           $gray-900 !default;
 
+$card-cap-bg-light:                 $gray-100 !default;
+$card-bg-light:                     $gray-100 !default;
 // Popovers
 
 $popover-bg:                        $gray-800 !default;
@@ -133,7 +137,11 @@ $toast-header-background-color:     $gray-800 !default;
 
 $modal-content-bg:                  $gray-800 !default;
 $modal-content-border-color:        $gray-700 !default;
-$modal-header-border-color:         $gray-700 !default;
+$modal-header-border-color:         $gray-800 !default;
+
+$modal-content-bg-light:            $gray-200 !default;
+$modal-content-border-color-light:  $gray-300 !default;
+$modal-header-border-color-light:   $gray-200 !default;
 
 // Progress bars
 
