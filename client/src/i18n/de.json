@@ -11,7 +11,8 @@
       "delete": "Löschen",
       "read": "Lesen",
       "create_post": "Post erstellen",
-      "roles": "Rollen"
+      "roles": "Rollen",
+      "login": "Anmelden"
     }
   },
   "nav": {
@@ -60,5 +61,22 @@
         }
       }
     }
+  },
+  "login": {
+    "title": "Konto erstellen",
+    "description": "Willkommen, gleich kann's losgehen.\nDie Daten unten haben wir vom Anmeldedienstleister abgerufen und würden diese gerne bei uns speichern.\nPasse sie ggf. an und suche dir einen Benutzernamen aus.",
+    "message": {
+      "success": "Hallo {firstname} {lastname} ! Du bist jetzt angemeldet."
+    },
+    "form": {
+      "label" : {
+        "id": "ID",
+        "email": "E-mail",
+        "username": "Benutzername",
+        "firstname": "Vorname",
+        "lastname": "Nachname"
+      }
+    },
+    "user_not_found": "Benutzer nicht gefunden."
   }
 }

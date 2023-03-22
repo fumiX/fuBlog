@@ -11,7 +11,8 @@
       "delete": "Delete",
       "read": "Read",
       "create_post": "Create Post",
-      "roles": "Roles"
+      "roles": "Roles",
+      "login": "Login"
     }
   },
   "nav": {
@@ -60,5 +61,22 @@
         }
       }
     }
+  },
+  "login": {
+    "title": "Create Account",
+    "description": "Welcome, we're ready to go.\nWe have retrieved the data below from the registration service provider and would like to store it with us.\nAdapt it if necessary and choose a user name.",
+    "message": {
+      "success": "Hello {firstname} {lastname} ! You're now logged in."
+    },
+    "form": {
+      "label": {
+        "id": "ID",
+        "email": "Email",
+        "username": "Username",
+        "firstname": "Firstname",
+        "lastname": "Lastname"
+      }
+    },
+    "user_not_found": "User not found."
   }
 }

@@ -9,42 +9,41 @@
       </div>
       <div v-else-if="userInfo">
         <div v-if="userInfo.isExisting">
-          Hallo {{ userInfo.user.firstName }} {{ userInfo.user.lastName }}! Du bist jetzt angemeldet.
-          <!-- TODO: Redirect immediately -->
+          {{ t("login.message.success", { firstname: userInfo.user.firstName, lastname: userInfo.user.lastName }) }}
+          <!-- Should never occur because redirection in line 158 -->
         </div>
         <div v-else>
-          <h2>Konto erstellen</h2>
-          <div>
-            Willkommen, gleich kann's losgehen.<br />
-            Die Daten unten haben wir vom Anmeldedienstleister abgerufen und würden diese gerne bei uns speichern.<br />
-            Passe sie ggf. an und suche dir einen Benutzernamen aus.
+          <h2>{{ t("login.title") }}</h2>
+          <div style="white-space: pre-line; margin-bottom: 1rem">
+            {{ t("login.description") }}
           </div>
-
-          <div class="form-floating mb-2">
-            <input class="form-control" :value="userInfo.oauthId" readonly disabled />
-            <label for="oauthId">ID *</label>
-          </div>
-          <div class="form-floating mb-2">
-            <input class="form-control" :value="userInfo?.user?.email" readonly disabled />
-            <label for="email">E-Mail *</label>
-          </div>
-          <div class="form-floating mb-2">
-            <input class="form-control" id="username" v-model="username" required minlength="3" maxlength="64" />
-            <label for="username">Username *</label>
-          </div>
-          <div class="form-floating mb-2">
-            <input class="form-control" id="firstName" v-model="firstName" />
-            <label for="firstName">First name</label>
-          </div>
-          <div class="form-floating mb-2">
-            <input class="form-control" id="lastName" v-model="lastName" />
-            <label for="lastName">Last name</label>
-          </div>
-          <input class="form-control" name="token" :value="userInfo.token" hidden />
-          <button class="btn btn-primary" @click="register">Anmelden</button>
+          <form>
+            <div class="form-floating mb-2">
+              <input class="form-control" :value="userInfo.oauthId" readonly disabled />
+              <label for="oauthId">{{ t("login.form.label.id") }} *</label>
+            </div>
+            <div class="form-floating mb-2">
+              <input class="form-control" :value="userInfo?.user?.email" readonly disabled />
+              <label for="email">{{ t("login.form.label.email") }} *</label>
+            </div>
+            <div class="form-floating mb-2">
+              <input class="form-control" id="username" v-model="username" required minlength="3" maxlength="64" />
+              <label for="username">{{ t("login.form.label.username") }} *</label>
+            </div>
+            <div class="form-floating mb-2">
+              <input class="form-control" id="firstName" v-model="firstName" />
+              <label for="firstName">{{ t("login.form.label.firstname") }}</label>
+            </div>
+            <div class="form-floating mb-2">
+              <input class="form-control" id="lastName" v-model="lastName" />
+              <label for="lastName">{{ t("login.form.label.lastname") }}</label>
+            </div>
+            <input class="form-control" name="token" :value="userInfo.token" hidden />
+            <button class="btn btn-primary" @click="register">{{ t("app.base.login") }}</button>
+          </form>
         </div>
       </div>
-      <div v-else>User info not found.</div>
+      <div v-else>{{ t("login.user_not_found") }}</div>
     </div>
     <div v-else>
       <span v-on:load="redir()">X</span>
@@ -60,10 +59,12 @@ import type { OAuthCodeDto, OAuthUserInfoDto, SavedOAuthToken } from "@fumix/fu-
 import { bytesToBase64URL, isNotNull, isOAuthType } from "@fumix/fu-blog-common";
 import { defineComponent, ref } from "vue";
 import { useRoute } from "vue-router";
+import { useI18n } from "vue-i18n";
 
 export default defineComponent({
   name: "AuthView",
   components: { LoginButton },
+
   methods: {
     async register() {
       await fetch(`/api/auth/userinfo/register`, {
@@ -108,6 +109,7 @@ export default defineComponent({
     },
   },
   setup() {
+    const { t } = useI18n();
     const route = useRoute();
     const userInfo = ref<OAuthUserInfoDto | undefined>(undefined);
     const username = ref<string>("");
@@ -135,6 +137,7 @@ export default defineComponent({
       returnedType: isOAuthType(returnedType) ? returnedType : null,
       returnedIssuer,
       isStateMatching,
+      t,
     };
   },
   async mounted() {
