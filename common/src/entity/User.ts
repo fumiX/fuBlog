@@ -10,3 +10,5 @@ export type User = {
   email: string;
   roles: UserRole[];
 };
+
+export type UserTheme = "lightTheme" | "darkTheme";

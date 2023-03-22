@@ -1,5 +1,5 @@
 import { isOAuthType } from "@fumix/fu-blog-common";
-import type { SavedOAuthToken } from "@fumix/fu-blog-common";
+import type { SavedOAuthToken, UserTheme } from "@fumix/fu-blog-common";
 
 type OAuthState = { key: string; redirect_uri?: string };
 const idTokenKey = "id_token";
@@ -45,12 +45,12 @@ export function loadIdToken(): SavedOAuthToken | undefined {
   }
 }
 
-export function saveCssPreference(css: string) {
+export function saveCssPreference(css: UserTheme) {
   saveToStorageAsString(window.localStorage, "cssTheme", css);
 }
 
-export function loadCssPreference(): string {
-  return loadFromStorageAsString(window.localStorage, "cssTheme", null);
+export function loadCssPreference(): UserTheme {
+  return loadFromStorageAsString(window.localStorage, "cssTheme", "lightTheme") as UserTheme;
 }
 
 //

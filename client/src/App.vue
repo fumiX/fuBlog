@@ -17,7 +17,7 @@
           >
             <span class="navbar-toggler-icon"></span>
           </button>
-          <button @click="toggleTheme($event)">THEME</button>
+
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
               <li class="nav-item">
@@ -31,6 +31,9 @@
               <login-button v-if="!loggedInUser"></login-button>
               <user-name v-else :user="loggedInUser" @logout="logoutUser($event)"></user-name>
             </div>
+
+            <light-dark-toggler @theme-changed="cssTheme = $event"></light-dark-toggler>
+
             <search-component
               :searchString="searchQuery"
               @searched="startSearch($event)"
@@ -55,7 +58,8 @@
 
 <script lang="ts">
 import LoginButton from "@client/components/LoginButton.vue";
-import { loadIdToken, saveIdToken, saveCssPreference, loadCssPreference } from "@client/util/storage.js";
+import LightDarkToggler from "@client/components/LightDarkToggler.vue";
+import { loadIdToken, saveIdToken } from "@client/util/storage.js";
 import type { SavedOAuthToken, User, UserDto, UserRolePermissionsType } from "@fumix/fu-blog-common";
 import { permissionsForUser } from "@fumix/fu-blog-common";
 import { Buffer } from "buffer";
@@ -66,7 +70,7 @@ import SearchComponent from "./components/SearchComponent.vue";
 import UserName from "./components/UserName.vue";
 
 export default defineComponent({
-  components: { LoginButton, SearchComponent, UserName },
+  components: { LoginButton, SearchComponent, UserName, LightDarkToggler },
   setup() {
     const { t } = useI18n();
     const route = useRoute();
@@ -106,15 +110,6 @@ export default defineComponent({
       userPermissions.value = permissionsForUser(loggedInUser.value as User);
     };
 
-    const getMediaPreference = (): string => {
-      const hasDarkPreference = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      if (hasDarkPreference) {
-        return "darkTheme";
-      } else {
-        return "lightTheme";
-      }
-    };
-
     watch(route, async (value) => {
       // prefill search input from queryParam
       if (value.query.search) {
@@ -130,8 +125,6 @@ export default defineComponent({
         }
       });
       setLoginUSerAndPermissions();
-
-      cssTheme.value = loadCssPreference() || getMediaPreference();
     });
 
     return {
@@ -158,15 +151,6 @@ export default defineComponent({
       this.loggedInUser = null;
       this.userPermissions = null;
       this.$router.push(`/`);
-    },
-
-    toggleTheme(event: Event) {
-      if (this.cssTheme === "darkTheme") {
-        this.cssTheme = "lightTheme";
-      } else {
-        this.cssTheme = "darkTheme";
-      }
-      saveCssPreference(this.cssTheme);
     },
   },
 });
