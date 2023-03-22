@@ -1,4 +1,4 @@
-import { OAuthProvider, UserRole, UserRolePermissions, UserRoles } from "@fumix/fu-blog-common";
+import { OAuthProvider, OAuthType, UserRole, UserRolePermissions, UserRoles } from "@fumix/fu-blog-common";
 import { EntityTarget, ObjectLiteral, Repository } from "typeorm";
 import { AppDataSource } from "../data-source.js";
 import { OAuthAccountEntity } from "../entity/OAuthAccount.entity.js";
@@ -14,7 +14,7 @@ type PermissionKeyValue = [string, boolean];
  * @param provider The name of the OAuth provider
  * @return The user account information or null if the user was not authenticated yet
  */
-export async function findOAuthAccountBy(id: string, provider: OAuthProvider): Promise<OAuthAccountEntity | null> {
+export async function findOAuthAccountBy(id: string, provider: OAuthProvider<OAuthType>): Promise<OAuthAccountEntity | null> {
   return await getRepositoryFor(OAuthAccountEntity).findOne({
     where: {
       oauthId: id,
@@ -27,7 +27,7 @@ export async function findOAuthAccountBy(id: string, provider: OAuthProvider): P
   });
 }
 
-export async function createOAuthAccount(id: string, provider: OAuthProvider, user: UserEntity) {
+export async function createOAuthAccount(id: string, provider: OAuthProvider<OAuthType>, user: UserEntity) {
   const account: OAuthAccountEntity = {
     oauthId: id,
     type: provider.type,

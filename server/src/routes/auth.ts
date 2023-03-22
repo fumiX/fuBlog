@@ -1,4 +1,13 @@
-import { isNotNull, OAuthProvider, OAuthProvidersDto, OAuthUserInfoDto, SavedOAuthToken, UserInfoOAuthToken } from "@fumix/fu-blog-common";
+import {
+  isNotNull,
+  OAuthProvider,
+  OAuthProviderId,
+  OAuthProvidersDto,
+  OAuthType,
+  OAuthUserInfoDto,
+  SavedOAuthToken,
+  UserInfoOAuthToken,
+} from "@fumix/fu-blog-common";
 import express, { NextFunction, Request, Response, Router } from "express";
 import { createRemoteJWKSet, JWTPayload, jwtVerify } from "jose";
 import fetch from "node-fetch";
@@ -15,12 +24,12 @@ enum StatusCode {
   Unauthorized = 401,
 }
 
-const oauthClients: { [provider: string]: BaseClient | undefined } = {};
+const oauthClients: { [provider: OAuthProviderId]: BaseClient | undefined } = {};
 OAuthSettings.PROVIDERS.forEach((p) => {
   oauthClients[p.getIdentifier()] = undefined;
 });
 
-async function findOAuthClient(provider: OAuthProvider): Promise<BaseClient> {
+async function findOAuthClient(provider: OAuthProvider<OAuthType>): Promise<BaseClient> {
   const existingValue = oauthClients[provider.getIdentifier()];
   if (!existingValue) {
     try {
@@ -66,7 +75,11 @@ router.post("/providers", async (req: Request, res: Response) => {
   }
 });
 
-async function getAuthorizationUrl(oauthProvider: OAuthProvider, redirect_uri: string, state: string): Promise<string | undefined> {
+async function getAuthorizationUrl(
+  oauthProvider: OAuthProvider<OAuthType>,
+  redirect_uri: string,
+  state: string,
+): Promise<string | undefined> {
   try {
     const client = await findOAuthClient(oauthProvider);
     return client.authorizationUrl({
@@ -78,7 +91,7 @@ async function getAuthorizationUrl(oauthProvider: OAuthProvider, redirect_uri: s
   }
 }
 
-async function checkIdToken(id_token: string, provider: OAuthProvider): Promise<JWTPayload> {
+async function checkIdToken(id_token: string, provider: OAuthProvider<OAuthType>): Promise<JWTPayload> {
   if (provider?.type === "FAKE") {
     const result = await jwtVerify(id_token, new TextEncoder().encode("secret"));
     if (result?.payload?.sub) {

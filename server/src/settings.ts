@@ -61,12 +61,15 @@ export class OAuthSettings {
     }
   })(process.env.OAUTH_ADMIN_EMAIL, process.env.OAUTH_ADMIN_ISSUER, process.env.OAUTH_ADMIN_TYPE);
   static readonly REDIRECT_URI = process.env.OAUTH_REDIRECT_URI ?? ClientSettings.BASE_URL + "/login";
-  static readonly PROVIDERS: OAuthProvider[] = loadOAuthProvidersFromEnv();
+  static readonly PROVIDERS: OAuthProvider<OAuthType>[] = loadOAuthProvidersFromEnv();
 
-  static findByType(type: OAuthType): OAuthProvider[] {
-    return OAuthSettings.PROVIDERS.filter((it) => it.type === type);
+  static findByType<T extends OAuthType>(type: T): OAuthProvider<T>[] {
+    return OAuthSettings.PROVIDERS.filter<OAuthProvider<T>>((it: OAuthProvider<OAuthType>): it is OAuthProvider<T> => {
+      return it.type === type;
+    });
   }
-  static findByTypeAndDomain(type: OAuthType, domain: string): OAuthProvider | undefined {
+
+  static findByTypeAndDomain<T extends OAuthType>(type: T, domain: string): OAuthProvider<T> | undefined {
     return this.findByType(type).find((it) => it.domain === domain);
   }
 }

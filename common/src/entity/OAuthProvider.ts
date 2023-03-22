@@ -1,47 +1,46 @@
-import { OAuthType } from "@common/dto/oauth/OAuthType.js";
+import { OAuthProviderId, OAuthType } from "@common/dto/oauth/OAuthType.js";
 
 type AuthorizationParameters = {
-  response_type?: string;
+  response_type: string;
   scope?: string;
   access_type?: string;
 };
 
-export abstract class OAuthProvider {
-  public readonly type: OAuthType;
+export abstract class OAuthProvider<T extends OAuthType> {
+  public readonly index: number;
+  public readonly type: T;
   public readonly domain: string;
-  public readonly authorizePath: string;
-  public readonly tokenUrl: string;
   public readonly clientId: string;
   public readonly clientSecret: string;
-  public readonly https: boolean;
 
   public getIdTokenSignedResponseAlg(): "HS256" | "RS256" {
     return "RS256";
   }
 
-  public getAuthorizeQueryParams(): Partial<AuthorizationParameters> {
-    return { response_type: "code" };
+  public getAuthorizeQueryParams(): AuthorizationParameters {
+    return {
+      access_type: "online",
+      response_type: "code",
+      scope: "email openid profile",
+    };
   }
 
-  protected constructor(type: OAuthType, clientId: string, clientSecret: string, domain: string, https: boolean) {
+  protected constructor(index: number, type: T, clientId: string, clientSecret: string, domain: string) {
+    this.index = index;
     this.type = type;
     this.clientId = clientId;
     this.clientSecret = clientSecret;
     this.domain = domain;
-    this.https = https;
-    console.log(`Loaded OAuth provider ${this.getIdentifier()}`);
   }
 
-  public getIdentifier(): string {
+  public getIdentifier(): OAuthProviderId {
     return `${this.type}/${this.domain}`;
   }
 }
 
-export class FakeOAuthProvider extends OAuthProvider {
-  authorizePath = "/authorize";
-
-  constructor(clientId?: string | undefined, clientSecret?: string | undefined, domain?: string | undefined, https?: boolean) {
-    super("FAKE", clientId ?? "ID", clientSecret ?? "secret", domain ?? "localhost:5030", https ?? false);
+export class FakeOAuthProvider extends OAuthProvider<"FAKE"> {
+  constructor(index = 0, clientId?: string | undefined, clientSecret?: string | undefined, domain?: string | undefined, https?: boolean) {
+    super(index, "FAKE", clientId ?? "ID", clientSecret ?? "secret", domain ?? "localhost:5030");
   }
 
   public getIdTokenSignedResponseAlg(): "HS256" {
@@ -49,36 +48,14 @@ export class FakeOAuthProvider extends OAuthProvider {
   }
 }
 
-export class GitlabOAuthProvider extends OAuthProvider {
-  authorizePath = "/oauth/authorize";
-
-  constructor(clientId: string, clientSecret: string, domain: string | undefined) {
-    super("GITLAB", clientId, clientSecret, domain ?? "gitlab.com", true);
-  }
-
-  public getAuthorizeQueryParams(): AuthorizationParameters {
-    return {
-      ...super.getAuthorizeQueryParams(),
-      scope: "openid profile email",
-    };
+export class GitlabOAuthProvider extends OAuthProvider<"GITLAB"> {
+  constructor(index: number, clientId: string, clientSecret: string, domain: string | undefined) {
+    super(index, "GITLAB", clientId, clientSecret, domain ?? "gitlab.com");
   }
 }
 
-export class GoogleOAuthProvider extends OAuthProvider {
-  authorizePath = "/o/oauth2/v2/auth";
-  tokenUrl = "https://oauth2.googleapis.com/token";
-
-  constructor(clientId: string, clientSecret: string, domain: string | undefined) {
-    super("GOOGLE", clientId, clientSecret, domain ?? "accounts.google.com", true);
-  }
-
-  public getAuthorizeQueryParams(): AuthorizationParameters {
-    return {
-      ...super.getAuthorizeQueryParams(),
-      ...{
-        scope: "openid email profile",
-        access_type: "online",
-      },
-    };
+export class GoogleOAuthProvider extends OAuthProvider<"GOOGLE"> {
+  constructor(index: number, clientId: string, clientSecret: string, domain: string | undefined) {
+    super(index, "GOOGLE", clientId, clientSecret, domain ?? "accounts.google.com");
   }
 }
