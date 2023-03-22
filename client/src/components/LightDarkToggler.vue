@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="toggler">
     <input @change="toggleTheme" id="checkbox" type="checkbox" class="modeswitch-checkbox" />
     <label for="checkbox" class="modeswitch-label">
       <span class="emoji">🌙</span>
@@ -53,55 +53,56 @@ onMounted(() => setTheme(userTheme.value));
 }
 
 :root {
+  --element-size: 4rem;
   --background-color-primary: #ebebeb;
   --background-color-secondary: #fafafa;
   --accent-color: #cacaca;
   --text-primary-color: #222;
-  --element-size: 4rem;
+
+  .darkTheme {
+    --background-color-primary: #1e1e1e;
+    --background-color-secondary: #2d2d30;
+    --accent-color: #3f3f3f;
+    --text-primary-color: #ddd;
+  }
 }
 
-:root.lightTheme {
-  --element-size: 4rem;
-  --background-color-primary: #1e1e1e;
-  --background-color-secondary: #2d2d30;
-  --accent-color: #3f3f3f;
-  --text-primary-color: #ddd;
-}
+.toggler {
+  .modeswitch-checkbox {
+    display: none;
+  }
 
-.modeswitch-checkbox {
-  display: none;
-}
+  .modeswitch-label {
+    align-items: center;
+    background: var(--text-primary-color);
+    border: calc(var(--element-size) * 0.025) solid var(--accent-color);
+    border-radius: var(--element-size);
+    cursor: pointer;
+    display: flex;
+    font-size: calc(var(--element-size) * 0.3);
+    height: calc(var(--element-size) * 0.35);
+    position: relative;
+    padding: calc(var(--element-size) * 0.25) calc(var(--element-size) * 0.1);
+    transition: background 0.5s ease;
+    justify-content: space-between;
+    width: var(--element-size);
+    z-index: 1;
+  }
 
-.modeswitch-label {
-  align-items: center;
-  background: var(--text-primary-color);
-  border: calc(var(--element-size) * 0.025) solid var(--accent-color);
-  border-radius: var(--element-size);
-  cursor: pointer;
-  display: flex;
-  font-size: calc(var(--element-size) * 0.3);
-  height: calc(var(--element-size) * 0.35);
-  position: relative;
-  padding: calc(var(--element-size) * 0.25) calc(var(--element-size) * 0.1);
-  transition: background 0.5s ease;
-  justify-content: space-between;
-  width: var(--element-size);
-  z-index: 1;
-}
+  .modeswitch-toggle {
+    position: absolute;
+    background-color: var(--background-color-primary);
+    border-radius: 50%;
+    top: calc(var(--element-size) * 0.07);
+    left: calc(var(--element-size) * 0.07);
+    height: calc(var(--element-size) * 0.36);
+    width: calc(var(--element-size) * 0.36);
+    transform: translateX(0);
+    transition: transform 0.3s ease, background-color 0.5s ease;
+  }
 
-.modeswitch-toggle {
-  position: absolute;
-  background-color: var(--background-color-primary);
-  border-radius: 50%;
-  top: calc(var(--element-size) * 0.07);
-  left: calc(var(--element-size) * 0.07);
-  height: calc(var(--element-size) * 0.36);
-  width: calc(var(--element-size) * 0.36);
-  transform: translateX(0);
-  transition: transform 0.3s ease, background-color 0.5s ease;
-}
-
-.modeswitch-toggle-checked {
-  transform: translateX(calc(var(--element-size) * 0.45)) !important;
+  .modeswitch-toggle-checked {
+    transform: translateX(calc(var(--element-size) * 0.45)) !important;
+  }
 }
 </style>
