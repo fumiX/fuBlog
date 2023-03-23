@@ -1,9 +1,10 @@
 /* GLOBAL STYLES */
+
 #app {
   height: 100vh;
   .content {
     min-height: 100vh;
-    padding-bottom:1rem;
+    padding-bottom: 1rem;
   }
 }
 
@@ -78,13 +79,11 @@ pre {
   }
 }
 
-
-
 .form-floating {
   label {
     color: $label-color;
   }
-  input:disabled+label {
+  input:disabled + label {
     color: $label-disabled-color;
   }
 }

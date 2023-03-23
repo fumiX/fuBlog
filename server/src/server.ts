@@ -7,6 +7,7 @@ import adminRoutes from "./routes/admin.js";
 import attRoutes from "./routes/attachments.js";
 import authRoutes from "./routes/auth.js";
 import postRoutes from "./routes/posts.js";
+import utilityRoutes from "./routes/utility.js";
 import { initDatabase } from "./service/testdata-generator.js";
 import { AppSettings, ClientSettings, DatabaseSettings, ServerSettings } from "./settings.js";
 
@@ -28,7 +29,10 @@ app.use(`${ServerSettings.API_PATH}/auth`, authRoutes);
 app.use(`${ServerSettings.API_PATH}/admin`, adminRoutes);
 
 app.use(`${ServerSettings.API_PATH}/posts`, postRoutes);
+
 app.use(`${ServerSettings.API_PATH}/attachments`, attRoutes);
+
+app.use(`${ServerSettings.API_PATH}/utility`, utilityRoutes);
 
 // in production serve the built vue-app from static public folder:
 if (AppSettings.IS_PRODUCTION) {
