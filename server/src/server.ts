@@ -11,8 +11,8 @@ import { initDatabase } from "./service/testdata-generator.js";
 import { AppSettings, ClientSettings, DatabaseSettings, ServerSettings } from "./settings.js";
 import { logger } from "./logger.js";
 import { errorHandler } from "./service/error-handler.js";
-import { InternalServerError } from "./types/errors/InternalServerError.js";
-import { BaseError } from "./types/errors/BaseError.js";
+import { InternalServerError } from "./errors/InternalServerError.js";
+import { BaseError } from "./errors/BaseError.js";
 
 const app: Application = express();
 

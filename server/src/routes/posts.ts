@@ -6,7 +6,7 @@ import { AttachmentEntity } from "../entity/Attachment.entity.js";
 import { PostEntity } from "../entity/Post.entity.js";
 import { UserEntity } from "../entity/User.entity.js";
 import { MarkdownConverterServer } from "../markdown-converter-server.js";
-import { NotFoundError } from "../types/errors/NotFoundError.js";
+import { NotFoundError } from "../errors/NotFoundError.js";
 
 const router: Router = express.Router();
 const upload = multer();
