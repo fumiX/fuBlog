@@ -1,11 +1,14 @@
 import { DraftResponseDto } from "@fumix/fu-blog-common";
 import express, { Request, Response, Router } from "express";
+import { ParamsDictionary } from "express-serve-static-core";
 import multer from "multer";
 import { AppDataSource } from "../data-source.js";
 import { AttachmentEntity } from "../entity/Attachment.entity.js";
 import { PostEntity } from "../entity/Post.entity.js";
 import { UserEntity } from "../entity/User.entity.js";
 import { MarkdownConverterServer } from "../markdown-converter-server.js";
+import { BadRequestError } from "../types/errors/BadRequestError.js";
+import { NotFoundError } from "../types/errors/NotFoundError.js";
 
 const router: Router = express.Router();
 const upload = multer();
@@ -13,7 +16,7 @@ const upload = multer();
 // create or get dummy user
 async function getUser() {
   const email = "test@test.de";
-  let createdUser = await AppDataSource.manager.getRepository(UserEntity).findOneBy({ email: email });
+  let createdUser = await AppDataSource.manager.getRepository(UserEntity).findOneBy({email: email});
 
   if (createdUser === null) {
     const user: UserEntity = {
@@ -29,69 +32,93 @@ async function getUser() {
   return createdUser;
 }
 
-// search posts
-router.get("/page/:page/count/:count/search/:search/operator/:operator", async (req: Request, res: Response) => {
-  const page = +req.params.page;
-  const itemsPerPage = +req.params.count;
-  const skipEntries = page * itemsPerPage - itemsPerPage;
-  let searchTerm = "";
-  if (req.params.search) {
-    const splitSearchParams: string[] = req.params.search.trim().split(" ");
-    const operator = req.params.operator === "or" ? " | " : " & ";
-
-    const words = splitSearchParams
-      .map((word) => escape(word))
-      .filter(Boolean)
-      .join(operator);
-
-    // logger.info("WORDS", words);
-    searchTerm = "ts @@ to_tsquery('" + words + "')";
+function validateSearchParams(params: ParamsDictionary) {
+  if (params.page && (isNaN(+params.page) || +params.page < 1)) {
+    throw new BadRequestError("Page must be a positive number");
   }
+  if (params.count && (isNaN(+params.count) || +params.count < 1)) {
+    throw new BadRequestError("Count must be a positive number");
+  }
+  if (params.operator && !["and", "or"].includes(params.operator)) {
+    throw new BadRequestError("Operator must be one of [and,or].");
+  }
+}
 
-  const allSearchedPosts = await AppDataSource.manager
-    .getRepository(PostEntity)
-    .createQueryBuilder()
-    // .where("ts @@ to_tsquery(:searchTerm)", { words: searchTerm })
-    .where(searchTerm)
-    .skip(skipEntries)
-    .take(itemsPerPage)
-    // .orderBy("createdAt", "DESC")
-    .getManyAndCount();
+// search posts
+router.get("/page/:page/count/:count/search/:search/operator/:operator", async (req: Request, res: Response, next) => {
+  try {
+    validateSearchParams(req.params);
+    const page = +req.params.page;
+    const itemsPerPage = +req.params.count;
+    const skipEntries = page * itemsPerPage - itemsPerPage;
+    let searchTerm = "";
+    if (req.params.search) {
+      const splitSearchParams: string[] = req.params.search.trim().split(" ");
+      const operator = req.params.operator === "or" ? " | " : " & ";
 
-  res.status(200).json({ data: allSearchedPosts });
+      searchTerm = splitSearchParams
+        .map((word) => escape(word))
+        .filter(Boolean)
+        .join(operator);
+    }
+
+    const allSearchedPosts = await AppDataSource.manager
+      .getRepository(PostEntity)
+      .createQueryBuilder()
+      .where("ts @@ to_tsquery(:searchTerm)", {searchTerm: searchTerm})
+      .skip(skipEntries)
+      .take(itemsPerPage)
+      // .orderBy("createdAt", "DESC")
+      .getManyAndCount();
+
+    res.status(200).json({data: allSearchedPosts});
+  } catch (e) {
+    next(e);
+  }
 });
 
 // get all posts with paging
-router.get("/page/:page/count/:count/", async (req: Request, res: Response) => {
-  const page = +req.params.page;
-  const itemsPerPage = +req.params.count;
-  const skipEntries = page * itemsPerPage - itemsPerPage;
-  const allPosts = await AppDataSource.manager.getRepository(PostEntity).findAndCount({
-    order: {
-      createdAt: "DESC",
-    },
-    skip: skipEntries,
-    take: itemsPerPage,
-    relations: ["createdBy", "updatedBy"],
-  });
+router.get("/page/:page/count/:count/", async (req: Request, res: Response, next) => {
+  try {
+    validateSearchParams(req.params);
+    const page = +req.params.page;
+    const itemsPerPage = +req.params.count;
+    const skipEntries = page * itemsPerPage - itemsPerPage;
+    const allPosts = await AppDataSource.manager.getRepository(PostEntity).findAndCount({
+      order: {
+        createdAt: "DESC",
+      },
+      skip: skipEntries,
+      take: itemsPerPage,
+      relations: ["createdBy", "updatedBy"],
+    });
 
-  res.status(200).json({ data: allPosts });
+    res.status(200).json({data: allPosts});
+  } catch (e) {
+    next(e);
+  }
 });
 
 // GET POST BY ID WITH RELATIONS TO USER
-router.get("/:id", async (req: Request, res: Response) => {
-  const post = await AppDataSource.manager.getRepository(PostEntity).findOne({
-    where: {
-      id: +req.params.id,
-    },
-    relations: ["createdBy", "updatedBy"],
-  });
-
-  if (post === null) {
-    res.status(404).json({ error: "No such post" });
-  } else {
-    res.status(200).json({ data: post });
-  }
+router.get("/:id", async (req: Request, res: Response, next) => {
+  const post = await AppDataSource.manager
+    .getRepository(PostEntity)
+    .findOne({
+      where: {
+        id: +req.params.id,
+      },
+      relations: ["createdBy", "updatedBy"],
+    })
+    .then((result) => {
+      if (result === null) {
+        throw new NotFoundError("No post found with id " + req.params.id);
+      } else {
+        res.status(200).json({ data: post });
+      }
+    })
+    .catch((error) => {
+      next(error);
+    });
 });
 
 function convertAttachment(filename: string, buffer: Buffer, mimeType: string, post: PostEntity): AttachmentEntity {
@@ -146,16 +173,16 @@ router.post("/new", upload.single("file"), async (req: Request, res: Response) =
         postId: savedPost.id,
       };
     } else {
-      responseDto = { postId: savedPost.id, attachments: [] };
+      responseDto = {postId: savedPost.id, attachments: []};
     }
     res.status(200).send(responseDto);
   } catch (e) {
-    res.status(500).json({ error: "Fehler " + e });
+    res.status(500).json({error: "Fehler " + e});
   }
 });
 
 // EDIT EXISTING POST
-router.post("/:id", upload.single("file"), async (req: Request, res: Response) => {
+router.post("/:id", upload.single("file"), async (req: Request, res: Response, next) => {
   const post = await AppDataSource.manager.getRepository(PostEntity).findOneBy({
     id: +req.params.id,
   });
@@ -175,7 +202,7 @@ router.post("/:id", upload.single("file"), async (req: Request, res: Response) =
           updatedBy: await getUser(),
           draft: bodyJson.draft,
         })
-        .where("id = :id", { id: post.id })
+        .where("id = :id", {id: post.id})
         .execute();
 
       const fileFromRequest = req.file;
@@ -203,11 +230,11 @@ router.post("/:id", upload.single("file"), async (req: Request, res: Response) =
           postId: post.id,
         };
       } else {
-        responseDto = { postId: post.id, attachments: [] };
+        responseDto = {postId: post.id, attachments: []};
       }
       res.status(200).send(responseDto);
     } catch (e) {
-      res.status(500).json({ error: "Fehler " + e });
+      next(e);
     }
   }
 });
@@ -216,12 +243,12 @@ router.post("/:id", upload.single("file"), async (req: Request, res: Response) =
 router.get("/delete/:id", async (req: Request, res: Response) => {
   try {
     // find all attachments of post and delete them
-    await AppDataSource.manager.getRepository(AttachmentEntity).delete({ post: { id: +req.params.id } });
+    await AppDataSource.manager.getRepository(AttachmentEntity).delete({post: {id: +req.params.id}});
     // find post in DB and delete it
     const result = await AppDataSource.manager.getRepository(PostEntity).delete(+req.params.id);
     res.status(200).send(result);
   } catch (e) {
-    res.status(500).json({ error: "Fehler " + e });
+    res.status(500).json({error: "Fehler " + e});
   }
 });
 
