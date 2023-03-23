@@ -36,7 +36,7 @@ $themes: (
 }
 
 .content {
-    transition: 1s;
+    transition: .75s;
     @include theme() {
         color: theme-get("text-color") !important;
         background-color: theme-get("bg-color") !important;
@@ -45,6 +45,7 @@ $themes: (
         }
         .card {
             background-color: theme-get("card-bg-color");
+            transition: .75s;
 
             .card-body {
                 svg {
