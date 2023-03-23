@@ -8,39 +8,47 @@
         </div>
       </div>
       <div v-else-if="userInfo">
-        <div v-if="userInfo.isExisting">
-          {{ t("login.message.success", { firstname: userInfo.user.firstName, lastname: userInfo.user.lastName }) }}
-          <!-- Should never occur because redirection in line 158 -->
-        </div>
-        <div v-else>
-          <h2>{{ t("login.title") }}</h2>
-          <div style="white-space: pre-line; margin-bottom: 1rem">
-            {{ t("login.description") }}
+        <div class="row mb-2">
+          <div class="col">
+            <div class="card flex-md-row mb-4 box-shadow h-md-250">
+              <div class="card-body">
+                <div v-if="userInfo.isExisting">
+                  <!-- Should never occur because of immediate redirection -->
+                  {{ t("login.message.success", { firstname: userInfo.user.firstName, lastname: userInfo.user.lastName }) }}
+                </div>
+                <div v-else>
+                  <h2 class="display-6">{{ t("login.title") }}</h2>
+                  <div style="white-space: pre-line; margin-bottom: 1rem">
+                    {{ t("login.description") }}
+                  </div>
+                  <form>
+                    <div class="form-floating mb-3">
+                      <input class="form-control" :value="userInfo.oauthId" readonly disabled />
+                      <label for="oauthId">{{ t("login.form.label.id") }} *</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                      <input class="form-control" :value="userInfo?.user?.email" readonly disabled />
+                      <label for="email">{{ t("login.form.label.email") }} *</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                      <input class="form-control" id="username" v-model="username" required minlength="3" maxlength="64" />
+                      <label for="username">{{ t("login.form.label.username") }} *</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                      <input class="form-control" id="firstName" v-model="firstName" />
+                      <label for="firstName">{{ t("login.form.label.firstname") }}</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                      <input class="form-control" id="lastName" v-model="lastName" />
+                      <label for="lastName">{{ t("login.form.label.lastname") }}</label>
+                    </div>
+                    <input class="form-control" name="token" :value="userInfo.token" hidden />
+                    <button class="btn btn-sm btn-primary float-end" @click="register">{{ t("app.base.login") }}</button>
+                  </form>
+                </div>
+              </div>
+            </div>
           </div>
-          <form>
-            <div class="form-floating mb-2">
-              <input class="form-control" :value="userInfo.oauthId" readonly disabled />
-              <label for="oauthId">{{ t("login.form.label.id") }} *</label>
-            </div>
-            <div class="form-floating mb-2">
-              <input class="form-control" :value="userInfo?.user?.email" readonly disabled />
-              <label for="email">{{ t("login.form.label.email") }} *</label>
-            </div>
-            <div class="form-floating mb-2">
-              <input class="form-control" id="username" v-model="username" required minlength="3" maxlength="64" />
-              <label for="username">{{ t("login.form.label.username") }} *</label>
-            </div>
-            <div class="form-floating mb-2">
-              <input class="form-control" id="firstName" v-model="firstName" />
-              <label for="firstName">{{ t("login.form.label.firstname") }}</label>
-            </div>
-            <div class="form-floating mb-2">
-              <input class="form-control" id="lastName" v-model="lastName" />
-              <label for="lastName">{{ t("login.form.label.lastname") }}</label>
-            </div>
-            <input class="form-control" name="token" :value="userInfo.token" hidden />
-            <button class="btn btn-primary" @click="register">{{ t("app.base.login") }}</button>
-          </form>
         </div>
       </div>
       <div v-else>{{ t("login.user_not_found") }}</div>
@@ -54,9 +62,9 @@
 <script lang="ts">
 import LoginButton from "@client/components/LoginButton.vue";
 import router from "@client/router/index.js";
-import { loadIdToken, loadOauthStateByKey, saveIdToken } from "@client/util/storage.js";
-import type { OAuthCodeDto, OAuthUserInfoDto, SavedOAuthToken } from "@fumix/fu-blog-common";
-import { bytesToBase64URL, isNotNull, isOAuthType } from "@fumix/fu-blog-common";
+import { loadOauthStateByKey, saveIdToken } from "@client/util/storage.js";
+import type { OAuthCodeDto, OAuthUserInfoDto } from "@fumix/fu-blog-common";
+import { bytesToBase64URL, isOAuthType } from "@fumix/fu-blog-common";
 import { defineComponent, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";

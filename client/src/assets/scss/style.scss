@@ -90,4 +90,7 @@ form {
   label {
     color: $label-color;
   }
+  input:disabled+label {
+    color: $label-disabled-color;
+  }
 }

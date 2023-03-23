@@ -31,7 +31,7 @@
               </div>
 
               <div class="form-check">
-                <input v-model="form.draft" type="checkbox" id="draft" placeholder="Entwurf" />
+                <input v-model="form.draft" type="checkbox" id="draft" :placeholder="t('posts.form.draft')" />
                 <label for="draft">{{ t("posts.form.draft") }}</label>
               </div>
 
