@@ -31,7 +31,7 @@ async function getUser() {
 }
 
 // search posts
-router.get("/page/:page/count/:count/search/:search/operator/:operator", async (req: Request, res: Response, next) => {
+router.get("/page/:page([0-9]+)/count/:count([0-9]+)/search/:search/operator/:operator", async (req: Request, res: Response, next) => {
   const page = +req.params.page;
   const itemsPerPage = +req.params.count;
   const skipEntries = page * itemsPerPage - itemsPerPage;

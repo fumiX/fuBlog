@@ -1,47 +1,60 @@
 import express, { Request, Response, Router } from "express";
 import { AppDataSource } from "../data-source.js";
 import { AttachmentEntity } from "../entity/Attachment.entity.js";
+import { NotFoundError } from "../errors/NotFoundError.js";
 
 const router: Router = express.Router();
 
 // get attachments associated to post
-router.get("/post/:id", async (req: Request, res: Response) => {
+router.get("/post/:id([0-9]+)", async (req: Request, res: Response, next) => {
   const postId = +req.params.id;
-  const foundAttachments = await AppDataSource.manager.getRepository(AttachmentEntity).findBy({
-    post: {
-      id: postId,
-    },
-  });
-
-  if (foundAttachments != null) {
-    res.status(200).json({ data: foundAttachments });
-  } else {
-    res.sendStatus(404);
-  }
+  await AppDataSource.manager
+    .getRepository(AttachmentEntity)
+    .findBy({
+      post: {
+        id: postId,
+      },
+    })
+    .then((result) => {
+      if (result) {
+        return res.status(200).json({ data: result });
+      } else {
+        throw new NotFoundError("No attachment found");
+      }
+    })
+    .catch((err) => next(err));
 });
 
 // get specific attachment
-router.get("/attachment/:id", async (req: Request, res: Response) => {
+router.get("/attachment/:id([0-9]+)", async (req: Request, res: Response, next) => {
   const attachmentId = +req.params.id;
-  const foundAttachment = await AppDataSource.manager.getRepository(AttachmentEntity).findOneBy({ id: attachmentId });
-
-  if (foundAttachment != null) {
-    res.status(200).json({ data: foundAttachment });
-  } else {
-    res.sendStatus(404);
-  }
+  await AppDataSource.manager
+    .getRepository(AttachmentEntity)
+    .findOneBy({ id: attachmentId })
+    .then((result) => {
+      if (result) {
+        return res.status(200).json({ data: result });
+      } else {
+        throw new NotFoundError("No attachment found");
+      }
+    })
+    .catch((err) => next(err));
 });
 
 // get single attachment as binary data, file name is arbitrary
-router.get("/attachment/:id/:filename", async (req: Request, res: Response) => {
+router.get("/attachment/:id([0-9]+)/:filename", async (req: Request, res: Response, next) => {
   const attachmentId = +req.params.id;
-  const foundAttachment = await AppDataSource.manager.getRepository(AttachmentEntity).findOneBy({ id: attachmentId });
-
-  if (foundAttachment != null) {
-    res.type(foundAttachment.mimeType).status(200).send(foundAttachment.binaryData);
-  } else {
-    res.sendStatus(404);
-  }
+  await AppDataSource.manager
+    .getRepository(AttachmentEntity)
+    .findOneBy({ id: attachmentId })
+    .then((result) => {
+      if (result) {
+        return res.type(result.mimeType).status(200).send(result.binaryData);
+      } else {
+        throw new NotFoundError("No attachment found");
+      }
+    })
+    .catch((err) => next(err));
 });
 
 export default router;
