@@ -30,13 +30,24 @@
                 <div id="markdownHelp" class="form-text">{{ t("posts.form.message.hint") }}</div>
               </div>
 
-              <div class="form-check">
-                <input v-model="form.draft" type="checkbox" id="draft" :placeholder="t('posts.form.draft')" />
-                <label for="draft">{{ t("posts.form.draft") }}</label>
+              <!-- <div class="form-control file-upload">
+                <input type="file" id="file" ref="file" v-on:change="handleFileChange($event)" accept="image/png, image/jpeg" />
+              </div> -->
+              <div class="mb-3">
+                <label for="formFile" class="form-label">{{ t("posts.form.imageupload") }}</label>
+                <input
+                  class="form-control"
+                  type="file"
+                  id="file"
+                  ref="file"
+                  v-on:change="handleFileChange($event)"
+                  accept="image/png, image/jpeg"
+                />
               </div>
 
-              <div class="file-upload">
-                <input type="file" id="file" ref="file" v-on:change="handleFileChange($event)" accept="image/png, image/jpeg" />
+              <div class="form-check form-switch">
+                <input v-model="form.draft" class="form-check-input" type="checkbox" id="draft" />
+                <label class="form-check-label" for="draft">{{ t("posts.form.draft") }}</label>
               </div>
 
               <button type="submit" class="btn btn-sm btn-primary float-end">{{ t("app.base.save") }}</button>

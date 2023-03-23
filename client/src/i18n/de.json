@@ -37,7 +37,8 @@
       },
       "preview": {
         "title": "Vorschau"
-      }
+      },
+      "imageupload": "Bild hochladen"
     },
     "confirm": {
       "title": "Löschen bestätigen",

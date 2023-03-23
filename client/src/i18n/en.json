@@ -37,7 +37,8 @@
       },
       "preview": {
         "title": "Preview"
-      }
+      },
+      "imageupload": "Upload image"
     },
     "confirm": {
       "title": "Confirm deletion",
