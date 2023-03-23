@@ -15,10 +15,8 @@
               <table class="table text-center table-bordered" aria-labelledby="h2">
                 <thead>
                   <tr>
-                    <th rowspan="2" scope="col">{{ t("admin.table.columns.username") }}</th>
-                    <th rowspan="2" scope="col">{{ t("admin.table.columns.name_and_email") }}</th>
+                    <th rowspan="2" scope="col">{{ t("admin.table.columns.user") }}</th>
                     <th rowspan="2" scope="col">{{ t("admin.table.columns.roles") }}</th>
-                    <th rowspan="2" scope="col" v-if="props.userPermissions?.canEditUserRoles"></th>
                     <th scope="col">{{ t("admin.table.columns.user") }}</th>
                     <th colspan="3" scope="col">{{ t("admin.table.columns.posts") }}</th>
                   </tr>
@@ -33,16 +31,16 @@
                 </thead>
                 <tbody>
                   <tr v-for="user in users" v-bind:key="user.id">
-                    <th scope="row" class="text-start">
+                    <th scope="row" class="d-flex flex-row fw-normal align-items-center">
                       <span class="profileWrapper">
                         <img v-if="user.profilePictureUrl" :src="user.profilePictureUrl" style="max-width: 3rem; max-height: 3rem" />
                       </span>
-                      <span class="mx-4">{{ user.username }}</span>
+                      <div class="d-flex flex-column ps-3 align-items-start">
+                        <strong>@{{ user.username }}</strong>
+                        <span>{{ user.fullName }}</span>
+                        <code>{{ user.email }}</code>
+                      </div>
                     </th>
-                    <td>
-                      {{ user.fullName ?? "" }}<br />
-                      <code>{{ user.email }}</code>
-                    </td>
                     <td>
                       <div class="d-flex justify-content-between align-items-start">
                         <span style="display: inline-block" class="align-top">
@@ -50,21 +48,23 @@
                             <span class="badge rounded-pill text-bg-secondary">{{ role }}</span>
                           </span>
                         </span>
+                        <button
+                          class="btn btn-outline-primary btn-sm ml-2"
+                          @click="setEditUser(user)"
+                          v-if="props.userPermissions?.canEditUserRoles"
+                        >
+                          <fa-icon :icon="faPencil" />
+                        </button>
                       </div>
-                    </td>
-                    <td style="vertical-align: middle" v-if="props.userPermissions?.canEditUserRoles">
-                      <button class="btn btn-outline-primary btn-sm ml-2" @click="setEditUser(user)">
-                        <fa-icon :icon="faPencil" />
-                      </button>
                     </td>
                     <td
                       style="vertical-align: middle"
-                      v-for="(value, index) in [
-                        user.permissions?.canEditUserRoles,
-                        user.permissions?.canCreatePost,
-                        user.permissions?.canEditPost,
-                        user.permissions?.canDeletePost,
-                      ]"
+                      v-for="(value, index) in ((permissions) => [
+                        permissions.canEditUserRoles,
+                        permissions.canCreatePost,
+                        permissions.canEditPost,
+                        permissions.canDeletePost,
+                      ])(permissionsForUser(user))"
                       v-bind:key="index"
                       :class="' bg-opacity-25 fs-6'"
                     >
@@ -100,15 +100,14 @@
 </style>
 
 <script lang="ts">
-import { useI18n } from "vue-i18n";
-import type { PropType } from "vue";
 import BooleanDisplay from "@client/components/BooleanDisplay.vue";
 import MultiselectDialog from "@client/components/MultiselectDialog.vue";
 import { faPencil } from "@fortawesome/free-solid-svg-icons";
-import type { User } from "@fumix/fu-blog-common";
-import { permissionsForUser } from "@fumix/fu-blog-common";
+import type { User, UserRolePermissionsType } from "@fumix/fu-blog-common";
+import { permissionsForUser, UserRoles } from "@fumix/fu-blog-common";
+import type { PropType } from "vue";
 import { defineComponent, ref } from "vue";
-import type { UserRolePermissionsType } from "@fumix/fu-blog-common";
+import { useI18n } from "vue-i18n";
 
 export default defineComponent({
   name: "UsersView",
@@ -164,8 +163,7 @@ export default defineComponent({
       this.loading = false;
     },
     getAllRoles(): string[] {
-      // TODO: Get all available Roles from endpoint
-      return ["ADMIN", "POST_CREATE", "POST_EDIT", "POST_DELETE"];
+      return Object.keys(UserRoles);
     },
 
     async send(id: number | undefined, roles: string[]) {

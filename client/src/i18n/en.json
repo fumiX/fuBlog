@@ -49,10 +49,9 @@
     "title": "User Management",
     "table": {
       "columns": {
-        "username": "Username",
+        "user": "User",
         "name_and_email": "Name & E-Mail",
         "roles": "Roles",
-        "user": "User",
         "posts": "Posts",
         "permissions": {
           "edit_rights": "Edit Rights",

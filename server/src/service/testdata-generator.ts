@@ -96,7 +96,7 @@ export async function createRandomUser(seed?: number): Promise<UserEntity> {
       username: faker.internet.userName(firstName, lastName),
       email: faker.internet.email(firstName, lastName),
       fullName,
-      roles: faker.helpers.arrayElement([["ADMIN", "POST_CREATE"], ["POST_CREATE"], ["POST_CREATE", "POST_EDIT"], []]),
+      roles: faker.helpers.arrayElement([["ADMIN"], ["WRITER"], ["EDITOR", "WRITER"], ["EDITOR"], []]),
       profilePictureUrl,
       isActive: true,
     };

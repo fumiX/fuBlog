@@ -49,10 +49,8 @@
     "title": "Benutzerverwaltung",
     "table": {
       "columns": {
-        "username": "Benutzername",
-        "name_and_email": "Name & E-Mail",
+        "user": "Benutzer",
         "roles": "Rollen",
-        "user": "Nutzer",
         "posts": "Posts",
         "permissions": {
           "edit_rights": "Rechte bearbeiten",
