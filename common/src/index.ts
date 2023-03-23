@@ -1,6 +1,5 @@
 export * from "./confirmdialog.js";
 export * from "./dto/OAuthProvidersDto.js";
-export * from "./dto/UserDto.js";
 export * from "./dto/oauth/OAuthCodeDto.js";
 export * from "./dto/oauth/OAuthType.js";
 export * from "./dto/oauth/OAuthUserInfoDto.js";
@@ -16,3 +15,4 @@ export * from "./entity/permission/UserRolePermissions.js";
 export * from "./markdown-converter-common.js";
 export * from "./util/base64.js";
 export * from "./util/type-guard.js";
+export * from "./util/username.js";

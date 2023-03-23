@@ -57,17 +57,16 @@
 </style>
 
 <script lang="ts">
-import LoginButton from "@client/components/LoginButton.vue";
 import LightDarkToggler from "@client/components/LightDarkToggler.vue";
+import LoginButton from "@client/components/LoginButton.vue";
+import SearchComponent from "@client/components/SearchComponent.vue";
+import UserName from "@client/components/UserName.vue";
 import { loadIdToken, saveIdToken } from "@client/util/storage.js";
-import type { SavedOAuthToken, User, UserDto, UserRolePermissionsType } from "@fumix/fu-blog-common";
+import type { SavedOAuthToken, User, UserRolePermissionsType } from "@fumix/fu-blog-common";
 import { permissionsForUser } from "@fumix/fu-blog-common";
-import { Buffer } from "buffer";
 import { defineComponent, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
-import SearchComponent from "./components/SearchComponent.vue";
-import UserName from "./components/UserName.vue";
 
 export default defineComponent({
   components: { LoginButton, SearchComponent, UserName, LightDarkToggler },
@@ -76,7 +75,7 @@ export default defineComponent({
     const route = useRoute();
     const searchQuery = ref<string>("");
     const router = useRouter();
-    const loggedInUser = ref<UserDto | null>(null);
+    const loggedInUser = ref<User | null>(null);
     const userPermissions = ref<UserRolePermissionsType | null>(null);
     const cssTheme = ref<string | null>(null);
 
@@ -84,7 +83,7 @@ export default defineComponent({
       router.replace({ query: { ...route.query, operator: operator } });
     };
 
-    const getLoggedInUser = async (): Promise<UserDto> => {
+    const getLoggedInUser = async (): Promise<User> => {
       const tokenObj: SavedOAuthToken | undefined = loadIdToken();
 
       const requestOptions = {
@@ -97,17 +96,12 @@ export default defineComponent({
       const response = await fetch(postUrl, requestOptions);
       const data = await response.json();
 
-      if (data) {
-        data.user.profilePictureUrl = data.user.profilePicture
-          ? "data:image/jpeg;base64," + Buffer.from(data.user.profilePicture).toString("base64")
-          : undefined;
-      }
       return data.user;
     };
 
     const setLoginUSerAndPermissions = async () => {
       loggedInUser.value = await getLoggedInUser();
-      userPermissions.value = permissionsForUser(loggedInUser.value as User);
+      userPermissions.value = permissionsForUser(loggedInUser.value);
     };
 
     watch(route, async (value) => {

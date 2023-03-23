@@ -1,6 +1,6 @@
 import { Sex } from "@faker-js/faker";
 import { faker } from "@faker-js/faker/locale/de";
-import { OAuthAccount } from "@fumix/fu-blog-common";
+import { DataUrl, imageBytesToDataUrl, isNeitherNullNorUndefined, OAuthAccount } from "@fumix/fu-blog-common";
 import console from "console";
 import { AppDataSource } from "../data-source.js";
 import { AttachmentEntity } from "../entity/Attachment.entity.js";
@@ -79,21 +79,25 @@ export async function createRandomUser(seed?: number): Promise<UserEntity> {
     const sex = faker.helpers.arrayElement([Sex.Male, Sex.Female]);
     const firstName = faker.name.firstName(sex);
     const lastName = faker.name.lastName();
-    console.debug(`Generating 🧑 ${firstName} ${lastName}`);
-    const profilePicture: Uint8Array | undefined = await (
-      await faker.helpers.maybe(() => generateProfilePicture(faker.datatype.number(), sex), {
-        probability: 0.8,
-      })
-    )
-      ?.arrayBuffer()
-      ?.then((ab) => new Uint8Array(ab));
+    const fullName = [firstName, faker.helpers.maybe(() => faker.name.middleName(), { probability: 0.7 }), lastName]
+      .filter(isNeitherNullNorUndefined)
+      .join(" ");
+    console.debug(`Generating 🧑 ${fullName}`);
+    const profilePictureUrl: DataUrl | undefined = imageBytesToDataUrl(
+      await (
+        await faker.helpers.maybe(() => generateProfilePicture(faker.datatype.number(), sex), {
+          probability: 0.8,
+        })
+      )
+        ?.arrayBuffer()
+        ?.then((ab) => new Uint8Array(ab)),
+    );
     const user: UserEntity = {
       username: faker.internet.userName(firstName, lastName),
       email: faker.internet.email(firstName, lastName),
-      firstName: firstName,
-      lastName: lastName,
+      fullName,
       roles: faker.helpers.arrayElement([["ADMIN", "POST_CREATE"], ["POST_CREATE"], ["POST_CREATE", "POST_EDIT"], []]),
-      profilePicture,
+      profilePictureUrl,
       isActive: true,
     };
     return AppDataSource.manager.getRepository(UserEntity).save(user);
@@ -113,7 +117,7 @@ export async function createRandomPost(createdBy: UserEntity, seed?: number): Pr
     const dirty = faker.lorem.sentences(29);
     const sanitized = await MarkdownConverterServer.Instance.convert(dirty);
     const title = faker.lorem.sentence(4);
-    console.debug(`Generating 🖺 ${title} (by ${createdBy.firstName})`);
+    console.debug(`Generating 🖺 ${title} (by ${createdBy.fullName})`);
     const post: PostEntity = {
       title,
       description: faker.lorem.sentences(8),

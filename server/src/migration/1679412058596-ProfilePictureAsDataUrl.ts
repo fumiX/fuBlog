@@ -3,9 +3,7 @@ import { UserEntity } from "../entity/User.entity.js";
 
 export class ProfilePictureAsDataUrl1679412058596 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.manager.update(UserEntity, true, {
-      firstName: () => 'CONCAT("firstName", "lastName")',
-    });
+    await queryRunner.query('UPDATE "user" SET "firstName" = "user"."firstName" || \' \' || "user"."lastName"');
     await queryRunner.changeColumns("user", [
       {
         oldColumn: new TableColumn({

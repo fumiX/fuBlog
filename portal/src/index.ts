@@ -56,6 +56,7 @@ app.get("/.well-known/openid-configuration", (req, res) => {
       response_types_supported: ["code", "token", "id_token"],
       token_endpoint_auth_methods_supported: ["client_secret_post"],
       userinfo_endpoint: `https://localhost:${port}${userinfoPath}`,
+      scopes_supported: ["openid", "email", "profile"],
     });
 });
 

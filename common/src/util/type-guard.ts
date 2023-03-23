@@ -1,4 +1,4 @@
-export const isNotNull: <T>(x: T) => x is NonNullable<T> = <T>(x: T): x is NonNullable<T> => !!x;
+export const isNeitherNullNorUndefined: <T>(x: T) => x is NonNullable<T> = <T>(x: T): x is NonNullable<T> => !!x;
 
 /**
  * Insert this at any point in the code, which should be intentionally unreachable.

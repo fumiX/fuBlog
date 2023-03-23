@@ -13,7 +13,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      "@common": fileURLToPath(new URL("../common/src", import.meta.url)),
+      "@common": fileURLToPath(new URL("../common/dist", import.meta.url)),
       "@client": fileURLToPath(new URL("./src", import.meta.url)),
       stream: "stream-browserify",
       buffer: "buffer",

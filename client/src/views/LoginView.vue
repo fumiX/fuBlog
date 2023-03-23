@@ -7,14 +7,14 @@
           <span class="visually-hidden">Loading...</span>
         </div>
       </div>
-      <div v-else-if="userInfo">
+      <div v-else-if="userInfo?.user">
         <div class="row mb-2">
           <div class="col">
             <div class="card flex-md-row mb-4 box-shadow h-md-250">
               <div class="card-body">
                 <div v-if="userInfo.isExisting">
                   <!-- Should never occur because of immediate redirection -->
-                  {{ t("login.message.success", { firstname: userInfo.user.firstName, lastname: userInfo.user.lastName }) }}
+                  {{ t("login.message.success", { fullname: userInfo.user.fullName ?? userInfo.user.email }) }}
                 </div>
                 <div v-else>
                   <h2 class="display-6">{{ t("login.title") }}</h2>
@@ -22,6 +22,7 @@
                     {{ t("login.description") }}
                   </div>
                   <form>
+                    <img v-if="userInfo.user.profilePictureUrl" :src="userInfo.user.profilePictureUrl" class="img-thumbnail m-2" />
                     <div class="form-floating mb-3">
                       <input class="form-control" :value="userInfo.oauthId" readonly disabled />
                       <label for="oauthId">{{ t("login.form.label.id") }} *</label>
@@ -34,13 +35,9 @@
                       <input class="form-control" id="username" v-model="username" required minlength="3" maxlength="64" />
                       <label for="username">{{ t("login.form.label.username") }} *</label>
                     </div>
-                    <div class="form-floating mb-3">
-                      <input class="form-control" id="firstName" v-model="firstName" />
-                      <label for="firstName">{{ t("login.form.label.firstname") }}</label>
-                    </div>
-                    <div class="form-floating mb-3">
-                      <input class="form-control" id="lastName" v-model="lastName" />
-                      <label for="lastName">{{ t("login.form.label.lastname") }}</label>
+                    <div class="form-floating mb-2">
+                      <input class="form-control" id="fullName" v-model="fullName" />
+                      <label for="fullName">{{ t("login.form.label.fullname") }}</label>
                     </div>
                     <input class="form-control" name="token" :value="userInfo.token" hidden />
                     <button class="btn btn-sm btn-primary float-end" @click="register">{{ t("app.base.login") }}</button>
@@ -52,9 +49,6 @@
         </div>
       </div>
       <div v-else>{{ t("login.user_not_found") }}</div>
-    </div>
-    <div v-else>
-      <span v-on:load="redir()">X</span>
     </div>
   </div>
 </template>
@@ -79,9 +73,8 @@ export default defineComponent({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          saved_token: this.userInfo?.token,
-          first_name: this.firstName,
-          last_name: this.lastName,
+          savedToken: this.userInfo?.token,
+          fullName: this.fullName,
           username: this.username,
         }),
       }).then(async (it) => {
@@ -91,9 +84,6 @@ export default defineComponent({
           this.userInfo = registeredUserInfo;
         }
       });
-    },
-    redir() {
-      console.log("Redirecting");
     },
     router() {
       return router;
@@ -121,8 +111,7 @@ export default defineComponent({
     const route = useRoute();
     const userInfo = ref<OAuthUserInfoDto | undefined>(undefined);
     const username = ref<string>("");
-    const firstName = ref<string>("");
-    const lastName = ref<string>("");
+    const fullName = ref<string>("");
     const stateParam: string = "" + route.query.state;
     const [returnedType, returnedIssuer, returnedStateKey] = stateParam.split("/");
 
@@ -138,8 +127,7 @@ export default defineComponent({
       loading: ref(true),
       userInfo,
       username,
-      firstName,
-      lastName,
+      fullName,
       code: route.query.code,
       redirect: route.query.redirect,
       returnedType: isOAuthType(returnedType) ? returnedType : null,
@@ -159,8 +147,7 @@ export default defineComponent({
         });
         this.userInfo = await res.json();
         this.username = this.userInfo?.user?.username ?? "";
-        this.firstName = this.userInfo?.user?.firstName ?? "";
-        this.lastName = this.userInfo?.user?.lastName ?? "";
+        this.fullName = this.userInfo?.user?.fullName ?? "";
         if (this.userInfo?.isExisting) {
           saveIdToken(this.userInfo.token);
           this.$router.push(`/`);
@@ -174,5 +161,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style scoped></style>

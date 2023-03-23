@@ -3,7 +3,7 @@ import {
   FakeOAuthProvider,
   GitlabOAuthProvider,
   GoogleOAuthProvider,
-  isNotNull,
+  isNeitherNullNorUndefined,
   isOAuthType,
   OAUTH_TYPES,
   OAuthProvider,
@@ -51,7 +51,7 @@ function loadGroupedOAuthEnvVars(envDictionary: Dict<string>): GroupedOAuthEnvVa
       }
       return null;
     })
-    .filter<OAuthEnvVar>(isNotNull)
+    .filter<OAuthEnvVar>(isNeitherNullNorUndefined)
     .reduce<GroupedOAuthEnvVars>((acc: GroupedOAuthEnvVars, v) => {
       // Get existing value in accumulator, or create empty one
       const type = acc[v.type] || [];
@@ -68,11 +68,10 @@ function loadGroupedOAuthEnvVars(envDictionary: Dict<string>): GroupedOAuthEnvVa
 
 export function loadOAuthProvidersFromEnv() {
   const loadedVars: GroupedOAuthEnvVars = loadGroupedOAuthEnvVars(process.env);
-  const providers = OAUTH_TYPES.flatMap<OAuthProvider<OAuthType>>((type) => {
+  const providers = OAUTH_TYPES.flatMap<OAuthProvider<OAuthType>>((type: OAuthType) => {
     const value = loadedVars[type] || {};
     return (Object.keys(value) as unknown as Array<number>)
       .map((i) => {
-        console.log(`Index ${i}`);
         const clientId: string | undefined = value[i]["CLIENT_ID"];
         const clientSecret: string | undefined = value[i]["CLIENT_SECRET"];
         const issuer: string | undefined = value[i]["ISSUER"];
@@ -100,16 +99,18 @@ export function loadOAuthProvidersFromEnv() {
         }
         assertUnreachable(type);
       })
-      .filter(isNotNull);
+      .filter(isNeitherNullNorUndefined);
   });
-  if (!AppSettings.IS_PRODUCTION && !providers.some((it) => it.type === "FAKE")) {
+  if (!AppSettings.IS_PRODUCTION && !providers.some((it: OAuthProvider<OAuthType>) => it.type === "FAKE")) {
     providers.push(new FakeOAuthProvider());
   }
   return providers.filter((it, i, arr) => {
     if (arr.findIndex((a) => it.getIdentifier() === a.getIdentifier()) === i) {
       console.log(`Initialized OAuthProvider ${it.getIdentifier()}`);
+      return true;
     } else {
       console.error(`Duplicate OAuthProvider ${it.getIdentifier()}! This one is being ignored!`);
+      return false;
     }
   });
 }

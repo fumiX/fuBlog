@@ -37,11 +37,10 @@ export async function createOAuthAccount(id: string, provider: OAuthProvider<OAu
   return getRepositoryFor(OAuthAccountEntity).save(account);
 }
 
-export function createUser(username: string, email: string, roles: UserRole[], firstName?: string, lastName?: string) {
+export function createUser(username: string, email: string, roles: UserRole[], fullName?: string) {
   const user: UserEntity = {
     username,
-    firstName,
-    lastName,
+    fullName,
     email,
     roles,
     isActive: true,

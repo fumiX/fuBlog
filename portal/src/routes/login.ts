@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker/locale/de";
+import { isNeitherNullNorUndefined } from "@fumix/fu-blog-common";
 import { OAuthAccountEntity } from "@fumix/fu-blog-server/dist/src/entity/OAuthAccount.entity.js";
 import { UserEntity } from "@fumix/fu-blog-server/dist/src/entity/User.entity.js";
 import express, { Router } from "express";
@@ -20,14 +21,7 @@ router.get("/", async (req, res) => {
       code: faker.random.alphaNumeric(20),
     };
 
-    userInfosById[acc.oauthId] = Object.assign(prev, {
-      profile: {
-        given_name: acc.user.firstName,
-        family_name: acc.user.lastName,
-        email: acc.user.email,
-        profilePicture: acc.user.profilePicture,
-      },
-    });
+    userInfosById[acc.oauthId] = Object.assign(prev, { profile: acc.user });
   });
   const nonOauthDbUsers = await dataSource
     .createQueryBuilder(UserEntity, "u")
@@ -40,19 +34,18 @@ router.get("/", async (req, res) => {
     '<ul class="row">' +
     dbUserAccounts
       .map((it) => {
-        const pfp = userInfosById[it.oauthId].profile.profilePicture;
-        const pfpDataUrl = pfp
-          ? `<img src="data:image/png;base64,${Buffer.from(pfp).toString(
-              "base64",
-            )}" class="card-img-top" style="max-width: 6rem;margin: -3rem auto 0;border-radius: 2.5rem;"/>`
+        const pfp = userInfosById[it.oauthId].profile.profilePictureUrl;
+        const pfpHtml = pfp
+          ? `<img src="${pfp}" class="card-img-top" style="max-width: 6rem;margin: -3rem auto 0;border-radius: 2.5rem;"/>`
           : "";
-        return `<li class="col-md-3" style="list-style:none;margin-top:4rem">
+        return `<li class="col-lg-3 col-md-6" style="list-style:none;margin-top:4rem">
           <div class="card">
-            ${pfpDataUrl}
+            ${pfpHtml}
             <form method="get" action="${req.query.redirect_uri}" class="card-body">
               <span>ID <code>${it.oauthId}</code></span><br>
-              <span>${userInfosById[it.oauthId].profile.given_name} ${userInfosById[it.oauthId].profile.family_name} </span><br>
+              <span>${userInfosById[it.oauthId].profile.fullName}</span><br>
               <span>Code <code>${userInfosById[it.oauthId].code}</code></span><br>
+              ${it.user.roles.map((r) => '<span class="badge rounded-pill text-bg-info m-1">' + r + "</span>").join("")}<br>
               <a class="btn btn-outline-primary" href="${req.query.redirect_uri}?state=${req.query.state ?? ""}&code=${
           userInfosById[it.oauthId].code
         }">Login</a>
@@ -66,15 +59,13 @@ router.get("/", async (req, res) => {
   const nonOAuthUsersHTML =
     '<ul class="row">' +
     nonOauthDbUsers.map((acc) => {
-      const pfp = acc.profilePicture;
-      const pfpDataUrl = pfp
-        ? `<img src="data:image/png;base64,${Buffer.from(pfp).toString(
-            "base64",
-          )}" class="card-img-top" style="max-width: 6rem;margin: -3rem auto 0;border-radius: 2.5rem;"/>`
+      const pfp = acc.profilePictureUrl;
+      const pfpHtml = pfp
+        ? `<img src="${pfp}" class="card-img-top" style="max-width: 6rem;margin: -3rem auto 0;border-radius: 2.5rem;"/>`
         : "";
       return `<li class="col-md-3" style="list-style: none;margin-top:4rem">
         <div class="card">
-          ${pfpDataUrl}
+          ${pfpHtml}
           <form method="post" action="?" class="card-body">
             <div class="form-floating mb-2">
               <input id="userId" name="userId" class="form-control" placeholder required value="${faker.random.alphaNumeric(20)}">
@@ -84,8 +75,7 @@ router.get("/", async (req, res) => {
               <input id="code" name="code" class="form-control" placeholder required value="${faker.random.alphaNumeric(20)}">
               <label for="userId">Code</label>
             </div>
-            <input name="firstName" value="${acc.firstName ?? ""}" readonly class="form-control-plaintext">
-            <input name="lastName" value="${acc.lastName ?? ""}" readonly class="form-control-plaintext">
+            <input name="fullName" value="${acc.fullName ?? ""}" readonly class="form-control-plaintext">
             <input name="email" value="${acc.email}" readonly class="form-control-plaintext">
             <input type="hidden" value="${req.query.state ?? ""}" name="state" readonly/>
             <input type="hidden" value="${req.query.redirect_uri ?? ""}" name="redirectUri" readonly/>
@@ -100,8 +90,11 @@ router.get("/", async (req, res) => {
   if (!redirectUri || !redirectUri.match(/^https?:\/\//)) {
     res.status(400).json({ error: "Query parameter redirect_uri missing!" });
   } else {
-    const firstName = faker.name.firstName();
+    const sex = faker.name.sexType();
+    const firstName = faker.name.firstName(sex);
+    const middleName = faker.helpers.maybe(() => faker.name.middleName(), { probability: 0.7 });
     const lastName = faker.name.lastName();
+    const fullName = [firstName, middleName, lastName].filter(isNeitherNullNorUndefined).join(" ");
     const email = faker.internet.email(firstName, lastName);
     res
       .status(200)
@@ -129,12 +122,8 @@ router.get("/", async (req, res) => {
       <label for="email">E-Mail</label>
     </div>
     <div class="form-floating mb-2">
-      <input id="firstName" name="firstName" class="form-control" type="text" value="${firstName}">
-      <label for="firstName">First name</label>
-    </div>
-    <div class="form-floating mb-2">
-      <input id="lastName" name="lastName" class="form-control" type="text" value="${lastName}">
-      <label for="lastName">Last name</label>
+      <input id="fullName" name="fullName" class="form-control" type="text" value="${fullName}">
+      <label for="fullName">Full name</label>
     </div>
 
     <input class="btn btn-primary btn-lg" type="submit" value="Anmelden">
@@ -170,16 +159,15 @@ router.get("/", async (req, res) => {
   }
 });
 router.post("/", (req, res) => {
-  saveUser(req.body.userId, req.body.code, req.body.firstName, req.body.lastName, req.body.email);
+  saveUser(req.body.userId, req.body.code, req.body.fullName, req.body.email);
   res.status(302).redirect(`${req.body.redirectUri}?code=${encodeURIComponent(req.body.code)}&state=${encodeURIComponent(req.body.state)}`);
 });
 
-function saveUser(userId: string, code: string, firstName: string, lastName: string, email: string) {
+function saveUser(userId: string, code: string, fullName: string, email: string) {
   userInfosById[userId] = {
     code,
     profile: {
-      given_name: firstName,
-      family_name: lastName,
+      fullName,
       email,
     },
   };

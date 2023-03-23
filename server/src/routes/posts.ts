@@ -19,8 +19,7 @@ async function getUser() {
     const user: UserEntity = {
       username: "AlfredENeumann",
       email: email,
-      firstName: "Alfred E.",
-      lastName: "Neumann",
+      fullName: "Alfred E. Neumann",
       roles: ["ADMIN", "POST_CREATE"],
       isActive: true,
     };

@@ -40,7 +40,7 @@
                       <span class="mx-4">{{ user.username }}</span>
                     </th>
                     <td>
-                      {{ user.firstName }} {{ user.lastName }}<br />
+                      {{ user.fullName ?? "" }}<br />
                       <code>{{ user.email }}</code>
                     </td>
                     <td>
@@ -105,7 +105,7 @@ import type { PropType } from "vue";
 import BooleanDisplay from "@client/components/BooleanDisplay.vue";
 import MultiselectDialog from "@client/components/MultiselectDialog.vue";
 import { faPencil } from "@fortawesome/free-solid-svg-icons";
-import type { UserDto } from "@fumix/fu-blog-common";
+import type { User } from "@fumix/fu-blog-common";
 import { permissionsForUser } from "@fumix/fu-blog-common";
 import { defineComponent, ref } from "vue";
 import type { UserRolePermissionsType } from "@fumix/fu-blog-common";
@@ -128,8 +128,8 @@ export default defineComponent({
     return {
       showModal: ref(false),
       loading: ref(true),
-      users: ref<UserDto[]>([]),
-      editUser: ref<UserDto | null>(null),
+      users: ref<User[]>([]),
+      editUser: ref<User | null>(null),
       permissionsForUser: permissionsForUser,
       faPencil,
       props,
@@ -146,7 +146,7 @@ export default defineComponent({
       this.closeDialog();
       this.loadList();
     },
-    setEditUser(user: UserDto) {
+    setEditUser(user: User) {
       this.editUser = user;
       this.showModal = true;
     },
@@ -160,7 +160,7 @@ export default defineComponent({
         method: "GET",
       });
       const response = await fetch(authUrlRequest);
-      this.users = (await response.json()) as UserDto[];
+      this.users = (await response.json()) as User[];
       this.loading = false;
     },
     getAllRoles(): string[] {

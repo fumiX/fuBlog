@@ -18,7 +18,7 @@
     "generate-ca": "node certs/generate.mjs",
     "lint": "prettier --check --config .prettierrc '*/src/**/*.(ts|vue)' && npm run --workspaces lint",
     "lintfix": "prettier --config .prettierrc '*/src/**/*.(ts|vue)' --write && npm run --workspaces lint --fix",
-    "start": "npm run generate-ca && docker compose up -d && NODE_ENV='development' concurrently \"npm run start-portal\" \"npm run start-client\" \"npm run start-server\"",
+    "start": "npm run generate-ca && docker compose up -d && NODE_ENV='development' concurrently -c yellow,blue,red -n portal,client,server \"npm run start-portal\" \"npm run start-client\" \"npm run start-server\"",
     "start-client": "npm run dev --workspace client",
     "start-portal": "npm start --workspace portal",
     "start-server": "npm run dev --workspace server",
