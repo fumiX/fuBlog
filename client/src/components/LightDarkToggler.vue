@@ -53,7 +53,7 @@ onMounted(() => setTheme(userTheme.value));
 }
 
 :root {
-  --element-size: 4rem;
+  --element-size: 3rem;
   --background-color-primary: #ebebeb;
   --background-color-secondary: #fafafa;
   --accent-color: #cacaca;

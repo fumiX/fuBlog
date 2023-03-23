@@ -32,7 +32,7 @@
               <user-name v-else :user="loggedInUser" @logout="logoutUser($event)"></user-name>
             </div>
 
-            <light-dark-toggler @theme-changed="cssTheme = $event"></light-dark-toggler>
+            <light-dark-toggler @theme-changed="cssTheme = $event" style="margin-right: 2.5rem"></light-dark-toggler>
 
             <search-component
               :searchString="searchQuery"
