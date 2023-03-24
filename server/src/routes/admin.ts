@@ -1,15 +1,28 @@
+import { toProviderId, UserWithOAuthProviders } from "@fumix/fu-blog-common";
+import console from "console";
+import { OAuthAccountEntity } from "../entity/OAuthAccount.entity.js";
 import express, { Request, Response, Router } from "express";
 import { AppDataSource } from "../data-source.js";
-import { UserEntity } from "../entity/User.entity.js";
 
 const router: Router = express.Router();
 
 router.get("/users", async (req, res, next) => {
   await AppDataSource.manager
-    .getRepository(UserEntity)
-    .find({ order: { id: "ASC" } })
+    .getRepository(OAuthAccountEntity)
+    .find({ relations: { user: true }, order: { user: { id: "ASC" } } })
     .then((result) => {
-      return res.status(200).json(result);
+      return res.status(200).json(
+        result
+          .reduce((acc, it) => {
+            if (it.user.id) {
+              const existingUser = acc[it.user.id] ?? Object.assign(it.user, { oauthProviders: [] });
+              existingUser.oauthProviders.push(toProviderId(it));
+              acc[it.user.id] = existingUser;
+            }
+            return acc;
+          }, [] as UserWithOAuthProviders[])
+          .filter((it) => it != null),
+      );
     })
     .catch((err) => next(err));
 });

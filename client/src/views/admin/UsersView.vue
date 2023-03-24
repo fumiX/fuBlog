@@ -16,6 +16,7 @@
                 <thead>
                   <tr>
                     <th rowspan="2" scope="col">{{ t("admin.table.columns.user") }}</th>
+                    <th rowspan="2" scope="col">{{ t("admin.table.columns.oauth") }}</th>
                     <th rowspan="2" scope="col">{{ t("admin.table.columns.roles") }}</th>
                     <th scope="col">{{ t("admin.table.columns.user") }}</th>
                     <th colspan="3" scope="col">{{ t("admin.table.columns.posts") }}</th>
@@ -41,6 +42,11 @@
                         <code>{{ user.email }}</code>
                       </div>
                     </th>
+                    <td>
+                      <span class="badge rounded-pill text-bg-info" v-for="provider in user.oauthProviders" v-bind:key="provider">{{
+                        provider
+                      }}</span>
+                    </td>
                     <td>
                       <div class="d-flex justify-content-between align-items-start">
                         <span style="display: inline-block" class="align-top">
@@ -103,7 +109,7 @@
 import BooleanDisplay from "@client/components/BooleanDisplay.vue";
 import MultiselectDialog from "@client/components/MultiselectDialog.vue";
 import { faPencil } from "@fortawesome/free-solid-svg-icons";
-import type { User, UserRolePermissionsType } from "@fumix/fu-blog-common";
+import type { User, UserRolePermissionsType, UserWithOAuthProviders } from "@fumix/fu-blog-common";
 import { permissionsForUser, UserRoles } from "@fumix/fu-blog-common";
 import type { PropType } from "vue";
 import { defineComponent, ref } from "vue";
@@ -127,7 +133,7 @@ export default defineComponent({
     return {
       showModal: ref(false),
       loading: ref(true),
-      users: ref<User[]>([]),
+      users: ref<UserWithOAuthProviders[]>([]),
       editUser: ref<User | null>(null),
       permissionsForUser: permissionsForUser,
       faPencil,
@@ -159,7 +165,7 @@ export default defineComponent({
         method: "GET",
       });
       const response = await fetch(authUrlRequest);
-      this.users = (await response.json()) as User[];
+      this.users = ((await response.json()) as UserWithOAuthProviders[]) ?? [];
       this.loading = false;
     },
     getAllRoles(): string[] {

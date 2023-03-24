@@ -8,15 +8,15 @@ export function isValidUsername(username: string): boolean {
 
 export function convertToUsername(input: string): string | undefined {
   const username = input
+    .replace(/[Ää]/g, "ae")
+    .replace(/[Öö]/g, "oe")
+    .replace(/[Üü]/g, "ue")
+    .replace(/[ẞß]/g, "ss")
     .normalize("NFKD") // replace special characters with similar ones (ñ → n, á → a, …)
     .replace(combining, "") // remove combining marks
     .replace(" ", ".") // space to dot
-    .toLowerCase()
-    .replace("ä", "a")
-    .replace("ö", "oe")
-    .replace("ü", "ue")
-    .replace("ß", "ss")
     .replace(notAllowedChar, "") // remove chars that are not allowed in usernames
+    .toLowerCase()
     .substring(0, 32);
   if (username.length < 3) {
     return undefined;

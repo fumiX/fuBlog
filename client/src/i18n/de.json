@@ -50,10 +50,11 @@
     "table": {
       "columns": {
         "user": "Benutzer",
+        "oauth": "Authentifiziert via",
         "roles": "Rollen",
         "posts": "Posts",
         "permissions": {
-          "edit_rights": "Rechte bearbeiten",
+          "edit_rights": "Rollen bearbeiten",
           "create_post": "Erstellen",
           "edit_post": "Bearbeiten",
           "delete_post": "Löschen"

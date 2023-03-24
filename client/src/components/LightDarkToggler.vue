@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, defineEmits } from "vue";
+import { ref, onMounted } from "vue";
 import { saveCssPreference, loadCssPreference } from "@client/util/storage.js";
 import type { UserTheme } from "@fumix/fu-blog-common";
 
