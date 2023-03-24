@@ -34,7 +34,7 @@ export function imageBytesToDataUrl(bytes: Uint8Array | undefined): DataUrl | un
   if (!bytes) {
     return bytes;
   } else if (doMagicBytesMatch(MAGIC_JFIF_BYTES, bytes)) {
-    return bytesToDataUrl("image/jpg", bytes);
+    return bytesToDataUrl("image/jpeg", bytes);
   } else if (doMagicBytesMatch(MAGIC_PNG_BYTES, bytes)) {
     return bytesToDataUrl("image/png", bytes);
   }

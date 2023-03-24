@@ -74,6 +74,7 @@ export default defineComponent({
           savedToken: this.userInfo?.token,
           fullName: this.fullName,
           username: this.username,
+          profilePictureUrl: this.userInfo?.user?.profilePictureUrl,
         }),
       }).then(async (it) => {
         const registeredUserInfo = (await it.json()) as OAuthUserInfoDto;

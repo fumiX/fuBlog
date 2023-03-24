@@ -223,6 +223,7 @@ router.post("/userinfo", async (req, res) => {
 router.post("/userinfo/register", async (req, res) => {
   const fullName = req.body.fullName ?? "";
   const username = req.body.username;
+  const profilePictureUrl: DataUrl | undefined = (req.body.profilePictureUrl as DataUrl) ?? undefined;
   const savedToken = req.body.savedToken as UserInfoOAuthToken;
   if (!savedToken) {
     res.status(403).json({ error: "Unauthorized!" });
@@ -248,6 +249,7 @@ router.post("/userinfo/register", async (req, res) => {
                 isActive: true,
                 fullName,
                 username,
+                profilePictureUrl,
                 roles:
                   OAuthSettings.ADMIN_LOGIN?.email === userEmail &&
                   OAuthSettings.ADMIN_LOGIN?.oauthIssuer === provider.domain &&
@@ -259,14 +261,16 @@ router.post("/userinfo/register", async (req, res) => {
               };
               AppDataSource.manager
                 .transaction(async (mgr) => {
-                  await mgr.insert(UserEntity, [user]).then((it) => logger.info("New user created", user));
+                  await mgr.insert(UserEntity, [user]).then((it) => logger.info("New user created: " + JSON.stringify(user)));
                   const oauthAccount: OAuthAccountEntity = {
                     type: provider.type,
                     domain: provider.domain,
                     oauthId: oauthUserId,
                     user,
                   };
-                  await mgr.insert(OAuthAccountEntity, [oauthAccount]).then((it) => console.log("New OAuth account created", oauthAccount));
+                  await mgr
+                    .insert(OAuthAccountEntity, [oauthAccount])
+                    .then((it) => logger.info("New OAuth account created: " + JSON.stringify(oauthAccount)));
                 })
                 .then(async () => {
                   const result: OAuthUserInfoDto = {
