@@ -1,3 +1,4 @@
+import { faker } from "@faker-js/faker/locale/de";
 import express, { Router } from "express";
 import { userInfosById } from "../index.js";
 
@@ -10,6 +11,8 @@ router.post("/", (req, res) => {
     res.status(200).json(
       Object.assign(userInfo.profile, {
         sub: userId,
+        name: userInfo.profile.fullName,
+        picture: faker.image.imageUrl(256, 256, "person,man,woman"),
       }),
     );
   } else {

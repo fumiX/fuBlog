@@ -2,7 +2,7 @@
   "name": "@fumix/fu-blog-client",
   "version": "0.1.0",
   "scripts": {
-    "dev": "vite --port 5010",
+    "start": "vite --port 5010",
     "build": "run-p type-check build-only",
     "preview": "vite preview",
     "build-only": "vite build",
@@ -30,13 +30,12 @@
     "wordcloud": "^1.2.2"
   },
   "devDependencies": {
-    "@intlify/unplugin-vue-i18n": "^0.9.2",
+    "@intlify/unplugin-vue-i18n": "^0.10.0",
     "@rushstack/eslint-patch": "^1.1.4",
     "@types/bootstrap": "^5.2.6",
     "@types/luxon": "^3.2.0",
     "@types/node": "^18.15.1",
-    "@types/vue-i18n": "^7.0.0",
-    "@vitejs/plugin-vue": "4.0.0",
+    "@vitejs/plugin-vue": "^4.1.0",
     "@vue/eslint-config-prettier": "^7.1.0",
     "@vue/eslint-config-typescript": "^11.0.0",
     "@vue/tsconfig": "^0.1.3",

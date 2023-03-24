@@ -7,20 +7,16 @@ import { UserRolePermissions, UserRolePermissionsType } from "./permission/UserR
  */
 export const UserRoles = {
   ADMIN: new UserRolePermissions(
-    "Can change roles of all users", //
-    { canEditUserRoles: true },
+    "Can change roles of all users, has all permissions.", //
+    { canEditUserRoles: true, canCreatePost: true, canEditPost: true, canDeletePost: true },
   ),
-  POST_CREATE: new UserRolePermissions(
+  WRITER: new UserRolePermissions(
     "Can create a new post and also edit their own posts", //
     { canCreatePost: true },
   ),
-  POST_EDIT: new UserRolePermissions(
-    "Can edit any existing post", //
-    { canEditPost: true },
-  ),
-  POST_DELETE: new UserRolePermissions(
-    "Can delete any existing post", //
-    { canDeletePost: true },
+  EDITOR: new UserRolePermissions(
+    "Can edit and delete any existing post", //
+    { canEditPost: true, canDeletePost: true },
   ),
 } as const;
 

@@ -49,10 +49,9 @@
     "title": "User Management",
     "table": {
       "columns": {
-        "username": "Username",
+        "user": "User",
         "name_and_email": "Name & E-Mail",
         "roles": "Roles",
-        "user": "User",
         "posts": "Posts",
         "permissions": {
           "edit_rights": "Edit Rights",
@@ -67,15 +66,14 @@
     "title": "Create Account",
     "description": "Welcome, we're ready to go.\nWe have retrieved the data below from the registration service provider and would like to store it with us.\nAdapt it if necessary and choose a user name.",
     "message": {
-      "success": "Hello {firstname} {lastname} ! You're now logged in."
+      "success": "Hello {fullname} ! You're now logged in."
     },
     "form": {
       "label": {
         "id": "ID",
         "email": "Email",
         "username": "Username",
-        "firstname": "Firstname",
-        "lastname": "Lastname"
+        "fullname": "Your name"
       }
     },
     "user_not_found": "User not found."

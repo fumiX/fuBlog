@@ -3,7 +3,7 @@
     <span class="avatar">
       <img v-if="props.user.profilePictureUrl" :src="props.user.profilePictureUrl" />
     </span>
-    <span>{{ props.user.firstName }} {{ props.user.lastName }}</span>
+    <span>{{ props.user.fullName }}</span>
     <button type="button" class="btn btn-link" @click="$emit('logout')"><fa-icon :icon="faSignOut" /></button>
   </div>
 </template>
@@ -22,12 +22,12 @@
 <script lang="ts">
 import { defineComponent, type PropType } from "vue";
 import { faSignOut } from "@fortawesome/free-solid-svg-icons";
-import type { UserDto } from "@fumix/fu-blog-common";
+import type { User } from "@fumix/fu-blog-common";
 
 export default defineComponent({
   props: {
     user: {
-      type: Object as PropType<UserDto>,
+      type: Object as PropType<User>,
       required: true,
     },
   },

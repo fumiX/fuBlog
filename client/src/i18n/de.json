@@ -49,10 +49,8 @@
     "title": "Benutzerverwaltung",
     "table": {
       "columns": {
-        "username": "Benutzername",
-        "name_and_email": "Name & E-Mail",
+        "user": "Benutzer",
         "roles": "Rollen",
-        "user": "Nutzer",
         "posts": "Posts",
         "permissions": {
           "edit_rights": "Rechte bearbeiten",
@@ -67,15 +65,14 @@
     "title": "Konto erstellen",
     "description": "Willkommen, gleich kann's losgehen.\nDie Daten unten haben wir vom Anmeldedienstleister abgerufen und würden diese gerne bei uns speichern.\nPasse sie ggf. an und suche dir einen Benutzernamen aus.",
     "message": {
-      "success": "Hallo {firstname} {lastname} ! Du bist jetzt angemeldet."
+      "success": "Hallo {fullname} ! Du bist jetzt angemeldet."
     },
     "form": {
       "label" : {
         "id": "ID",
         "email": "E-mail",
         "username": "Benutzername",
-        "firstname": "Vorname",
-        "lastname": "Nachname"
+        "fullname": "Dein Name"
       }
     },
     "user_not_found": "Benutzer nicht gefunden."

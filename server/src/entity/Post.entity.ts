@@ -1,7 +1,7 @@
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { UserEntity } from "./User.entity.js";
 import { Post } from "@fumix/fu-blog-common";
 import { AttachmentEntity } from "./Attachment.entity.js";
+import { UserEntity } from "./User.entity.js";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 /**
  * Blog post

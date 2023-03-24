@@ -1,4 +1,5 @@
-import { OAUTH_TYPES, OAuthAccount, OAuthType } from "@fumix/fu-blog-common";
+import { OAUTH_TYPES, OAuthAccount } from "@fumix/fu-blog-common";
+import type { OAuthType } from "@fumix/fu-blog-common";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { UserEntity } from "./User.entity.js";
 

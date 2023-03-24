@@ -1,6 +1,6 @@
 import { Sex } from "@faker-js/faker";
 import { faker } from "@faker-js/faker/locale/de";
-import { OAuthAccount } from "@fumix/fu-blog-common";
+import { DataUrl, imageBytesToDataUrl, isNeitherNullNorUndefined, OAuthAccount } from "@fumix/fu-blog-common";
 import console from "console";
 import { AppDataSource } from "../data-source.js";
 import { AttachmentEntity } from "../entity/Attachment.entity.js";
@@ -10,6 +10,7 @@ import { UserEntity } from "../entity/User.entity.js";
 import { MarkdownConverterServer } from "../markdown-converter-server.js";
 import { AppSettings, OAuthSettings } from "../settings.js";
 import { generateProfilePicture, generateRandomPng } from "./testdata/images.js";
+import logger from "../logger.js";
 
 const usersCount = 10;
 const postsPerUser = 15;
@@ -19,24 +20,24 @@ faker.seed(42);
 
 export async function initDatabase(): Promise<void> {
   if (AppSettings.IS_PRODUCTION) {
-    console.log("No test data is generated in production.");
+    logger.info("No test data is generated in production.");
   } else {
     const usersInDbAtStart = await AppDataSource.manager.getRepository(UserEntity).count();
     if (usersInDbAtStart !== 0) {
-      console.log("Test data is already generated.");
+      logger.info("Test data is already generated.");
     } else {
-      console.log("No test data in DB.");
+      logger.info("No test data in DB.");
       await generate();
     }
   }
-  console.log("Database initialized");
+  logger.info("Database initialized");
 }
 
 /**
  * Generate some test data for the blog.
  */
 async function generate(): Promise<void> {
-  console.log(`Generating test data (${usersCount} users, ${postsPerUser} posts per user, ${attachmentsPerPost} attachments per post)`);
+  logger.info(`Generating test data (${usersCount} users, ${postsPerUser} posts per user, ${attachmentsPerPost} attachments per post)`);
   faker.seed(42);
 
   await Promise.all(
@@ -79,26 +80,30 @@ export async function createRandomUser(seed?: number): Promise<UserEntity> {
     const sex = faker.helpers.arrayElement([Sex.Male, Sex.Female]);
     const firstName = faker.name.firstName(sex);
     const lastName = faker.name.lastName();
-    console.debug(`Generating 🧑 ${firstName} ${lastName}`);
-    const profilePicture: Uint8Array | undefined = await (
-      await faker.helpers.maybe(() => generateProfilePicture(faker.datatype.number(), sex), {
-        probability: 0.8,
-      })
-    )
-      ?.arrayBuffer()
-      ?.then((ab) => new Uint8Array(ab));
+    const fullName = [firstName, faker.helpers.maybe(() => faker.name.middleName(), { probability: 0.7 }), lastName]
+      .filter(isNeitherNullNorUndefined)
+      .join(" ");
+    console.debug(`Generating 🧑 ${fullName}`);
+    const profilePictureUrl: DataUrl | undefined = imageBytesToDataUrl(
+      await (
+        await faker.helpers.maybe(() => generateProfilePicture(faker.datatype.number(), sex), {
+          probability: 0.8,
+        })
+      )
+        ?.arrayBuffer()
+        ?.then((ab) => new Uint8Array(ab)),
+    );
     const user: UserEntity = {
       username: faker.internet.userName(firstName, lastName),
       email: faker.internet.email(firstName, lastName),
-      firstName: firstName,
-      lastName: lastName,
-      roles: faker.helpers.arrayElement([["ADMIN", "POST_CREATE"], ["POST_CREATE"], ["POST_CREATE", "POST_EDIT"], []]),
-      profilePicture,
+      fullName,
+      roles: faker.helpers.arrayElement([["ADMIN"], ["WRITER"], ["EDITOR", "WRITER"], ["EDITOR"], []]),
+      profilePictureUrl,
       isActive: true,
     };
     return AppDataSource.manager.getRepository(UserEntity).save(user);
   } catch (e) {
-    console.log("Error creating user", e);
+    logger.error("Error creating user", e);
   }
   return new Promise(() => null);
 }
@@ -113,7 +118,7 @@ export async function createRandomPost(createdBy: UserEntity, seed?: number): Pr
     const dirty = faker.lorem.sentences(29);
     const sanitized = await MarkdownConverterServer.Instance.convert(dirty);
     const title = faker.lorem.sentence(4);
-    console.debug(`Generating 🖺 ${title} (by ${createdBy.firstName})`);
+    console.debug(`Generating 🖺 ${title} (by ${createdBy.fullName})`);
     const post: PostEntity = {
       title,
       description: faker.lorem.sentences(8),
@@ -127,7 +132,7 @@ export async function createRandomPost(createdBy: UserEntity, seed?: number): Pr
     const postRep = AppDataSource.manager.getRepository(PostEntity);
     return await postRep.save(post);
   } catch (e) {
-    console.log("Error generating post", e);
+    logger.error("Error generating post", e);
   }
   return new Promise(() => null);
 }
@@ -145,7 +150,7 @@ export async function createRandomAttachment(post: PostEntity, seed?: number): P
     const attRep = AppDataSource.manager.getRepository(AttachmentEntity);
     return await attRep.save(attachment);
   } catch (e) {
-    console.log("Error generating attachment", e);
+    logger.error("Error generating attachment", e);
   }
   return new Promise(() => null);
 }

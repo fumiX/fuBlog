@@ -1,30 +1,21 @@
 import express, { Request, Response, Router } from "express";
 import { AppDataSource } from "../data-source.js";
 import { UserEntity } from "../entity/User.entity.js";
-import { permissionsForUser, UserDto } from "@fumix/fu-blog-common";
 
 const router: Router = express.Router();
 
-router.get("/users", async (req, res) => {
-  const users = await AppDataSource.manager.getRepository(UserEntity).find({ order: { id: "ASC" } });
-  res.status(200).json(
-    users.map<UserDto>((u) => {
-      return {
-        id: u.id,
-        firstName: u.firstName,
-        lastName: u.lastName,
-        roles: u.roles,
-        permissions: permissionsForUser(u),
-        username: u.username,
-        email: u.email,
-        profilePictureUrl: u.profilePicture ? "data:image/jpeg;base64," + Buffer.from(u.profilePicture).toString("base64") : undefined,
-      };
-    }),
-  );
+router.get("/users", async (req, res, next) => {
+  await AppDataSource.manager
+    .getRepository(UserEntity)
+    .find({ order: { id: "ASC" } })
+    .then((result) => {
+      return res.status(200).json(result);
+    })
+    .catch((err) => next(err));
 });
 
 // UPDATE USER ROLES
-router.post("/users/roles/:userId", async (req: Request, res: Response) => {
+router.post("/users/roles/:userId([0-9]+)", async (req: Request, res: Response) => {
   try {
     const userId = req.params.userId;
     const bodyJson = req.body;

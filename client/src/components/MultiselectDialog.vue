@@ -54,7 +54,7 @@ import { ref } from "vue";
 import type { PropType } from "vue";
 import { defineComponent, watch } from "vue";
 import { Modal } from "bootstrap";
-import type { UserDto } from "@fumix/fu-blog-common";
+import type { User } from "@fumix/fu-blog-common";
 
 export default defineComponent({
   props: {
@@ -63,7 +63,7 @@ export default defineComponent({
       required: true,
     },
     user: {
-      type: Object as PropType<UserDto | null>,
+      type: Object as PropType<User | null>,
     },
     roles: {
       type: Array as PropType<string[]>,

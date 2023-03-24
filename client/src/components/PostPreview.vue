@@ -25,13 +25,13 @@
           <div class="mb-1 text-muted creator">
             <fa-icon :icon="faClock" />
             {{ $luxonDateTime.fromISO(post.createdAt.toString(), { locale: locale }).toRelativeCalendar() }}
-            <i v-if="post.createdBy">{{ post.createdBy.firstName }} {{ post.createdBy.lastName }}</i>
+            <i v-if="post.createdBy">{{ post.createdBy.fullName }}</i>
           </div>
 
           <div v-if="post.updatedBy && post.updatedAt" class="mb-1 text-muted editor">
             <fa-icon :icon="faEdit" />
             {{ $luxonDateTime.fromISO(post.updatedAt.toString(), { locale: locale }).toRelativeCalendar() }}
-            <i>{{ post.updatedBy.firstName }} {{ post.updatedBy.lastName }}</i>
+            <i>{{ post.updatedBy.fullName }}</i>
           </div>
 
           <p class="card-text my-4">{{ post.description }}</p>

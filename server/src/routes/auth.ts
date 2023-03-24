@@ -1,5 +1,18 @@
-import { isNotNull, OAuthProvider, OAuthProvidersDto, OAuthUserInfoDto, SavedOAuthToken, UserInfoOAuthToken } from "@fumix/fu-blog-common";
-import express, { NextFunction, Request, Response, Router } from "express";
+import {
+  bytesToDataUrl,
+  convertToUsername,
+  DataUrl,
+  isNeitherNullNorUndefined,
+  OAuthProvider,
+  OAuthProviderId,
+  OAuthProvidersDto,
+  OAuthType,
+  OAuthUserInfoDto,
+  SavedOAuthToken,
+  UserInfoOAuthToken,
+} from "@fumix/fu-blog-common";
+import console from "console";
+import express, { Request, Response, Router } from "express";
 import { createRemoteJWKSet, JWTPayload, jwtVerify } from "jose";
 import fetch from "node-fetch";
 import { BaseClient, Issuer, TokenSet } from "openid-client";
@@ -8,6 +21,7 @@ import { OAuthAccountEntity } from "../entity/OAuthAccount.entity.js";
 import { UserEntity } from "../entity/User.entity.js";
 import { findOAuthAccountBy } from "../service/crud.js";
 import { OAuthSettings } from "../settings.js";
+import logger from "../logger.js";
 
 const router: Router = express.Router();
 
@@ -15,12 +29,12 @@ enum StatusCode {
   Unauthorized = 401,
 }
 
-const oauthClients: { [provider: string]: BaseClient | undefined } = {};
+const oauthClients: { [provider in OAuthProviderId]: BaseClient | undefined } = {};
 OAuthSettings.PROVIDERS.forEach((p) => {
   oauthClients[p.getIdentifier()] = undefined;
 });
 
-async function findOAuthClient(provider: OAuthProvider): Promise<BaseClient> {
+async function findOAuthClient(provider: OAuthProvider<OAuthType>): Promise<BaseClient> {
   const existingValue = oauthClients[provider.getIdentifier()];
   if (!existingValue) {
     try {
@@ -60,13 +74,17 @@ router.post("/providers", async (req: Request, res: Response) => {
               : null;
           }),
         )
-      ).filter(isNotNull),
+      ).filter(isNeitherNullNorUndefined),
     };
     res.status(200).json(result);
   }
 });
 
-async function getAuthorizationUrl(oauthProvider: OAuthProvider, redirect_uri: string, state: string): Promise<string | undefined> {
+async function getAuthorizationUrl(
+  oauthProvider: OAuthProvider<OAuthType>,
+  redirect_uri: string,
+  state: string,
+): Promise<string | undefined> {
   try {
     const client = await findOAuthClient(oauthProvider);
     return client.authorizationUrl({
@@ -78,7 +96,7 @@ async function getAuthorizationUrl(oauthProvider: OAuthProvider, redirect_uri: s
   }
 }
 
-async function checkIdToken(id_token: string, provider: OAuthProvider): Promise<JWTPayload> {
+async function checkIdToken(id_token: string, provider: OAuthProvider<OAuthType>): Promise<JWTPayload> {
   if (provider?.type === "FAKE") {
     const result = await jwtVerify(id_token, new TextEncoder().encode("secret"));
     if (result?.payload?.sub) {
@@ -154,13 +172,17 @@ router.post("/userinfo", async (req, res) => {
       });
 
       if (tokenSet.id_token && tokenSet.access_token) {
-        const firstName = dbUser?.user?.firstName ?? userInfo.given_name;
-        const lastName = dbUser?.user?.lastName ?? userInfo.family_name;
-        const username =
-          dbUser?.user?.username ??
-          userInfo.nickname ??
-          userInfo.preferred_username ??
-          [firstName, lastName].filter(isNotNull).join(".").replace(" ", ".").toLowerCase();
+        const fullName =
+          dbUser?.user?.fullName ??
+          userInfo.name ??
+          [userInfo.given_name, userInfo.middle_name, userInfo.family_name].filter(isNeitherNullNorUndefined).join(" ");
+        const username = dbUser?.user?.username ?? convertToUsername(userInfo.nickname ?? userInfo.preferred_username ?? fullName);
+        const email = dbUser?.user?.email ?? userInfo.email;
+        if (!email) {
+          console.error("Did not receive an email address for new user!");
+          res.status(403);
+          return;
+        }
         const result: OAuthUserInfoDto = {
           token: {
             access_token: tokenSet.access_token,
@@ -170,17 +192,21 @@ router.post("/userinfo", async (req, res) => {
           },
           oauthId: userInfo.sub,
           user: {
-            firstName,
-            lastName,
-            email: dbUser?.user?.email ?? userInfo.email,
-            profilePicture: dbUser?.user?.profilePicture,
+            fullName,
+            email,
+            profilePictureUrl: dbUser?.user?.profilePictureUrl,
             username,
           },
           isExisting: !!dbUser,
         };
-        if (!result.user.profilePicture && userInfo.picture) {
+        if (!result.user.profilePictureUrl && userInfo.picture) {
           try {
-            result.user.profilePicture = new Uint8Array(await (await fetch(userInfo.picture)).arrayBuffer());
+            result.user.profilePictureUrl = await (
+              await fetch(userInfo.picture)
+            )
+              .blob()
+              .then<DataUrl>(async (it) => bytesToDataUrl(it.type, new Uint8Array(await it.arrayBuffer())))
+              .catch(() => undefined);
           } catch (e) {
             // Ignore failing download of profile pic
           }
@@ -195,25 +221,25 @@ router.post("/userinfo", async (req, res) => {
 });
 
 router.post("/userinfo/register", async (req, res) => {
-  const first_name = req.body.first_name ?? "";
-  const last_name = req.body.last_name ?? "";
+  const fullName = req.body.fullName ?? "";
   const username = req.body.username;
-  const saved_token = req.body.saved_token as UserInfoOAuthToken;
-  if (!saved_token) {
+  const profilePictureUrl: DataUrl | undefined = (req.body.profilePictureUrl as DataUrl) ?? undefined;
+  const savedToken = req.body.savedToken as UserInfoOAuthToken;
+  if (!savedToken) {
     res.status(403).json({ error: "Unauthorized!" });
   } else if (!username || username.length < 3 || username.length > 64) {
     res.status(400).json({ error: "A username with length between 3 and 64 is required!" });
   } else {
-    const provider = OAuthSettings.findByTypeAndDomain(saved_token.type, saved_token.issuer);
+    const provider = OAuthSettings.findByTypeAndDomain(savedToken.type, savedToken.issuer);
     if (!provider) {
-      res.status(400).json({ error: "Invalid provider " + saved_token.type + "/" + saved_token.issuer });
+      res.status(400).json({ error: "Invalid provider " + savedToken.type + "/" + savedToken.issuer });
     } else {
-      await checkIdToken(saved_token.id_token, provider)
+      await checkIdToken(savedToken.id_token, provider)
         .then(async (it) => {
           const oauthUserId = it.sub;
           if (oauthUserId) {
             const client = await findOAuthClient(provider);
-            const tokenSet = new TokenSet({ id_token: saved_token.id_token, access_token: saved_token.access_token });
+            const tokenSet = new TokenSet({ id_token: savedToken.id_token, access_token: savedToken.access_token });
             const userInfo = await client.userinfo(tokenSet, { method: "POST", via: "body" });
             const userEmail = userInfo.email;
             if (!userEmail) {
@@ -221,9 +247,9 @@ router.post("/userinfo/register", async (req, res) => {
             } else {
               const user: UserEntity = {
                 isActive: true,
-                firstName: first_name,
-                lastName: last_name,
+                fullName,
                 username,
+                profilePictureUrl,
                 roles:
                   OAuthSettings.ADMIN_LOGIN?.email === userEmail &&
                   OAuthSettings.ADMIN_LOGIN?.oauthIssuer === provider.domain &&
@@ -235,19 +261,21 @@ router.post("/userinfo/register", async (req, res) => {
               };
               AppDataSource.manager
                 .transaction(async (mgr) => {
-                  await mgr.insert(UserEntity, [user]).then((it) => console.log("Raw result", it.raw));
+                  await mgr.insert(UserEntity, [user]).then((it) => logger.info("New user created: " + JSON.stringify(user)));
                   const oauthAccount: OAuthAccountEntity = {
                     type: provider.type,
                     domain: provider.domain,
                     oauthId: oauthUserId,
                     user,
                   };
-                  await mgr.insert(OAuthAccountEntity, [oauthAccount]);
+                  await mgr
+                    .insert(OAuthAccountEntity, [oauthAccount])
+                    .then((it) => logger.info("New OAuth account created: " + JSON.stringify(oauthAccount)));
                 })
                 .then(async () => {
                   const result: OAuthUserInfoDto = {
                     isExisting: true,
-                    token: saved_token,
+                    token: savedToken,
                     oauthId: oauthUserId,
                     user,
                   };
@@ -259,41 +287,11 @@ router.post("/userinfo/register", async (req, res) => {
           }
         })
         .catch((err) => {
-          console.log("Error", err);
+          logger.error("Error", err);
           res.status(403).json({ error: "Unauthorized" });
         });
     }
   }
 });
-
-export function authenticate(req: Request, res: Response, next: NextFunction) {
-  console.log("[authenticate] req.originalUrl: ", req.originalUrl);
-
-  const reqHeaders = req.headers.authorization;
-  const resHeaders = res.getHeader("Authorization");
-  const accessTokenHeaderValue = req.headers["x-access-token"];
-  const resAccessToken = res.getHeader("x-access-token");
-
-  const client = req.app.authClient;
-  if (client) {
-    if (accessTokenHeaderValue) {
-      // //     const params: CallbackParamsType = client.callbackParams(req);
-      // //     const checks = { code_verifier: req.app.codeVerifier };
-      // //     const tokens: TokenSet = await client.callback(getRedirectURI(), params, checks);
-      // //     if (tokens.expired()) {
-      // //         const refreshedTokens = await client.refresh(tokens);
-      // //         res.setHeader("x-access-token", refreshedTokens.access_token)
-      // //         req.headers["x-access-token"] = refreshedTokens.access_token;
-      // //     }
-    } else {
-      res.status(StatusCode.Unauthorized.valueOf()).json({
-        data: {
-          error: "Missing access token",
-        },
-      });
-    }
-  }
-  // next();
-}
 
 export default router;

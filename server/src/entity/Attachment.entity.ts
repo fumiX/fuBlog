@@ -1,6 +1,7 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
-import { PostEntity } from "./Post.entity.js";
 import { Attachment } from "@fumix/fu-blog-common";
+import type { Relation } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { PostEntity } from "./Post.entity.js";
 
 @Entity("attachment")
 export class AttachmentEntity implements Attachment {

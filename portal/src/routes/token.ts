@@ -19,7 +19,7 @@ router.post("/", (req, res) => {
       access_token: faker.random.alphaNumeric(20),
       id_token: createJwtToken(OAUTH_SECRET, {
         sub: userId,
-        name: `${userInfo.profile.given_name} ${userInfo.profile.family_name}`,
+        name: `${userInfo.profile.fullName}`,
         iss: "https://localhost:5030",
         aud: "ID", // audience (client ID)
         exp: issuedAt + 3600, // expired

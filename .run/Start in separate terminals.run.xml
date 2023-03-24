@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Start in separate terminals" type="CompoundRunConfigurationType">
+    <toRun name="Start app client" type="js.build_tools.npm" />
+    <toRun name="Start app server" type="js.build_tools.npm" />
+    <toRun name="Start login portal" type="js.build_tools.npm" />
+    <method v="2" />
+  </configuration>
+</component>
