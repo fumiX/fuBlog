@@ -1,7 +1,4 @@
 <template>
-  <!-- <div>
-    <span v-for="word in words" :key="word.name"> {{ word.name }} ({{ word.value }}) </span>
-  </div> -->
   <canvas id="my_canvas" width="1000" height="1000" style="width: 100%"></canvas>
 </template>
 
@@ -51,19 +48,15 @@ export default defineComponent({
         drawOutOfBound: false,
         gridSize: 1,
         fontFamily: "NerkoOne",
-        // shuffle: true,
-        // shrinkToFit: true,
         rotateRatio: 0.6,
-        // rotationSteps: 30,
         backgroundColor: "transparent",
         list: wordList,
-        // wait: 2.5,
         shape: "circle",
         ellipticity: 0.75,
         weightFactor: function (size: number) {
           const perc = Math.floor(((size - leastUsedWord) / range) * 100);
-          // word-size is calculated dependent on the canvas width it should be max of 1/8 of the cnvsWidth
-          const newSize = Math.floor((cnvsWidth / 800) * perc);
+          // word-size is calculated dependent on the canvas width it should be max of 1/6 of the cnvsWidth
+          const newSize = Math.floor((cnvsWidth / 600) * perc);
           return newSize;
         },
         color: function (word: string, weight: number) {
@@ -75,6 +68,9 @@ export default defineComponent({
         click: function (item: any) {
           emits.emit("wordclicked", item);
         },
+        // hover: function (item: any, dimension: any, event: any) {
+        //   cnvs.style.cursor = item ? "pointer" : "default";
+        // },
       };
 
       WordCloud(cnvs, config);

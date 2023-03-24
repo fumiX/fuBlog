@@ -11,13 +11,16 @@ router.get("/", async (req: Request, res: Response) => {
   const allPosts = await AppDataSource.manager.getRepository(PostEntity).find({
     cache: true,
     where: {
+      draft: false,
       description: Not(""),
     },
   });
 
-  const oneBigString = allPosts.map((post) => post.markdown).join(" ");
+  // TODO: Find something more efficient than this !!
+  // and also only do this if someone saves a post and not on each request of posts-list
+  // Get most common words on post save and save them in the DB as well.
 
-  // console.log("ONE BIG STRING", oneBigString);
+  const oneBigString = allPosts.map((post) => post.markdown).join(" ");
 
   const nthMostCommon = (string: string, amount: number): { word: string; occurences: number }[] => {
     const wordsArray: string[] = string.split(/\s/);
