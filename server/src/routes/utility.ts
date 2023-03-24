@@ -15,7 +15,9 @@ router.get("/", async (req: Request, res: Response) => {
     },
   });
 
-  const oneBigString = allPosts.map((post) => post.description).join(" ");
+  const oneBigString = allPosts.map((post) => post.markdown).join(" ");
+
+  // console.log("ONE BIG STRING", oneBigString);
 
   const nthMostCommon = (string: string, amount: number): { word: string; occurences: number }[] => {
     const wordsArray: string[] = string.split(/\s/);
@@ -39,7 +41,7 @@ router.get("/", async (req: Request, res: Response) => {
     return result;
   };
 
-  const allWords: Word[] = nthMostCommon(oneBigString, 200).map((word) => ({ name: word.word, value: word.occurences }));
+  const allWords: Word[] = nthMostCommon(oneBigString, 100).map((word) => ({ name: word.word, value: word.occurences }));
 
   try {
     res.status(200).json({ data: allWords });

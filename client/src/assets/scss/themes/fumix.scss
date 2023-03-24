@@ -26,6 +26,15 @@
 }
 
 @font-face {
+    font-family: "Roboto-Bold";
+    font-weight: 100;
+    font-style: normal;
+    font-display: auto;
+    unicode-range: U+000-5FF;
+    src: local("Roboto-Bold"), url("@client/assets/fonts/Roboto/Roboto-Bold.ttf") format("truetype");
+}
+
+@font-face {
     font-family: "NerkoOne";
     font-weight: 100;
     font-style: normal;
@@ -135,6 +144,7 @@ $navbar-light-hover-color: $gray-900 !default;
 $navbar-light-active-color: $gray-900 !default;
 $navbar-light-toggler-border-color: rgba($gray-900, 0.1) !default;
 
+
 // Pagination
 
 $pagination-color: $white !default;
@@ -206,3 +216,11 @@ $btn-close-hover-opacity: 1 !default;
 // Code
 
 $pre-color: inherit !default;
+
+// custom
+
+.nav-item {
+    a {
+        font-family: "Roboto-Light";
+    }
+}

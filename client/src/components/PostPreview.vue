@@ -18,7 +18,7 @@
             </button>
           </div>
           <!-- <strong class="d-inline-block mb-2 text-primary">Kategorie</strong> -->
-          <h3 class="mb-0 display-4 clickable" @click="goTo('/posts/post/' + post.id)">
+          <h3 class="mb-0 display-4 clickable postTitle" @click="goTo('/posts/post/' + post.id)">
             {{ post.title }}
           </h3>
 
@@ -54,6 +54,7 @@
   font-size: 0.8rem;
   margin-left: 1rem;
 }
+
 .creator {
   display: inline-block;
   font-size: 0.8rem;

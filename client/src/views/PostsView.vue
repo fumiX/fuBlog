@@ -55,7 +55,7 @@
 
       <!-- RIGHT -->
       <div class="col-lg-4">
-        <word-cloud></word-cloud>
+        <word-cloud @wordclicked="searchWord($event)"></word-cloud>
       </div>
     </div>
 
@@ -197,6 +197,9 @@ export default defineComponent({
       this.$router.push(path);
     },
 
+    searchWord(event: any) {
+      this.goTo(`/posts/?search=${event[0]}&operator=and`);
+    },
     showConfirm(post: Post) {
       this.currentPost = post as Post;
       this.dialogData = {

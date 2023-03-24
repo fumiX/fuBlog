@@ -87,3 +87,7 @@ pre {
     color: $label-disabled-color;
   }
 }
+
+img[alt~="img-wide"] {
+  width: 100%;
+}

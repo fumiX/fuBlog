@@ -2,19 +2,22 @@
   <!-- <div>
     <span v-for="word in words" :key="word.name"> {{ word.name }} ({{ word.value }}) </span>
   </div> -->
-  <canvas id="my_canvas" style="width: 100%; height: 270px; border-radius: 10px"></canvas>
+  <canvas id="my_canvas" width="1000" height="1000" style="width: 100%"></canvas>
 </template>
 
 <style lang="scss"></style>
 
 <script lang="ts">
-import { defineComponent, onActivated, onMounted, ref } from "vue";
+import { defineComponent, defineEmits, onMounted, ref } from "vue";
 import type { Word } from "@fumix/fu-blog-common";
 import WordCloud from "wordcloud";
 
 export default defineComponent({
   components: {},
-  setup() {
+
+  emits: ["wordclicked"],
+
+  setup(props, emits) {
     const words = ref<Word[]>([]);
 
     const getWordCloud = async () => {
@@ -25,32 +28,52 @@ export default defineComponent({
 
     const setCanvasCloud = () => {
       const wordList = words.value.map((word) => [word.name, word.value]);
+      // hack to make sure first word has the correct font style
+      wordList.unshift(["", (wordList[0][1] as number) + 2]);
       wordList.unshift(["", (wordList[0][1] as number) + 1]);
       const cnvs: HTMLCanvasElement = document.getElementById("my_canvas") as HTMLCanvasElement;
 
-      //   const newWordList = wordList.map((word) => {
-      //     return [word[0], Math.floor((word[1] as number) / 2)];
-      //   });
-      console.log("WORDLIST", wordList);
+      const cnvsRealWidth = cnvs.getBoundingClientRect().width;
+      const cnvsWidth = cnvs.width;
+
+      const mostUsedWord = wordList[0][1] as number;
+      const leastUsedWord = wordList[wordList.length - 1][1] as number;
+      const range = mostUsedWord - leastUsedWord;
+
+      // console.log("WORDLIST", wordList);
 
       const config = {
+        clearCanvas: true,
+        orign: [cnvsWidth / 2, cnvsWidth / 2],
+        minRotation: -Math.PI / 3,
+        maxRotation: Math.PI / 3,
+        minSize: 12,
         drawOutOfBound: false,
         gridSize: 1,
         fontFamily: "NerkoOne",
-        shuffle: false,
-        shrinkToFit: true,
-        rotateRatio: 1,
-        rotationSteps: 30,
+        // shuffle: true,
+        // shrinkToFit: true,
+        rotateRatio: 0.6,
+        // rotationSteps: 30,
         backgroundColor: "transparent",
         list: wordList,
-        wait: 25,
+        // wait: 2.5,
         shape: "circle",
-        // weightFactor: function (size: number) {
-        // //   return (Math.pow(size, 2) * cnvs.width) / 512;
-        // return size * 2;
-        // },
+        ellipticity: 0.75,
+        weightFactor: function (size: number) {
+          const perc = Math.floor(((size - leastUsedWord) / range) * 100);
+          // word-size is calculated dependent on the canvas width it should be max of 1/8 of the cnvsWidth
+          const newSize = Math.floor((cnvsWidth / 800) * perc);
+          return newSize;
+        },
         color: function (word: string, weight: number) {
-          return `hsl(210, 70%, ${100 - Math.min(weight * 1.5, 100)}%)`;
+          let perc = Math.floor(((weight - leastUsedWord) / range) * 100);
+          if (perc < 10) perc = 10;
+          // console.log("WORD", word, perc);
+          return `hsl(200, ${Math.max(75, perc)}%, ${Math.min(80, perc)}%)`;
+        },
+        click: function (item: any) {
+          emits.emit("wordclicked", item);
         },
       };
 
@@ -64,6 +87,7 @@ export default defineComponent({
 
     return {
       words,
+      emits,
     };
   },
 
