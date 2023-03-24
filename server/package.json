@@ -4,7 +4,7 @@
   "description": "Backend Server for Blog in Node/Express",
   "main": "server.js",
   "scripts": {
-    "dev": "NODE_EXTRA_CA_CERTS=../certs/ca.crt nodemon -r dotenv/config ./src/server.ts",
+    "start": "NODE_ENV='development' NODE_EXTRA_CA_CERTS=../certs/ca.crt nodemon -r dotenv/config ./src/server.ts",
     "build": "tsc",
     "run-prod": "node ./dist/server.js",
     "lint": "eslint src/**/*.ts",

@@ -51,7 +51,7 @@ jobs:
     timeout-minutes: 15
     strategy:
       matrix:
-        workspace: [ client, server ]
+        workspace: [ client, portal, server ]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
