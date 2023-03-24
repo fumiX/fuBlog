@@ -51,7 +51,7 @@ jobs:
     timeout-minutes: 15
     strategy:
       matrix:
-        workspace: [ client, portal, server ]
+        workspace: [ client, server ]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
@@ -74,12 +74,38 @@ jobs:
             root.txt
           if-no-files-found: error
 
+  build-portal:
+    needs: build-app
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: dist
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.node-version'
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
+      - run: npm ci
+      - run: npm run lint --workspace portal
+      - run: npm run build --workspace portal
+      - uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: |
+            ${{ matrix.workspace }}/dist/**
+            root.txt
+          if-no-files-found: error
+
   publish:
     if: contains('
         refs/heads/main
         refs/heads/develop
       ', github.ref)
-    needs: build-app
+    needs: build-portal
     runs-on: ubuntu-latest
     permissions:
       contents: read
