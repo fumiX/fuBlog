@@ -1,7 +1,7 @@
 import { convertToUsername } from "@fumix/fu-blog-common";
 import console from "console";
 import cors from "cors";
-import express, { Application } from "express";
+import express, { Application, NextFunction, Request, Response } from "express";
 import path from "path";
 import { corsOptions } from "./config/cors-config.js";
 import { AppDataSource } from "./data-source.js";
@@ -11,6 +11,10 @@ import authRoutes from "./routes/auth.js";
 import postRoutes from "./routes/posts.js";
 import { initDatabase } from "./service/testdata-generator.js";
 import { AppSettings, ClientSettings, DatabaseSettings, ServerSettings } from "./settings.js";
+import { logger } from "./logger.js";
+import { errorHandler } from "./service/error-handler.js";
+import { InternalServerError } from "./errors/InternalServerError.js";
+import { BaseError } from "./errors/BaseError.js";
 
 const app: Application = express();
 
@@ -32,6 +36,33 @@ app.use(`${ServerSettings.API_PATH}/admin`, adminRoutes);
 app.use(`${ServerSettings.API_PATH}/posts`, postRoutes);
 app.use(`${ServerSettings.API_PATH}/attachments`, attRoutes);
 
+// handle errors
+app.use(async (err: Error, req: Request, res: Response, next: NextFunction) => {
+  if (!errorHandler.isOperationalError(err)) {
+    next(err);
+  } else {
+    await errorHandler.handleError(err);
+    if (err instanceof BaseError) {
+      const baseError = err as BaseError;
+      res.status(baseError.httpCode).send(baseError.message);
+    }
+  }
+});
+
+process.on("unhandledRejection", (error) => {
+  throw new InternalServerError(true, "Unhandled rejection " + error);
+});
+
+process.on("uncaughtException", async (error) => {
+  await handleUncaught(error);
+});
+
+async function handleUncaught(error: Error) {
+  await errorHandler.handleError(error);
+  logger.info("Shutting down fumix blog...", error.stack);
+  process.exit(1);
+}
+
 // in production serve the built vue-app from static public folder:
 if (AppSettings.IS_PRODUCTION) {
   app.use(express.static("./public"));
@@ -41,9 +72,9 @@ if (AppSettings.IS_PRODUCTION) {
 }
 
 app.listen(ServerSettings.PORT, () => {
-  console.log(`fuBlog server running in ${AppSettings.RUN_MODE} mode on port: ${ServerSettings.PORT}`);
+  logger.info(`fuBlog server running in ${AppSettings.RUN_MODE} mode on port: ${ServerSettings.PORT}`);
   if (!AppSettings.IS_PRODUCTION) {
-    console.log(`Connected to Postgres DB at ${DatabaseSettings.HOST}:${DatabaseSettings.PORT}`);
-    console.log(`Client: ${ClientSettings.BASE_URL}`);
+    logger.info(`Connected to Postgres DB at ${DatabaseSettings.HOST}:${DatabaseSettings.PORT}`);
+    logger.info(`Client: ${ClientSettings.BASE_URL}`);
   }
 });

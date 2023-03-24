@@ -64,7 +64,7 @@ import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 
 export default defineComponent({
-  name: "AuthView",
+  name: "LoginView",
   components: { LoginButton },
 
   methods: {

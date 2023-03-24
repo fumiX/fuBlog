@@ -10,6 +10,7 @@ import { UserEntity } from "../entity/User.entity.js";
 import { MarkdownConverterServer } from "../markdown-converter-server.js";
 import { AppSettings, OAuthSettings } from "../settings.js";
 import { generateProfilePicture, generateRandomPng } from "./testdata/images.js";
+import logger from "../logger.js";
 
 const usersCount = 10;
 const postsPerUser = 15;
@@ -19,24 +20,24 @@ faker.seed(42);
 
 export async function initDatabase(): Promise<void> {
   if (AppSettings.IS_PRODUCTION) {
-    console.log("No test data is generated in production.");
+    logger.info("No test data is generated in production.");
   } else {
     const usersInDbAtStart = await AppDataSource.manager.getRepository(UserEntity).count();
     if (usersInDbAtStart !== 0) {
-      console.log("Test data is already generated.");
+      logger.info("Test data is already generated.");
     } else {
-      console.log("No test data in DB.");
+      logger.info("No test data in DB.");
       await generate();
     }
   }
-  console.log("Database initialized");
+  logger.info("Database initialized");
 }
 
 /**
  * Generate some test data for the blog.
  */
 async function generate(): Promise<void> {
-  console.log(`Generating test data (${usersCount} users, ${postsPerUser} posts per user, ${attachmentsPerPost} attachments per post)`);
+  logger.info(`Generating test data (${usersCount} users, ${postsPerUser} posts per user, ${attachmentsPerPost} attachments per post)`);
   faker.seed(42);
 
   await Promise.all(
@@ -102,7 +103,7 @@ export async function createRandomUser(seed?: number): Promise<UserEntity> {
     };
     return AppDataSource.manager.getRepository(UserEntity).save(user);
   } catch (e) {
-    console.log("Error creating user", e);
+    logger.error("Error creating user", e);
   }
   return new Promise(() => null);
 }
@@ -131,7 +132,7 @@ export async function createRandomPost(createdBy: UserEntity, seed?: number): Pr
     const postRep = AppDataSource.manager.getRepository(PostEntity);
     return await postRep.save(post);
   } catch (e) {
-    console.log("Error generating post", e);
+    logger.error("Error generating post", e);
   }
   return new Promise(() => null);
 }
@@ -149,7 +150,7 @@ export async function createRandomAttachment(post: PostEntity, seed?: number): P
     const attRep = AppDataSource.manager.getRepository(AttachmentEntity);
     return await attRep.save(attachment);
   } catch (e) {
-    console.log("Error generating attachment", e);
+    logger.error("Error generating attachment", e);
   }
   return new Promise(() => null);
 }
