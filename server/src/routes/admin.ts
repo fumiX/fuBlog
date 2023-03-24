@@ -1,7 +1,6 @@
 import express, { Request, Response, Router } from "express";
 import { AppDataSource } from "../data-source.js";
 import { UserEntity } from "../entity/User.entity.js";
-import logger from "../logger.js";
 
 const router: Router = express.Router();
 
@@ -10,20 +9,7 @@ router.get("/users", async (req, res, next) => {
     .getRepository(UserEntity)
     .find({ order: { id: "ASC" } })
     .then((result) => {
-      return res.status(200).json(
-        result.map<UserDto>((u) => {
-          return {
-            id: u.id,
-            firstName: u.firstName,
-            lastName: u.lastName,
-            roles: u.roles,
-            permissions: permissionsForUser(u),
-            username: u.username,
-            email: u.email,
-            profilePictureUrl: u.profilePicture ? "data:image/jpeg;base64," + Buffer.from(u.profilePicture).toString("base64") : undefined,
-          };
-        }),
-      );
+      return res.status(200).json(result);
     })
     .catch((err) => next(err));
 });

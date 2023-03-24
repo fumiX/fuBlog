@@ -12,7 +12,7 @@
     "portal"
   ],
   "scripts": {
-    "build": "npm run clean && npm run -w common build && npm run -ws build",
+    "build": "npm run clean && npm run -ws build",
     "clean": "ts-node scripts/clean-all.ts",
     "check-packages": "ts-node scripts/check-packages.ts",
     "generate-ca": "node certs/generate.mjs",
