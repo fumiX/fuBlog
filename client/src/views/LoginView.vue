@@ -21,27 +21,25 @@
                   <div style="white-space: pre-line; margin-bottom: 1rem">
                     {{ t("login.description") }}
                   </div>
-                  <form>
-                    <img v-if="userInfo.user.profilePictureUrl" :src="userInfo.user.profilePictureUrl" class="img-thumbnail m-2" />
-                    <div class="form-floating mb-3">
-                      <input class="form-control" :value="userInfo.oauthId" readonly disabled />
-                      <label for="oauthId">{{ t("login.form.label.id") }} *</label>
-                    </div>
-                    <div class="form-floating mb-3">
-                      <input class="form-control" :value="userInfo?.user?.email" readonly disabled />
-                      <label for="email">{{ t("login.form.label.email") }} *</label>
-                    </div>
-                    <div class="form-floating mb-3">
-                      <input class="form-control" id="username" v-model="username" required minlength="3" maxlength="64" />
-                      <label for="username">{{ t("login.form.label.username") }} *</label>
-                    </div>
-                    <div class="form-floating mb-2">
-                      <input class="form-control" id="fullName" v-model="fullName" />
-                      <label for="fullName">{{ t("login.form.label.fullname") }}</label>
-                    </div>
-                    <input class="form-control" name="token" :value="userInfo.token" hidden />
-                    <button class="btn btn-sm btn-primary float-end" @click="register">{{ t("app.base.login") }}</button>
-                  </form>
+                  <img v-if="userInfo.user.profilePictureUrl" :src="userInfo.user.profilePictureUrl" class="img-thumbnail m-2" />
+                  <div class="form-floating mb-3">
+                    <input class="form-control" :value="userInfo.oauthId" readonly disabled />
+                    <label for="oauthId">{{ t("login.form.label.id") }} *</label>
+                  </div>
+                  <div class="form-floating mb-3">
+                    <input class="form-control" :value="userInfo?.user?.email" readonly disabled />
+                    <label for="email">{{ t("login.form.label.email") }} *</label>
+                  </div>
+                  <div class="form-floating mb-3">
+                    <input class="form-control" id="username" v-model="username" required minlength="3" maxlength="64" />
+                    <label for="username">{{ t("login.form.label.username") }} *</label>
+                  </div>
+                  <div class="form-floating mb-2">
+                    <input class="form-control" id="fullName" v-model="fullName" />
+                    <label for="fullName">{{ t("login.form.label.fullname") }}</label>
+                  </div>
+                  <input class="form-control" name="token" :value="userInfo.token" hidden />
+                  <button class="btn btn-sm btn-primary float-end" @click="register">{{ t("app.base.login") }}</button>
                 </div>
               </div>
             </div>
