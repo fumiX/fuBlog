@@ -1,5 +1,4 @@
 import { toProviderId, UserWithOAuthProviders } from "@fumix/fu-blog-common";
-import console from "console";
 import { OAuthAccountEntity } from "../entity/OAuthAccount.entity.js";
 import express, { Request, Response, Router } from "express";
 import { AppDataSource } from "../data-source.js";
@@ -28,22 +27,19 @@ router.get("/users", async (req, res, next) => {
 });
 
 // UPDATE USER ROLES
-router.post("/users/roles/:userId([0-9]+)", async (req: Request, res: Response) => {
-  try {
-    const userId = req.params.userId;
-    const bodyJson = req.body;
-    await AppDataSource.manager
-      .createQueryBuilder()
-      .update("user")
-      .set({
-        roles: [...bodyJson.roles],
-      })
-      .where("id = :id", { id: userId })
-      .execute();
-    res.status(200).json({ message: "Successfuly updated userId --> " + userId });
-  } catch (e) {
-    res.status(500).json({ error: "Error " + e });
-  }
+router.post("/users/roles/:userId([0-9]+)", async (req: Request, res: Response, next) => {
+  const userId = req.params.userId;
+  const bodyJson = req.body;
+  await AppDataSource.manager
+    .createQueryBuilder()
+    .update("user")
+    .set({
+      roles: [...bodyJson.roles],
+    })
+    .where("id = :id", { id: userId })
+    .execute()
+    .then((result) => res.status(200).json({ message: "Successfully updated userId --> " + userId }))
+    .catch((err) => next(err));
 });
 
 export default router;
