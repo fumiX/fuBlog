@@ -7,7 +7,8 @@
     "start": "NODE_ENV='development' NODE_EXTRA_CA_CERTS=../certs/ca.crt nodemon -r dotenv/config ./src/server.ts",
     "build": "tsc",
     "run-prod": "node ./dist/server.js",
-    "lint": "eslint src/**/*.ts",
+    "lint": "prettier --check 'src/**/*.(ts|vue)' && eslint src/**/*.ts",
+    "lintfix": "prettier 'src/**/*.(ts|vue)' --write && eslint src/**/*.ts --fix",
     "format": "eslint src/**/*.ts --fix",
     "test": "echo \"At the moment there are no tests for the 'server' package …\"",
     "typeorm": "typeorm-ts-node-commonjs"

@@ -5,7 +5,8 @@
   "license": "Apache-2.0",
   "scripts": {
     "build": "tsc",
-    "lint": "eslint src/**/*.ts",
+    "lint": "prettier --check 'src/**/*.(ts|vue)' && eslint src/**/*.ts",
+    "lintfix": "prettier 'src/**/*.(ts|vue)' --write && eslint src/**/*.ts --fix",
     "test": "node --test"
   },
   "dependencies": {
