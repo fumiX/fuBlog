@@ -9,44 +9,54 @@
       </div>
     </div>
 
-    <div v-if="props.userPermissions?.canCreatePost" class="clearfix mb-4">
-      <button type="button" class="btn btn-sm btn-secondary float-end" @click="goTo('/posts/post/form')">
-        <fa-icon :icon="faAdd" /> {{ t("app.base.create_post") }}
-      </button>
-    </div>
+    <div class="row">
+      <!-- LEFT -->
+      <div class="col-lg-8 col-lg-border">
+        <div v-if="props.userPermissions?.canCreatePost" class="clearfix mb-4">
+          <button type="button" class="btn btn-sm btn-secondary float-end" @click="goTo('/posts/post/form')">
+            <fa-icon :icon="faAdd" /> {{ t("app.base.create_post") }}
+          </button>
+        </div>
 
-    <div v-if="loading" class="loader">
-      <div class="spinner-border text-secondary" role="status">
-        <span class="visually-hidden">{{ t("app.base.loading") }}</span>
+        <div v-if="loading" class="loader">
+          <div class="spinner-border text-secondary" role="status">
+            <span class="visually-hidden">{{ t("app.base.loading") }}</span>
+          </div>
+        </div>
+
+        <div v-else>
+          <post-preview
+            v-for="post in posts"
+            :key="post.id"
+            :post="post"
+            :userPermissions="userPermissions"
+            @deletePost="showConfirm($event)"
+            @changePost="changePost($event)"
+          ></post-preview>
+
+          <div v-if="!totalPages && route.query.search" class="alert alert-light text-center">
+            <fa-icon :icon="faSadTear" class="mx-3" />{{ t("search.noResults", { query: route.query.search }) }}
+          </div>
+
+          <paginate
+            v-if="totalPages > 1"
+            :page-count="totalPages"
+            :click-handler="paginate"
+            :prev-text="'<'"
+            :next-text="'>'"
+            :container-class="'pagination justify-content-end'"
+            :page-class="'page-item'"
+            :page-range="5"
+            :margin-pages="2"
+          >
+          </paginate>
+        </div>
       </div>
-    </div>
 
-    <div v-else>
-      <post-preview
-        v-for="post in posts"
-        :key="post.id"
-        :post="post"
-        :userPermissions="userPermissions"
-        @deletePost="showConfirm($event)"
-        @changePost="changePost($event)"
-      ></post-preview>
-
-      <div v-if="!totalPages && route.query.search" class="alert alert-light text-center">
-        <fa-icon :icon="faSadTear" class="mx-3" />{{ t("search.noResults", { query: route.query.search }) }}
+      <!-- RIGHT -->
+      <div class="col-lg-4">
+        <word-cloud @wordclicked="searchWord($event)"></word-cloud>
       </div>
-
-      <paginate
-        v-if="totalPages > 1"
-        :page-count="totalPages"
-        :click-handler="paginate"
-        :prev-text="'<'"
-        :next-text="'>'"
-        :container-class="'pagination justify-content-end'"
-        :page-class="'page-item'"
-        :page-range="5"
-        :margin-pages="2"
-      >
-      </paginate>
     </div>
 
     <confirm-dialog :data="dialogData" :show="showDialog" @canceled="canceled()" @confirmed="confirmed()"></confirm-dialog>
@@ -64,8 +74,9 @@
 <script lang="ts">
 import type { PropType } from "vue";
 import { defineComponent, onMounted, ref, watch } from "vue";
-import PostPreview from "../components/PostPreview.vue";
-import ConfirmDialog from "../components/ConfirmDialog.vue";
+import PostPreview from "@client/components/PostPreview.vue";
+import ConfirmDialog from "@client/components/ConfirmDialog.vue";
+import WordCloud from "@client/components/WordCloud.vue";
 import type { ConfirmDialogData, Post } from "@fumix/fu-blog-common";
 import { faAdd } from "@fortawesome/free-solid-svg-icons";
 import { faSadTear } from "@fortawesome/free-regular-svg-icons";
@@ -79,6 +90,7 @@ export default defineComponent({
     PostPreview,
     ConfirmDialog,
     Paginate,
+    WordCloud,
   },
 
   props: {
@@ -185,6 +197,9 @@ export default defineComponent({
       this.$router.push(path);
     },
 
+    searchWord(event: any) {
+      this.goTo(`/posts/?search=${event[0]}&operator=and`);
+    },
     showConfirm(post: Post) {
       this.currentPost = post as Post;
       this.dialogData = {
