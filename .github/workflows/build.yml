@@ -7,7 +7,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  basic-tests:
+  basic-checks:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -21,12 +21,30 @@ jobs:
       - run: npm ci
       - run: npm run check-packages
 
-  build-common:
-    needs: basic-tests
+  build-app:
+    needs: basic-checks
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      matrix:
+        task: [
+          lint,
+          build
+        ]
+        workspace: [
+          common,
+          client,
+          server,
+          portal
+        ]
     steps:
       - uses: actions/checkout@v3
+      - name: Cache build
+        id: cache-build
+        uses: actions/cache@v3
+        with:
+          path: node_modules/.cache/nx
+          key: ${{ runner.os }}-nx-${{ hashFiles('package-lock.json') }}
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -34,68 +52,12 @@ jobs:
           cache: 'npm'
           cache-dependency-path: 'package-lock.json'
       - run: npm ci
-      - run: npm run lint --workspace common
-      - run: npm run build --workspace common
+      - run: npx lerna run ${{ matrix.task }} --scope=@fumix/fu-blog-${{ matrix.workspace }}
       - run: echo "This file is placed at the project root, so Github preserves the artifact paths (see https://github.com/actions/upload-artifact/issues/206)" > root.txt
       - uses: actions/upload-artifact@v3
         with:
           name: dist
           path: | # Important to use `|` to preserve the path (see https://github.com/actions/upload-artifact/issues/55#issuecomment-633825395)
-            common/dist/**
-            root.txt
-          if-no-files-found: error
-
-  build-app:
-    needs: build-common
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    strategy:
-      matrix:
-        workspace: [ client, server ]
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
-        with:
-          name: dist
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version-file: '.node-version'
-          cache: 'npm'
-          cache-dependency-path: 'package-lock.json'
-      - run: npm ci
-      - run: npm run lint --workspace ${{ matrix.workspace }}
-      - run: npm run build --workspace ${{ matrix.workspace }}
-      - uses: actions/upload-artifact@v3
-        with:
-          name: dist
-          path: |
-            ${{ matrix.workspace }}/dist/**
-            root.txt
-          if-no-files-found: error
-
-  build-portal:
-    needs: build-app
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
-        with:
-          name: dist
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version-file: '.node-version'
-          cache: 'npm'
-          cache-dependency-path: 'package-lock.json'
-      - run: npm ci
-      - run: npm run lint --workspace portal
-      - run: npm run build --workspace portal
-      - uses: actions/upload-artifact@v3
-        with:
-          name: dist
-          path: |
             ${{ matrix.workspace }}/dist/**
             root.txt
           if-no-files-found: error
@@ -105,7 +67,7 @@ jobs:
         refs/heads/main
         refs/heads/develop
       ', github.ref) && github.repository == 'fumiX/fuBlog'
-    needs: build-portal
+    needs: build-app
     runs-on: ubuntu-latest
     permissions:
       contents: read
