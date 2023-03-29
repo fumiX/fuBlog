@@ -20,7 +20,7 @@
     "lintfix": "npx lerna run lintfix",
     "prepare-start": "npm run generate-ca && docker compose up -d",
     "start": "npm run prepare-start && concurrently -c yellow,blue,red -n portal,client,server \"npm start --workspace portal\" \"npm start --workspace client\" \"npm start --workspace server\"",
-    "test": "npm run --workspaces test"
+    "test": "npx lerna run test"
   },
   "devDependencies": {
     "@types/multer": "^1.4.7",

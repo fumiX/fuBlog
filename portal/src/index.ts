@@ -1,4 +1,4 @@
-import { AppDataSource } from "@fumix/fu-blog-server/dist/src/data-source.js";
+import { AppDataSource } from "@fumix/fu-blog-server/dist/data-source.js";
 import { X509Certificate } from "crypto";
 import express from "express";
 import { readFileSync } from "fs";
