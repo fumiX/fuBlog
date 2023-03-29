@@ -1,7 +1,8 @@
 import { Post } from "@fumix/fu-blog-common";
 import { AttachmentEntity } from "./Attachment.entity.js";
 import { UserEntity } from "./User.entity.js";
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { TagEntity } from "./Tag.entity.js";
 
 /**
  * Blog post
@@ -40,4 +41,8 @@ export class PostEntity implements Post {
 
   @Column({ nullable: false })
   draft: boolean;
+
+  @ManyToMany(() => TagEntity)
+  @JoinTable({ name: "post_tag" })
+  tags?: TagEntity[];
 }

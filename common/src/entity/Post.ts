@@ -1,5 +1,6 @@
 import type { User } from "./User.js";
 import { Attachment } from "./Attachment.js";
+import { Tag } from "@common/entity/Tag.js";
 
 export type Post = {
   id?: number;
@@ -13,4 +14,5 @@ export type Post = {
   updatedBy?: User;
   attachments?: Attachment[];
   draft?: boolean;
+  tags?: Tag[];
 };
