@@ -31,6 +31,10 @@ app.use(authorizationPath, loginRoute);
 app.use(tokenPath, tokenRoute);
 app.use(userinfoPath, userinfoRoute);
 
+app.get("/favicon.ico", (req, res) => {
+  res.status(404).send();
+});
+
 app.get("/bootstrap.min.css", (req, res) => {
   res //
     .status(200)

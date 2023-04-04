@@ -21,6 +21,7 @@
 </style>
 
 <script lang="ts">
+import { blobToArray, bytesToDataUrl } from "@fumix/fu-blog-common";
 import type { PropType } from "vue";
 import { defineComponent, ref, watch } from "vue";
 import { MarkdownConverterClient } from "../markdown-converter-client.js";
@@ -29,6 +30,10 @@ export default defineComponent({
   props: {
     markdown: {
       type: String as PropType<string | null>,
+    },
+    customImageUrls: {
+      type: Object as PropType<{ [sha256: string]: File }>,
+      default: () => {},
     },
   },
 
@@ -40,8 +45,18 @@ export default defineComponent({
     watch(props, async () => {
       try {
         emits.emit("loading", true);
-        sanitizedHtml.value = await MarkdownConverterClient.Instance.convert(props.markdown ?? "");
+        sanitizedHtml.value = await MarkdownConverterClient.Instance.convert(props.markdown ?? "", {
+          walkTokens: async (token) => {
+            if (token.type === "image") {
+              const customFile = props.customImageUrls[token.href];
+              if (customFile) {
+                token.href = await blobToArray(customFile).then((it) => bytesToDataUrl(customFile.type, it));
+              }
+            }
+          },
+        });
       } catch (e) {
+        console.error("Markdown error", e);
         // TODO erro handling
       } finally {
         emits.emit("loading", false);

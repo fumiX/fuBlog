@@ -1,7 +1,8 @@
-import { marked } from "marked";
 import { Buffer } from "buffer";
-import pako from "pako";
 import { DOMPurifyI } from "dompurify";
+import { marked } from "marked";
+import pako from "pako";
+import MarkedOptions = marked.MarkedOptions;
 
 /**
  * Takes a URL as argument, fetches text content from there and returns a promise resolving to that content.
@@ -13,7 +14,7 @@ type FetchTextFromUrlFunction = (a: string) => Promise<string>;
 type KrokiDiagramType = {
   /** The ID of the diagram type, as used in the URL */
   id: string;
-  /** Human readable label for the diagram type */
+  /** Human-readable label for the diagram type */
   label: string;
   /** The ID of the diagram type, as used at the beginning of the Markdown code block */
   markdownId: string;
@@ -21,7 +22,6 @@ type KrokiDiagramType = {
 
 export abstract class MarkdownConverter {
   private static readonly KROKI_SERVICE_URL = "https://kroki.io";
-  private static readonly KROKI_DIAGRAM_INFOSTRING = "diagram-plantuml";
   private static readonly KROKI_DIAGRAM_PREFIX = "diagram-";
 
   private static readonly KROKI_SVG_DIAGRAM_TYPES: KrokiDiagramType[] = [
@@ -98,9 +98,9 @@ export abstract class MarkdownConverter {
     marked.use(MarkdownConverter.rendererExtension);
   }
 
-  convert(input: string): Promise<string> {
+  convert(input: string, options?: Omit<MarkedOptions, "async">): Promise<string> {
     return marked
-      .parse(input, { async: true }) //
+      .parse(input, { ...(options ?? {}), async: true }) //
       .then((parsedInput) =>
         this.dompurify.sanitize(parsedInput, {
           // Allowed tags and attributes inside markdown

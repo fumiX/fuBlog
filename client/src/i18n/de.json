@@ -38,7 +38,7 @@
       "preview": {
         "title": "Vorschau"
       },
-      "imageupload": "Bild hochladen"
+      "imageupload": "keine angehängten Bilder | ein angehängtes Bild | {count} angehängte Bilder"
     },
     "confirm": {
       "title": "Löschen bestätigen",

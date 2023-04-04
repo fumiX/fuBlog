@@ -26,20 +26,20 @@ const router = createRouter({
       component: () => import("@client/views/PostsView.vue"),
     },
     {
-      path: "/posts/post/:id",
+      path: "/posts/post/:id([1-9][0-9]+)",
       name: "post",
-      // route level code-splitting
-      // this generates a separate chunk (Articles.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
       component: () => import("@client/views/PostView.vue"),
     },
     {
-      path: "/posts/post/form",
-      name: "form",
-      // route level code-splitting
-      // this generates a separate chunk (Articles.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
+      path: "/posts/post/new",
+      name: "new-post",
       component: () => import("@client/views/PostFormView.vue"),
+    },
+    {
+      path: "/posts/post/:postId([1-9][0-9]*)/edit",
+      name: "edit-post",
+      component: () => import("@client/views/PostFormView.vue"),
+      props: true,
     },
   ],
 });

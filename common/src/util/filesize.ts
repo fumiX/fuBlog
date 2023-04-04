@@ -15,5 +15,7 @@ export function convertToHumanReadableFileSize(
     Math.min(unitDefinition.units.length - 1, Math.floor(Math.log(Math.abs(numBytes)) / Math.log(unitDefinition.base))),
   );
 
-  return `${(numBytes / Math.pow(unitDefinition.base, exponent)).toLocaleString(locales)} ${unitDefinition.units[exponent]}`;
+  return `${(numBytes / Math.pow(unitDefinition.base, exponent)).toLocaleString(locales, { maximumFractionDigits: 2 })} ${
+    unitDefinition.units[exponent]
+  }`;
 }

@@ -58,8 +58,8 @@ import { loadOauthStateByKey, saveIdToken } from "@client/util/storage.js";
 import type { OAuthCodeDto, OAuthUserInfoDto } from "@fumix/fu-blog-common";
 import { bytesToBase64URL, isOAuthType } from "@fumix/fu-blog-common";
 import { defineComponent, ref } from "vue";
-import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
+import { useRoute } from "vue-router";
 
 export default defineComponent({
   name: "LoginView",

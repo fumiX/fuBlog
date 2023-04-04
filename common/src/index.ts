@@ -16,5 +16,6 @@ export * from "./entity/permission/UserRolePermissions.js";
 export * from "./markdown-converter-common.js";
 export * from "./util/base64.js";
 export * from "./util/filesize.js";
+export * from "./util/markdown.js";
 export * from "./util/type-guard.js";
 export * from "./util/username.js";

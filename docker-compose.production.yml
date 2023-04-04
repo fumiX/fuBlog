@@ -21,8 +21,5 @@ services:
       DATABASE_USER: "fublog"
       DATABASE_PASSWORD: "8!06"
       DATABASE_NAME: "fublog"
-      OAUTH_CLIENT_ID: # Put the OAuth client ID here
-      OAUTH_CLIENT_SECRET: # Put the Oauth client secret here
-      NODE_ENV: production
     ports:
       - "5100:5000"

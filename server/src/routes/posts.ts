@@ -1,33 +1,20 @@
-import { DraftResponseDto } from "@fumix/fu-blog-common";
-import express, { Request, Response, Router } from "express";
+import { DraftResponseDto, EditPostRequestDto, NewPostRequestDto, permissionsForUser } from "@fumix/fu-blog-common";
+import express, { NextFunction, Request, Response, Router } from "express";
 import multer from "multer";
 import { AppDataSource } from "../data-source.js";
 import { AttachmentEntity } from "../entity/Attachment.entity.js";
 import { PostEntity } from "../entity/Post.entity.js";
-import { UserEntity } from "../entity/User.entity.js";
-import { MarkdownConverterServer } from "../markdown-converter-server.js";
+import { BadRequestError } from "../errors/BadRequestError.js";
+import { ForbiddenError } from "../errors/ForbiddenError.js";
+import { InternalServerError } from "../errors/InternalServerError.js";
 import { NotFoundError } from "../errors/NotFoundError.js";
+import { UnauthorizedError } from "../errors/UnauthorizedError.js";
+import { MarkdownConverterServer } from "../markdown-converter-server.js";
+import { authMiddleware } from "../service/middleware/auth.js";
+import { extractJsonBody, extractUploadFiles, multipleFilesUpload } from "../service/middleware/files-upload.js";
 
 const router: Router = express.Router();
 const upload = multer();
-
-// create or get dummy user
-async function getUser() {
-  const email = "test@test.de";
-  let createdUser = await AppDataSource.manager.getRepository(UserEntity).findOneBy({ email: email });
-
-  if (createdUser === null) {
-    const user: UserEntity = {
-      username: "AlfredENeumann",
-      email: email,
-      fullName: "Alfred E. Neumann",
-      roles: ["ADMIN"],
-      isActive: true,
-    };
-    createdUser = await AppDataSource.manager.getRepository(UserEntity).save(user);
-  }
-  return createdUser;
-}
 
 // search posts
 router.get("/page/:page([0-9]+)/count/:count([0-9]+)/search/:search/operator/:operator", async (req: Request, res: Response, next) => {
@@ -79,7 +66,7 @@ router.get("/page/:page([0-9]+)/count/:count([0-9]+)/", async (req: Request, res
 });
 
 // GET POST BY ID WITH RELATIONS TO USER
-router.get("/:id([0-9]+)", async (req: Request, res: Response, next) => {
+router.get("/:id([1-9][0-9]*)", async (req: Request, res: Response, next) => {
   await AppDataSource.manager
     .getRepository(PostEntity)
     .findOne({
@@ -100,153 +87,125 @@ router.get("/:id([0-9]+)", async (req: Request, res: Response, next) => {
     });
 });
 
-function convertAttachment(filename: string, buffer: Buffer, mimeType: string, post: PostEntity): AttachmentEntity {
+function convertAttachment(post: PostEntity, file: Express.Multer.File): AttachmentEntity {
   return {
-    filename: filename,
-    binaryData: buffer,
-    mimeType: mimeType,
-    post: post,
+    filename: file.originalname,
+    binaryData: file.buffer,
+    mimeType: file.mimetype,
+    post,
   };
 }
 
 // CREATE NEW POST
-router.post("/new", upload.single("file"), async (req: Request, res: Response, next) => {
-  const bodyJson = JSON.parse(req.body.body);
+router.post("/new", authMiddleware, multipleFilesUpload, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const body: NewPostRequestDto | undefined = JSON.parse(req.body?.json) as NewPostRequestDto;
+  const loggedInUser = await req.loggedInUser?.();
+
+  if (!body) {
+    return next(new BadRequestError());
+  } else if (!loggedInUser) {
+    return next(new UnauthorizedError());
+  } else if (!permissionsForUser(loggedInUser.user).canCreatePost) {
+    return next(new ForbiddenError());
+  }
+
   // TODO handle
   try {
     const post: PostEntity = {
-      title: bodyJson.title,
-      description: bodyJson.description,
-      markdown: bodyJson.markdown,
-      createdBy: await getUser(),
+      title: body.title,
+      description: body.description,
+      markdown: body.markdown,
+      createdBy: loggedInUser.user,
       createdAt: new Date(),
-      updatedAt: new Date(),
-      sanitizedHtml: await MarkdownConverterServer.Instance.convert(bodyJson.markdown),
-      updatedBy: undefined,
-      draft: bodyJson.draft,
+      sanitizedHtml: await MarkdownConverterServer.Instance.convert(body.markdown),
+      draft: body.draft,
       attachments: [],
     };
 
-    const savedPost = await AppDataSource.manager
-      .getRepository(PostEntity)
-      .save<PostEntity>(post)
-      .catch((err) => next(err));
-    const fileFromRequest = req.file;
-    let attachmentEntity = null;
+    // TODO: Make this a transaction with proper rollback and error message
+    const savedPost = await AppDataSource.manager.getRepository(PostEntity).save<PostEntity>(post).catch(next);
 
-    // const filesFromRequest = req.files['fileFromRequest'][0];
-    if (fileFromRequest) {
-      // let attachments = files?.map((fileFromRequest: Multer.File) => convertAttachment(fileFromRequest.filename, fileFromRequest.buffer, fileFromRequest.mimetype, post));
-      attachmentEntity = convertAttachment(fileFromRequest.originalname, fileFromRequest.buffer, fileFromRequest.mimetype, post);
-      await AppDataSource.manager
-        .getRepository(AttachmentEntity)
-        .save<AttachmentEntity>(attachmentEntity)
-        .catch((err) => next(err));
-      if (savedPost instanceof PostEntity) {
-        savedPost.attachments.push(attachmentEntity);
-      }
-    }
-    let responseDto: DraftResponseDto = { attachments: [] };
-    if (attachmentEntity !== null) {
-      if (savedPost instanceof PostEntity) {
-        responseDto = {
-          attachments: [
-            {
-              id: attachmentEntity?.id,
-              binaryData: attachmentEntity.binaryData,
-              mimeType: attachmentEntity.mimeType,
-              filename: attachmentEntity.filename,
-            },
-          ],
-          postId: savedPost.id,
-        };
+    if (savedPost) {
+      const attachmentEntities: AttachmentEntity[] = extractUploadFiles(req).map((it) => convertAttachment(post, it));
+      if (attachmentEntities.length > 0) {
+        await AppDataSource.getRepository(AttachmentEntity)
+          .save<AttachmentEntity>(attachmentEntities)
+          .then((it) => {
+            res.status(201).json({ postId: savedPost.id, attachments: attachmentEntities } as DraftResponseDto);
+          })
+          .catch(next);
+      } else {
+        res.status(201).json({ postId: savedPost.id, attachments: [] } as DraftResponseDto);
       }
     } else {
-      if (savedPost instanceof PostEntity) {
-        responseDto = { postId: savedPost.id, attachments: [] };
-      }
+      next(new InternalServerError(true, "Could not create post!"));
     }
-    res.status(200).send(responseDto);
   } catch (e) {
     next(e);
   }
 });
 
 // EDIT EXISTING POST
-router.post("/:id([0-9]+)", upload.single("file"), async (req: Request, res: Response, next) => {
+router.post("/:id([1-9][0-9]*)", authMiddleware, multipleFilesUpload, async (req: Request, res: Response, next) => {
+  const postId = +req.params.id;
   const post = await AppDataSource.manager.getRepository(PostEntity).findOneBy({
-    id: +req.params.id,
+    id: postId,
   });
+  const body = extractJsonBody<EditPostRequestDto>(req);
 
-  const bodyJson = JSON.parse(req.body.body);
-  if (post) {
-    await AppDataSource.manager
-      .createQueryBuilder()
-      .update("post")
-      .set({
-        title: bodyJson.title,
-        description: bodyJson.description,
-        markdown: bodyJson.markdown,
-        updatedAt: new Date(),
-        sanitizedHtml: await MarkdownConverterServer.Instance.convert(bodyJson.markdown),
-        updatedBy: await getUser(),
-        draft: bodyJson.draft,
-      })
-      .where("id = :id", { id: post.id })
-      .execute()
-      .catch((err) => next(err));
-
-    try {
-      const fileFromRequest = req.file;
-      let attachmentEntity = null;
-
-      // const filesFromRequest = req.files['fileFromRequest'][0];
-      if (fileFromRequest) {
-        // let attachments = files?.map((fileFromRequest: Multer.File) => convertAttachment(fileFromRequest.filename, fileFromRequest.buffer, fileFromRequest.mimetype, post));
-        attachmentEntity = convertAttachment(fileFromRequest.originalname, fileFromRequest.buffer, fileFromRequest.mimetype, post);
-        await AppDataSource.manager
-          .getRepository(AttachmentEntity)
-          .save<AttachmentEntity>(attachmentEntity)
-          .catch((err) => next(err));
-        post.attachments = [];
-        post.attachments.push(attachmentEntity);
-      }
-      let responseDto: DraftResponseDto;
-      if (attachmentEntity !== null) {
-        responseDto = {
-          attachments: [
-            {
-              id: attachmentEntity?.id,
-              binaryData: attachmentEntity.binaryData,
-              mimeType: attachmentEntity.mimeType,
-              filename: attachmentEntity.filename,
-            },
-          ],
-          postId: post.id,
-        };
-      } else {
-        responseDto = { postId: post.id, attachments: [] };
-      }
-      res.status(200).send(responseDto);
-    } catch (e) {
-      next(e);
-    }
+  if (!post || postId < 1) {
+    return next(new NotFoundError("Post not found"));
+  } else if (!body) {
+    return next(new BadRequestError());
   }
+  const account = await req.loggedInUser?.();
+  if (!account) {
+    return next(new UnauthorizedError());
+  } else if (!permissionsForUser(account.user).canEditPost && (account.user.id === null || account.user.id !== post.createdBy?.id)) {
+    return next(new ForbiddenError());
+  }
+
+  AppDataSource.manager
+    .transaction(async (manager) => {
+      return manager
+        .getRepository(PostEntity)
+        .update(postId, {
+          title: body.title,
+          description: body.description,
+          markdown: body.markdown,
+          updatedAt: new Date(),
+          sanitizedHtml: await MarkdownConverterServer.Instance.convert(body.markdown),
+          updatedBy: account.user,
+          draft: body.draft,
+        })
+        .then((updateResult) => {
+          // TODO: Optimize, so unchanged attachments are not deleted and re-added
+          manager.getRepository(AttachmentEntity).delete({ post: { id: post.id } });
+          manager.getRepository(AttachmentEntity).insert(extractUploadFiles(req).map((it) => convertAttachment(post, it)));
+        })
+        .catch(next);
+    })
+    .then((it) => res.status(200).json({ postId: post.id } as DraftResponseDto))
+    .catch(next);
 });
 
 // DELETE POST
 router.get("/delete/:id([0-9]+)", async (req: Request, res: Response, next) => {
-  // find all attachments of post and delete them
-  await AppDataSource.manager
-    .getRepository(AttachmentEntity)
-    .delete({ post: { id: +req.params.id } })
-    .catch((err) => next(err));
-  // find post in DB and delete it
-  const result = await AppDataSource.manager
-    .getRepository(PostEntity)
-    .delete(+req.params.id)
-    .catch((err) => next(err));
-  res.status(200).send(result);
+  await AppDataSource.manager.transaction(async (manager) => {
+    // find all attachments of post and delete them
+    manager
+      .getRepository(AttachmentEntity)
+      .delete({ post: { id: +req.params.id } })
+      .then((r) => {
+        // find post in DB and delete it
+        manager
+          .getRepository(PostEntity)
+          .delete(+req.params.id)
+          .then((it) => res.status(200).send(it))
+          .catch(next);
+      })
+      .catch(next);
+  });
 });
 
 export default router;

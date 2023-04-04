@@ -14,7 +14,8 @@
     "jsdom": "^21.1.0",
     "marked": "^4.2.12",
     "node-fetch": "^3.3.1",
-    "pako": "2.1.0"
+    "pako": "2.1.0",
+    "sha.js": "^2.4.11"
   },
   "devDependencies": {
     "@types/dompurify": "^3.0.0",
@@ -22,7 +23,8 @@
     "@types/marked": "^4.0.7",
     "@types/node": "^18.15.10",
     "@types/node-fetch": "^2.6.2",
-    "@types/pako": "^2.0.0"
+    "@types/pako": "^2.0.0",
+    "@types/sha.js": "^2.4.0"
   },
   "type": "module",
   "exports": {

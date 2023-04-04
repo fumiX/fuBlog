@@ -22,7 +22,7 @@
               <button
                 v-if="props.userPermissions?.canEditPost"
                 class="btn btn-sm btn-secondary float-end mx-2"
-                @click="$router.push(`/posts/post/form/?id=${post?.id}`)"
+                @click="$router.push(`/posts/post/${post?.id}/edit`)"
               >
                 <fa-icon :icon="faEdit" />
                 {{ t("app.base.edit") }}
@@ -78,15 +78,14 @@
 </style>
 
 <script lang="ts">
-import { useI18n } from "vue-i18n";
+import ConfirmDialog from "@client/components/ConfirmDialog.vue";
+import { faClock } from "@fortawesome/free-regular-svg-icons";
+import { faArrowLeft, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import type { ConfirmDialogData, Post, UserRolePermissionsType } from "@fumix/fu-blog-common";
 import type { PropType } from "vue";
 import { defineComponent, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
-import type { ConfirmDialogData, Post } from "@fumix/fu-blog-common";
-import ConfirmDialog from "@client/components/ConfirmDialog.vue";
-import { faArrowLeft, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { faClock } from "@fortawesome/free-regular-svg-icons";
-import type { UserRolePermissionsType } from "@fumix/fu-blog-common";
 
 export default defineComponent({
   components: {

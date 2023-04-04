@@ -61,8 +61,9 @@ import LightDarkToggler from "@client/components/LightDarkToggler.vue";
 import LoginButton from "@client/components/LoginButton.vue";
 import SearchComponent from "@client/components/SearchComponent.vue";
 import UserName from "@client/components/UserName.vue";
-import { loadIdToken, saveIdToken } from "@client/util/storage.js";
-import type { SavedOAuthToken, User, UserRolePermissionsType } from "@fumix/fu-blog-common";
+import { AuthEndpoints } from "@client/util/api-client.js";
+import { saveIdToken } from "@client/util/storage.js";
+import type { User, UserRolePermissionsType } from "@fumix/fu-blog-common";
 import { permissionsForUser } from "@fumix/fu-blog-common";
 import { defineComponent, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
@@ -84,19 +85,7 @@ export default defineComponent({
     };
 
     const getLoggedInUser = async (): Promise<User> => {
-      const tokenObj: SavedOAuthToken | undefined = loadIdToken();
-
-      const requestOptions = {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...tokenObj }),
-      };
-
-      const postUrl = `/api/auth/loggedInUser/`;
-      const response = await fetch(postUrl, requestOptions);
-      const data = await response.json();
-
-      return data.user;
+      return AuthEndpoints.getLoggedInUser().then((it) => it.user);
     };
 
     const setLoginUSerAndPermissions = async () => {

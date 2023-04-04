@@ -1,30 +1,29 @@
-import { convertToUsername } from "@fumix/fu-blog-common";
-import console from "console";
 import cors from "cors";
 import express, { Application, NextFunction, Request, Response } from "express";
 import path from "path";
 import { corsOptions } from "./config/cors-config.js";
 import { AppDataSource } from "./data-source.js";
+import { BaseError } from "./errors/BaseError.js";
+import { InternalServerError } from "./errors/InternalServerError.js";
+import { logger } from "./logger.js";
 import adminRoutes from "./routes/admin.js";
 import attRoutes from "./routes/attachments.js";
 import authRoutes from "./routes/auth.js";
 import postRoutes from "./routes/posts.js";
 import utilityRoutes from "./routes/utility.js";
+import { errorHandler } from "./service/error-handler.js";
 import { initDatabase } from "./service/testdata-generator.js";
 import { AppSettings, ClientSettings, DatabaseSettings, ServerSettings } from "./settings.js";
-import { logger } from "./logger.js";
-import { errorHandler } from "./service/error-handler.js";
-import { InternalServerError } from "./errors/InternalServerError.js";
-import { BaseError } from "./errors/BaseError.js";
 
 const app: Application = express();
 
 await AppDataSource.initialize();
 await initDatabase();
 
-app.use(cors(corsOptions));
-
 app.use(express.json());
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+app.use(cors(corsOptions));
 
 // Check the authentication status
 //app.all(`${ServerSettings.API_PATH}/posts/*`, authenticate);
