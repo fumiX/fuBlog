@@ -1,25 +1,27 @@
 # Docker compose file that demonstrates how to start the blog
 # It uses the version from the `main` branch of GitHub.com/fumiX/fuBlog
 version: '3'
+
 services:
 
   postgres:
     image: ghcr.io/fumix/fublog-postgres:main
+    env_file: .env
     environment:
       # Example
-      POSTGRES_USER: "fublog"
-      POSTGRES_PASSWORD: "8!06"
-      POSTGRES_DB: "fublog"
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
     ports:
       - "5120:5432"
+    volumes:
+      - /home/florian/Projekte/FumiX/fuBlog/database/
 
   app:
     image: ghcr.io/fumix/fublog-app:main
+    env_file: .env
     environment:
       DATABASE_HOST: "postgres"
       DATABASE_PORT: "5432"
-      DATABASE_USER: "fublog"
-      DATABASE_PASSWORD: "8!06"
-      DATABASE_NAME: "fublog"
     ports:
       - "5100:5000"

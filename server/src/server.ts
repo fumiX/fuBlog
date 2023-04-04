@@ -1,6 +1,7 @@
 import cors from "cors";
 import express, { Application, NextFunction, Request, Response } from "express";
-import path from "path";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
 import { corsOptions } from "./config/cors-config.js";
 import { AppDataSource } from "./data-source.js";
 import { BaseError } from "./errors/BaseError.js";
@@ -15,6 +16,7 @@ import { errorHandler } from "./service/error-handler.js";
 import { initDatabase } from "./service/testdata-generator.js";
 import { AppSettings, ClientSettings, DatabaseSettings, ServerSettings } from "./settings.js";
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const app: Application = express();
 
 await AppDataSource.initialize();

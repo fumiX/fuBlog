@@ -13,7 +13,7 @@ export const corsOptions = {
     if (corsWhiteList.includes(typedOrigin) || !origin) {
       callback(null, true);
     } else {
-      callback(new Error("CORS not allowed"), false);
+      callback(new Error("CORS not allowed: " + typedOrigin), false);
     }
   },
   optionSuccessStatus: 200,
