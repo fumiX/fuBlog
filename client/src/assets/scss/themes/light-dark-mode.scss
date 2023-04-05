@@ -8,6 +8,7 @@ $themes: (
         "modal-content-border-color": $modal-content-border-color,
         "modal-header-border-color": $modal-header-border-color,
         "table-border-color": $table-border-color,
+        "jumbotron-filter": invert(100%),
     ),
     lightTheme: (
         "text-color": $body-color-light,
@@ -70,6 +71,10 @@ $themes: (
             th, td {
                 color: theme-get("text-color");
             }
+        }
+        .jumbotron {
+          filter: theme-get("jumbotron-filter");
+          transition: 1s ease-out filter;
         }
     }
 }
