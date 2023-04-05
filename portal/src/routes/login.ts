@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker/locale/de";
 import { isNeitherNullNorUndefined } from "@fumix/fu-blog-common";
-import { OAuthAccountEntity } from "@fumix/fu-blog-server/dist/src/entity/OAuthAccount.entity.js";
-import { UserEntity } from "@fumix/fu-blog-server/dist/src/entity/User.entity.js";
+import { OAuthAccountEntity } from "@fumix/fu-blog-server/dist/entity/OAuthAccount.entity.js";
+import { UserEntity } from "@fumix/fu-blog-server/dist/entity/User.entity.js";
 import express, { Router } from "express";
 import { dataSource, userInfosById } from "../index.js";
 import { UserInfo } from "../user-info.js";

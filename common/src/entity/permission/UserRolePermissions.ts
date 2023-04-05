@@ -1,6 +1,3 @@
-import { User } from "@common/entity/User.js";
-import { UserRoles } from "@common/entity/UserRole.js";
-
 export type UserRolePermissionsType = {
   /**
    * This is `true` when the user is allowed to give any user additional permissions,

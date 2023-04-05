@@ -1,4 +1,4 @@
-import { AppDataSource } from "@fumix/fu-blog-server/dist/src/data-source.js";
+import { AppDataSource } from "@fumix/fu-blog-server/dist/data-source.js";
 import { X509Certificate } from "crypto";
 import express from "express";
 import { readFileSync } from "fs";
@@ -30,6 +30,10 @@ const userinfoPath = "/userinfo";
 app.use(authorizationPath, loginRoute);
 app.use(tokenPath, tokenRoute);
 app.use(userinfoPath, userinfoRoute);
+
+app.get("/favicon.ico", (req, res) => {
+  res.status(404).send();
+});
 
 app.get("/bootstrap.min.css", (req, res) => {
   res //

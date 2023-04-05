@@ -13,7 +13,7 @@
       <!-- LEFT -->
       <div class="col-lg-8 col-lg-border">
         <div v-if="props.userPermissions?.canCreatePost" class="clearfix mb-4">
-          <button type="button" class="btn btn-sm btn-secondary float-end" @click="goTo('/posts/post/form')">
+          <button type="button" class="btn btn-sm btn-secondary float-end" @click="goTo('/posts/post/new')">
             <fa-icon :icon="faAdd" /> {{ t("app.base.create_post") }}
           </button>
         </div>
@@ -72,18 +72,17 @@
 </style>
 
 <script lang="ts">
+import ConfirmDialog from "@client/components/ConfirmDialog.vue";
+import PostPreview from "@client/components/PostPreview.vue";
+import WordCloud from "@client/components/WordCloud.vue";
+import { faSadTear } from "@fortawesome/free-regular-svg-icons";
+import { faAdd } from "@fortawesome/free-solid-svg-icons";
+import type { ConfirmDialogData, Post, UserRolePermissionsType } from "@fumix/fu-blog-common";
 import type { PropType } from "vue";
 import { defineComponent, onMounted, ref, watch } from "vue";
-import PostPreview from "@client/components/PostPreview.vue";
-import ConfirmDialog from "@client/components/ConfirmDialog.vue";
-import WordCloud from "@client/components/WordCloud.vue";
-import type { ConfirmDialogData, Post } from "@fumix/fu-blog-common";
-import { faAdd } from "@fortawesome/free-solid-svg-icons";
-import { faSadTear } from "@fortawesome/free-regular-svg-icons";
-import Paginate from "vuejs-paginate-next";
-import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
-import type { UserRolePermissionsType } from "@fumix/fu-blog-common";
+import { useRoute } from "vue-router";
+import Paginate from "vuejs-paginate-next";
 
 export default defineComponent({
   components: {
@@ -220,7 +219,7 @@ export default defineComponent({
     },
 
     changePost(post: Post) {
-      this.goTo(`/posts/post/form/?id=${post.id}`);
+      this.goTo(`/posts/post/${post.id}/edit`);
     },
   },
 });

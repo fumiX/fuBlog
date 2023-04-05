@@ -1,5 +1,5 @@
+import { OAuthAccountEntity } from "@server/entity/OAuthAccount.entity.js";
 import { Client, Issuer } from "openid-client";
-import { ISession } from "../../auth/session.js";
 
 declare global {
   namespace Express {
@@ -9,7 +9,7 @@ declare global {
       codeVerifier?: string;
     }
     export interface Request {
-      session?: ISession;
+      loggedInUser?: () => Promise<OAuthAccountEntity | undefined | null>;
     }
   }
 }

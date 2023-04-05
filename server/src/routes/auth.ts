@@ -8,20 +8,18 @@ import {
   OAuthProvidersDto,
   OAuthType,
   OAuthUserInfoDto,
-  SavedOAuthToken,
   UserInfoOAuthToken,
 } from "@fumix/fu-blog-common";
 import console from "console";
 import express, { Request, Response, Router } from "express";
-import { createRemoteJWKSet, JWTPayload, jwtVerify } from "jose";
 import fetch from "node-fetch";
 import { BaseClient, Issuer, TokenSet } from "openid-client";
 import { AppDataSource } from "../data-source.js";
 import { OAuthAccountEntity } from "../entity/OAuthAccount.entity.js";
 import { UserEntity } from "../entity/User.entity.js";
-import { findOAuthAccountBy } from "../service/crud.js";
-import { OAuthSettings } from "../settings.js";
 import logger from "../logger.js";
+import { authMiddleware, checkIdToken } from "../service/middleware/auth.js";
+import { OAuthSettings } from "../settings.js";
 
 const router: Router = express.Router();
 
@@ -96,49 +94,13 @@ async function getAuthorizationUrl(
   }
 }
 
-async function checkIdToken(id_token: string, provider: OAuthProvider<OAuthType>): Promise<JWTPayload> {
-  if (provider?.type === "FAKE") {
-    const result = await jwtVerify(id_token, new TextEncoder().encode("secret"));
-    if (result?.payload?.sub) {
-      return result.payload;
-    }
-  } else if (provider?.type === "GOOGLE") {
-    const jwks = createRemoteJWKSet(new URL("https://www.googleapis.com/oauth2/v3/certs"));
-    const result = await jwtVerify(id_token, jwks);
-    if (result?.payload?.sub) {
-      return result.payload;
-    }
-  } else if (provider?.type === "GITLAB") {
-    const jwks = createRemoteJWKSet(new URL(`https://${provider.domain}/oauth/discovery/keys`));
-    const result = await jwtVerify(id_token, jwks);
-    if (result?.payload?.sub) {
-      return result.payload;
-    }
-  }
-  return Promise.reject();
-}
+router.post("/loggedInUser", authMiddleware, async (req, res) => {
+  const account = await req.loggedInUser?.();
 
-router.post("/loggedInUser", async (req, res) => {
-  const savedToken = req.body as SavedOAuthToken;
-
-  if (!savedToken) {
-    res.status(400).json("Error: Can't decode body to SavedOAuthToken!");
+  if (account) {
+    res.status(200).json(account);
   } else {
-    const provider = OAuthSettings.findByTypeAndDomain(savedToken.type, savedToken.issuer);
-    if (provider) {
-      await checkIdToken(savedToken.id_token, provider)
-        .then(async (payload) => {
-          if (payload.sub) {
-            const account = await findOAuthAccountBy(payload.sub, provider);
-            if (account) {
-              res.status(200).json(account);
-            }
-          }
-        })
-        .catch(() => {
-          res.status(403).json({ error: "Unauthorized" });
-        });
-    }
+    res.status(403).json({ error: "Unauthorized" });
   }
 });
 
