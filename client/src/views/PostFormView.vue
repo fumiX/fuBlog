@@ -218,7 +218,7 @@ export default defineComponent({
         this.form.description = resJson.description;
         this.form.markdown = resJson.markdown;
         this.form.draft = resJson.draft;
-        this.form.stringTags = resJson.tags.map((tag) => tag.name);
+        this.form.stringTags = resJson.tags?.map((tag) => tag.name) || [];
         //this.files = Object.fromEntries(resJson.attachments.map((it, i) => [i, new File([it.binaryData], it.filename)]));
       } catch (e) {
         console.log("ERROR: ", e);
