@@ -47,8 +47,8 @@
               </div>
 
               <div class="form-floating mb-3">
-                <label for="tags">{{ t("posts.form.tags") }}</label>
-                <vue3-tags-input :tags="form.tags" placeholder="Geben Sie Schlagwörter ein..." @on-tags-changed="handleTagsChanged" />
+                <label for="stringTags">{{ t("posts.form.tags") }}</label>
+                <vue3-tags-input :tags="form.stringTags" placeholder="Geben Sie Schlagwörter ein..." @on-tags-changed="handleTagsChanged" />
               </div>
 
               <div class="form-check form-switch">
@@ -191,7 +191,7 @@ export default defineComponent({
       description: "",
       markdown: "",
       draft: false,
-      tags: [],
+      stringTags: [],
     });
 
     return {
@@ -218,7 +218,7 @@ export default defineComponent({
         this.form.description = resJson.description;
         this.form.markdown = resJson.markdown;
         this.form.draft = resJson.draft;
-        this.form.tags = resJson.tags?.map((tag) => tag.name);
+        this.form.stringTags = resJson.tags.map((tag) => tag.name);
         //this.files = Object.fromEntries(resJson.attachments.map((it, i) => [i, new File([it.binaryData], it.filename)]));
       } catch (e) {
         console.log("ERROR: ", e);
@@ -290,7 +290,7 @@ export default defineComponent({
     },
 
     handleTagsChanged(tags: any) {
-      this.form.tags = tags;
+      this.form.stringTags = tags;
     },
 
     submitForm(e: Event) {

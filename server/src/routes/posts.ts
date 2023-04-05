@@ -153,17 +153,15 @@ router.post("/new", authMiddleware, multipleFilesUpload, async (req: Request, re
 
 async function getPersistedTagsForPost(bodyJson: any) {
   const tagsToUseInPost: TagEntity[] = [];
-  logger.info("tags: " + bodyJson.tags);
   const alreadySavedTags = await AppDataSource.manager
     .getRepository(TagEntity)
     .createQueryBuilder("tagEntity")
     .select()
-    .where("tagEntity.name IN(:...names)", { names: bodyJson.tags })
+    .where("tagEntity.name IN(:...names)", { names: bodyJson.stringTags })
     .getMany();
-  logger.info("alreadySavedTags: " + JSON.stringify(alreadySavedTags));
   tagsToUseInPost.push(...alreadySavedTags);
 
-  const unsavedTags = bodyJson.tags
+  const unsavedTags = bodyJson.stringTags
     ?.filter((tag: string) => {
       return !alreadySavedTags.some((tagEntity: TagEntity) => {
         return tagEntity.name === tag;
@@ -175,13 +173,10 @@ async function getPersistedTagsForPost(bodyJson: any) {
           name: tagToSave,
         },
     );
-  logger.info("unsavedTags: " + JSON.stringify(unsavedTags));
 
   const newlySavedTags = await AppDataSource.manager.getRepository(TagEntity).save(unsavedTags);
-  logger.info("newlySavedTags: " + JSON.stringify(newlySavedTags));
   tagsToUseInPost.push(...newlySavedTags);
 
-  logger.info("tagsToUseInPost: " + JSON.stringify(tagsToUseInPost));
   return tagsToUseInPost.filter((value) => value !== null && value !== undefined);
 }
 
