@@ -14,7 +14,7 @@ export type Post = {
   updatedBy?: User;
   attachments?: Attachment[];
   draft: boolean;
-  tags: Tag[];
+  tags?: Tag[];
 };
 
 export type NewPostRequestDto = Pick<Post, "title" | "description" | "markdown" | "draft"> & { stringTags: string[] };
