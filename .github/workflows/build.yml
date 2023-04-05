@@ -153,13 +153,22 @@ jobs:
     permissions:
       contents: read
       packages: write
+    strategy:
+      matrix:
+        language: [
+          de_DE,
+          en_GB,
+          en_US
+        ]
     steps:
       - uses: actions/checkout@v3
+      - name: Lowercase language
+        run: echo "LOWERCASE_LANGUAGE="`echo ${{ matrix.language }} | tr '[:upper:]' '[:lower:]'` >> $GITHUB_ENV
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ github.repository }}-postgres
+          images: ${{ env.REGISTRY }}/${{ github.repository }}-postgres-${{ env.LOWERCASE_LANGUAGE }}
       - name: Log in to the Container registry
         uses: docker/login-action@v2
         with:
@@ -169,6 +178,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
+          build-args: |
+            language=${{ matrix.language }}
           context: docker/postgres
           push: true
           tags: ${{ steps.meta.outputs.tags }}
