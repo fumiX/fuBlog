@@ -1,5 +1,4 @@
 import { Attachment } from "./Attachment.js";
-import { Tag } from "@common/entity/Tag.js";
 import type { User } from "./User.js";
 
 export type Post = {
@@ -13,7 +12,7 @@ export type Post = {
   updatedAt?: Date;
   updatedBy?: User;
   attachments?: Attachment[];
-  tags?: Tag[];
+  tags?: string[];
   draft: boolean;
 };
 

@@ -75,7 +75,7 @@ router.get("/:id([1-9][0-9]*)", async (req: Request, res: Response, next) => {
       where: {
         id: +req.params.id,
       },
-      relations: ["createdBy", "updatedBy"],
+      relations: ["createdBy", "updatedBy", "tags"],
     })
     .then((result) => {
       if (result === null) {
@@ -212,7 +212,7 @@ router.post("/:id([1-9][0-9]*)", authMiddleware, multipleFilesUpload, async (req
 
   AppDataSource.manager
     .transaction(async (manager) => {
-      return manager
+      manager
         .getRepository(PostEntity)
         .update(postId, {
           title: body.title,
@@ -228,7 +228,20 @@ router.post("/:id([1-9][0-9]*)", authMiddleware, multipleFilesUpload, async (req
           // TODO: Optimize, so unchanged attachments are not deleted and re-added
           manager.getRepository(AttachmentEntity).delete({ post: { id: post.id } });
           manager.getRepository(AttachmentEntity).insert(extractUploadFiles(req).map((it) => convertAttachment(post, it)));
+          // tagsToUseInPost.forEach((tag) => {
+          //   manager.getRepository(PostEntity).createQueryBuilder().relation(PostEntity, "tags").add(tag);
+          // });
         })
+        .catch(next);
+      // many to many cant be updated so we have to save again
+      return manager
+        .getRepository(PostEntity)
+        .findOneByOrFail({ id: postId })
+        .then((post) => {
+          post.tags = tagsToUseInPost;
+          return post;
+        })
+        .then((updatedPost) => manager.getRepository(PostEntity).save(updatedPost))
         .catch(next);
     })
     .then((it) => res.status(200).json({ postId: post.id } as DraftResponseDto))
