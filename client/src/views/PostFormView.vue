@@ -45,6 +45,11 @@
                 />
               </div>
 
+              <div class="form-floating mb-3">
+                <label for="tags">{{ t("posts.form.tags") }}</label>
+                <vue3-tags-input :tags="form.tags" placeholder="Geben Sie Schlagwörter ein..." @on-tags-changed="handleTagsChanged" />
+              </div>
+
               <div class="form-check form-switch">
                 <input v-model="form.draft" class="form-check-input" type="checkbox" id="draft" />
                 <label class="form-check-label" for="draft">{{ t("posts.form.draft") }}</label>
@@ -95,9 +100,10 @@ import { defineComponent, reactive, ref } from "vue";
 import { useRoute } from "vue-router";
 import MarkDown from "@client/components/MarkDown.vue";
 import { debounce } from "@client/debounce.js";
+import Vue3TagsInput from "vue3-tags-input";
 
 export default defineComponent({
-  components: { MarkDown },
+  components: { MarkDown, Vue3TagsInput },
   setup() {
     const { t } = useI18n();
     const isCreateMode = ref(false);
@@ -111,6 +117,7 @@ export default defineComponent({
       markdown: "",
       draft: true,
       attachments: [],
+      tags: [],
     });
 
     return {
@@ -155,17 +162,16 @@ export default defineComponent({
         const tempFile = e.target.files[0],
           // Get file size
           fileSize = Math.round((tempFile.size / 1024 / 1024) * 100) / 100,
-          // Get file extension
           fileExtension = tempFile.name.split(".").pop(),
-          // Get file name
           fileName = tempFile.name.split(".").shift(),
-          // Check if file is an image
           isImage = ["jpg", "jpeg", "png", "gif"].includes(fileExtension);
-        // Print to console
-        // console.log(fileSize, fileExtension, fileName, isImage);
         this.file = tempFile;
       }
       this.saveDraft(this.postId);
+    },
+
+    handleTagsChanged(tags: any) {
+      this.form.tags = tags;
     },
 
     submitForm(e: Event) {

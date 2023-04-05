@@ -38,7 +38,8 @@
       "preview": {
         "title": "Vorschau"
       },
-      "imageupload": "Bild hochladen"
+      "imageupload": "Bild hochladen",
+      "tags": "Schlagwörter"
     },
     "confirm": {
       "title": "Löschen bestätigen",

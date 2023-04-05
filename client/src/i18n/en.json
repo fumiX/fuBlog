@@ -38,7 +38,8 @@
       "preview": {
         "title": "Preview"
       },
-      "imageupload": "Upload image"
+      "imageupload": "Upload image",
+      "tags": "Tags"
     },
     "confirm": {
       "title": "Confirm deletion",

@@ -7,6 +7,9 @@ import { PostEntity } from "../entity/Post.entity.js";
 import { UserEntity } from "../entity/User.entity.js";
 import { MarkdownConverterServer } from "../markdown-converter-server.js";
 import { NotFoundError } from "../errors/NotFoundError.js";
+import { TagEntity } from "../entity/Tag.entity.js";
+import logger from "../logger.js";
+import { InternalServerError } from "../errors/InternalServerError.js";
 
 const router: Router = express.Router();
 const upload = multer();
@@ -114,6 +117,9 @@ router.post("/new", upload.single("file"), async (req: Request, res: Response, n
   const bodyJson = JSON.parse(req.body.body);
   // TODO handle
   try {
+    const tagsToUseInPost: TagEntity[] = await getPersistedTagsForPost(bodyJson).catch((err) => {
+      throw new InternalServerError(true, "Error getting tags" + err);
+    });
     const post: PostEntity = {
       title: bodyJson.title,
       description: bodyJson.description,
@@ -125,6 +131,7 @@ router.post("/new", upload.single("file"), async (req: Request, res: Response, n
       updatedBy: undefined,
       draft: bodyJson.draft,
       attachments: [],
+      tags: tagsToUseInPost,
     };
 
     const savedPost = await AppDataSource.manager
@@ -172,14 +179,52 @@ router.post("/new", upload.single("file"), async (req: Request, res: Response, n
   }
 });
 
+async function getPersistedTagsForPost(bodyJson: any) {
+  const tagsToUseInPost: TagEntity[] = [];
+  logger.info("tags: " + bodyJson.tags);
+  const alreadySavedTags = await AppDataSource.manager
+    .getRepository(TagEntity)
+    .createQueryBuilder("tagEntity")
+    .select()
+    .where("tagEntity.name IN(:...names)", { names: bodyJson.tags })
+    .getMany();
+  logger.info("alreadySavedTags: " + JSON.stringify(alreadySavedTags));
+  tagsToUseInPost.push(...alreadySavedTags);
+
+  const unsavedTags = bodyJson.tags
+    ?.filter((tag: string) => {
+      return !alreadySavedTags.some((tagEntity: TagEntity) => {
+        return tagEntity.name === tag;
+      });
+    })
+    .map(
+      (tagToSave: string) =>
+        <TagEntity>{
+          name: tagToSave,
+        },
+    );
+  logger.info("unsavedTags: " + JSON.stringify(unsavedTags));
+
+  const newlySavedTags = await AppDataSource.manager.getRepository(TagEntity).save(unsavedTags);
+  logger.info("newlySavedTags: " + JSON.stringify(newlySavedTags));
+  tagsToUseInPost.push(...newlySavedTags);
+
+  logger.info("tagsToUseInPost: " + JSON.stringify(tagsToUseInPost));
+  return tagsToUseInPost.filter((value) => value !== null && value !== undefined);
+}
+
 // EDIT EXISTING POST
 router.post("/:id([0-9]+)", upload.single("file"), async (req: Request, res: Response, next) => {
   const post = await AppDataSource.manager.getRepository(PostEntity).findOneBy({
     id: +req.params.id,
   });
-
   const bodyJson = JSON.parse(req.body.body);
+
   if (post) {
+    const tagsToUseInPost: TagEntity[] = await getPersistedTagsForPost(bodyJson).catch((err) => {
+      throw new InternalServerError(true, "Error getting tags" + err);
+    });
+
     await AppDataSource.manager
       .createQueryBuilder()
       .update("post")
@@ -191,6 +236,7 @@ router.post("/:id([0-9]+)", upload.single("file"), async (req: Request, res: Res
         sanitizedHtml: await MarkdownConverterServer.Instance.convert(bodyJson.markdown),
         updatedBy: await getUser(),
         draft: bodyJson.draft,
+        tags: tagsToUseInPost,
       })
       .where("id = :id", { id: post.id })
       .execute()
