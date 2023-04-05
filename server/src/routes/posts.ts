@@ -9,7 +9,6 @@ import { ForbiddenError } from "../errors/ForbiddenError.js";
 import { InternalServerError } from "../errors/InternalServerError.js";
 import { NotFoundError } from "../errors/NotFoundError.js";
 import { TagEntity } from "../entity/Tag.entity.js";
-import logger from "../logger.js";
 import { UnauthorizedError } from "../errors/UnauthorizedError.js";
 import { MarkdownConverterServer } from "../markdown-converter-server.js";
 import { authMiddleware } from "../service/middleware/auth.js";
