@@ -105,7 +105,7 @@ jobs:
         refs/heads/main
         refs/heads/develop
       ', github.ref) || startsWith(github.ref, 'refs/tags/v')) && github.repository == 'fumiX/fuBlog'
-    needs: [test, lint]
+    needs: [test, lint, publish-db-image]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -148,7 +148,6 @@ jobs:
         refs/heads/main
         refs/heads/develop
       ', github.ref) || startsWith(github.ref, 'refs/tags/v')) && github.repository == 'fumiX/fuBlog'
-    needs: [test, lint]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -168,7 +167,18 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ github.repository }}-postgres-${{ env.LOWERCASE_LANGUAGE }}
+          images: ${{ env.REGISTRY }}/${{ github.repository }}-postgres
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}/tree/${{ github.sha }}/docker/postgres
+            org.opencontainers.image.documentation=${{ github.server_url }}/${{ github.repository }}/tree/${{ github.sha }}/docker/postgres/README.md
+            org.opencontainers.image.description=PostgreSQL image for use with the fu-blog, customized with locale ${{ matrix.language }} (for postgres search)
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}
+            type=ref,event=branch
+          flavor: |
+            latest=auto
+            suffix=-${{ env.LOWERCASE_LANGUAGE }},onlatest=true
       - name: Log in to the Container registry
         uses: docker/login-action@v2
         with:
