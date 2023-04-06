@@ -43,6 +43,6 @@ export class PostEntity implements Post {
   draft: boolean;
 
   @ManyToMany((type) => TagEntity, { cascade: ["insert", "update"] })
-  @JoinTable({ name: "post_tag" })
+  @JoinTable({ name: "post_tag", joinColumn: { name: "post_id" }, inverseJoinColumn: { name: "tag_id" } })
   tags?: TagEntity[];
 }

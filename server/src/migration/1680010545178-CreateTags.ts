@@ -26,12 +26,12 @@ export class CreateTags1680010545178 implements MigrationInterface {
         name: "post_tag",
         columns: [
           {
-            name: "postId",
+            name: "post_id",
             type: "bigint",
             isNullable: false,
           },
           {
-            name: "tagId",
+            name: "tag_id",
             type: "bigint",
             isNullable: false,
           },
@@ -42,7 +42,7 @@ export class CreateTags1680010545178 implements MigrationInterface {
       "post_tag",
       new TableForeignKey({
         name: "post_tag_post_fk",
-        columnNames: ["postId"],
+        columnNames: ["post_id"],
         referencedColumnNames: ["id"],
         referencedTableName: "post",
       }),
@@ -51,7 +51,7 @@ export class CreateTags1680010545178 implements MigrationInterface {
       "post_tag",
       new TableForeignKey({
         name: "post_tag_tag_fk",
-        columnNames: ["tagId"],
+        columnNames: ["tag_id"],
         referencedColumnNames: ["id"],
         referencedTableName: "tag",
       }),
@@ -60,7 +60,7 @@ export class CreateTags1680010545178 implements MigrationInterface {
       "post_tag",
       new TableUnique({
         name: "post_tag_combination_unique",
-        columnNames: ["postId", "tagId"],
+        columnNames: ["post_id", "tag_id"],
       }),
     );
   }
