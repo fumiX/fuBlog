@@ -6,10 +6,8 @@
           <div class="card-body">
             <h1 class="display-4 font-italic">{{ t("admin.title") }}</h1>
 
-            <div v-if="loading" style="position: relative; width: 100%; text-align: center">
-              <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">{{ t("app.base.loading") }}</span>
-              </div>
+            <div v-if="loading" style="position: relative; width: 100%; text-align: center" class="text-primary">
+              <loading-spinner />
             </div>
             <div v-else class="clearfix mb-4">
               <table class="table text-center table-bordered" aria-labelledby="h2">
@@ -107,6 +105,7 @@
 
 <script lang="ts">
 import BooleanDisplay from "@client/components/BooleanDisplay.vue";
+import LoadingSpinner from "@client/components/LoadingSpinner.vue";
 import MultiselectDialog from "@client/components/MultiselectDialog.vue";
 import { faPencil } from "@fortawesome/free-solid-svg-icons";
 import type { User, UserRolePermissionsType, UserWithOAuthProviders } from "@fumix/fu-blog-common";
@@ -118,6 +117,7 @@ import { useI18n } from "vue-i18n";
 export default defineComponent({
   name: "UsersView",
   components: {
+    LoadingSpinner,
     MultiselectDialog,
     BooleanDisplay,
   },

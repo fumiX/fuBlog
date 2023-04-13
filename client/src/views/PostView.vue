@@ -1,9 +1,7 @@
 <template>
   <div class="container" v-if="post">
-    <div v-if="loading" class="loader">
-      <div class="spinner-border text-secondary" role="status">
-        <span class="visually-hidden">{{ t("app.base.loading") }}</span>
-      </div>
+    <div v-if="loading" class="loader text-secondary">
+      <loading-spinner />
     </div>
 
     <div v-else class="row mb-2">
@@ -79,6 +77,7 @@
 
 <script lang="ts">
 import ConfirmDialog from "@client/components/ConfirmDialog.vue";
+import LoadingSpinner from "@client/components/LoadingSpinner.vue";
 import { faClock } from "@fortawesome/free-regular-svg-icons";
 import { faArrowLeft, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import type { ConfirmDialogData, Post, UserRolePermissionsType } from "@fumix/fu-blog-common";
@@ -89,6 +88,7 @@ import { useRoute } from "vue-router";
 
 export default defineComponent({
   components: {
+    LoadingSpinner,
     ConfirmDialog,
   },
 

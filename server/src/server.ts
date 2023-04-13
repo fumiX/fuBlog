@@ -1,4 +1,3 @@
-import { AppSettingsDto } from "@fumix/fu-blog-common";
 import cors from "cors";
 import express, { Application, NextFunction, Request, Response } from "express";
 import * as fs from "fs";
@@ -15,6 +14,7 @@ import authRoutes from "./routes/auth.js";
 import postRoutes from "./routes/posts.js";
 import utilityRoutes from "./routes/utility.js";
 import { errorHandler } from "./service/error-handler.js";
+import { testAI } from "./service/openai.js";
 import { initDatabase } from "./service/testdata-generator.js";
 import { AppSettings, ClientSettings, DatabaseSettings, ServerSettings } from "./settings.js";
 
@@ -97,4 +97,5 @@ app.listen(ServerSettings.PORT, () => {
     logger.info(`Connected to Postgres DB at ${DatabaseSettings.HOST}:${DatabaseSettings.PORT}`);
     logger.info(`Client: ${ClientSettings.BASE_URL}`);
   }
+  //testAI();
 });

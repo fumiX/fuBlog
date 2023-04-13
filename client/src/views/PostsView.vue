@@ -18,10 +18,8 @@
           </button>
         </div>
 
-        <div v-if="loading" class="loader">
-          <div class="spinner-border text-secondary" role="status">
-            <span class="visually-hidden">{{ t("app.base.loading") }}</span>
-          </div>
+        <div v-if="loading" class="loader text-secondary">
+          <loading-spinner />
         </div>
 
         <div v-else>
@@ -73,6 +71,7 @@
 
 <script lang="ts">
 import ConfirmDialog from "@client/components/ConfirmDialog.vue";
+import LoadingSpinner from "@client/components/LoadingSpinner.vue";
 import PostPreview from "@client/components/PostPreview.vue";
 import WordCloud from "@client/components/WordCloud.vue";
 import { faSadTear } from "@fortawesome/free-regular-svg-icons";
@@ -86,6 +85,7 @@ import Paginate from "vuejs-paginate-next";
 
 export default defineComponent({
   components: {
+    LoadingSpinner,
     PostPreview,
     ConfirmDialog,
     Paginate,

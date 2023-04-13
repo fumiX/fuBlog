@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import { faPaste, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { blobToArray, bytesToDataUrl, convertToHumanReadableFileSize, escapeMarkdownAltText } from "@fumix/fu-blog-common";
-import { type PropType } from "vue";
+import type { PropType } from "vue";
 
 defineEmits(["paste", "delete"]);
 function getMarkdownString() {

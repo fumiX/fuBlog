@@ -1,4 +1,7 @@
 {
+  "ai": {
+    "summarize": "Summarize"
+  },
   "app": {
     "base": {
       "yes": "Yes",

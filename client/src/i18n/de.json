@@ -1,4 +1,7 @@
 {
+  "ai": {
+    "summarize": "Zusammenfassung generieren"
+  },
   "app": {
     "base": {
       "yes": "Ja",

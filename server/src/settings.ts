@@ -85,6 +85,10 @@ export class OAuthSettings {
   }
 }
 
+export class OpenAISettings {
+  static readonly API_KEY: string | undefined = process.env.OPENAI_API_KEY;
+}
+
 function toNumberOrDefault(value: string | undefined | null, defaultValue: number): number {
   if (value === undefined || value === null) {
     return defaultValue;

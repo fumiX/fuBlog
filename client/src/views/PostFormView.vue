@@ -11,10 +11,14 @@
               </div>
 
               <div class="form-floating mb-3">
-                <input v-model="form.description" type="text" class="form-control" id="description" placeholder="Beschreibung" />
+                <div contenteditable="true" placeholder="TL;DR" style="overflow: scroll; height: 6rem" class="form-control">
+                  {{ form.description }}
+                </div>
                 <label for="description">{{ t("posts.form.description") }}</label>
               </div>
-
+              <div class="mb-3">
+                <ai-summaries class="mb-3" :full-text="form.markdown"></ai-summaries>
+              </div>
               <div class="form-floating mb-3">
                 <textarea
                   v-model="form.markdown"
@@ -49,10 +53,8 @@
         <h2 class="display-6">{{ (form?.title?.length ?? 0) > 0 ? form?.title : t("posts.form.preview.title") }}</h2>
         <div class="card flex-md-row mb-4 box-shadow h-md-250">
           <div class="card-body">
-            <div v-if="loading" style="position: absolute; width: 100%; margin-top: 10vh; text-align: center">
-              <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">{{ t("app.base.loading") }}</span>
-              </div>
+            <div v-if="loading" style="position: absolute; width: 100%; margin-top: 10vh; text-align: center" class="text-primary">
+              <loading-spinner />
             </div>
             <mark-down
               :markdown="md"
@@ -138,7 +140,9 @@
 </style>
 
 <script lang="ts">
+import AiSummaries from "@client/components/AiSummaries.vue";
 import ImagePreview from "@client/components/ImagePreview.vue";
+import LoadingSpinner from "@client/components/LoadingSpinner.vue";
 import MarkDown from "@client/components/MarkDown.vue";
 import { debounce } from "@client/debounce.js";
 import { PostEndpoints } from "@client/util/api-client.js";
@@ -151,7 +155,7 @@ import { defineComponent, reactive, ref } from "vue";
 import { useRoute } from "vue-router";
 
 export default defineComponent({
-  components: { ImagePreview, MarkDown },
+  components: { AiSummaries, LoadingSpinner, ImagePreview, MarkDown },
   props: {
     postId: {
       type: Number,
