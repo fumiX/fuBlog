@@ -5,6 +5,8 @@ export * from "./dto/oauth/OAuthType.js";
 export * from "./dto/oauth/OAuthUserInfoDto.js";
 export * from "./dto/oauth/SavedOAuthToken.js";
 export * from "./dto/word.js";
+export * from "./dto/AppSettingsDto.js";
+export * from "./dto/HyperlinkDto.js";
 export * from "./entity/Attachment.js";
 export * from "./entity/DraftResponseDto.js";
 export * from "./entity/OAuthAccount.js";

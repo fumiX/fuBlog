@@ -1,5 +1,7 @@
+import { AppSettingsDto } from "@fumix/fu-blog-common";
 import cors from "cors";
 import express, { Application, NextFunction, Request, Response } from "express";
+import * as fs from "fs";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import { corsOptions } from "./config/cors-config.js";
@@ -47,8 +49,7 @@ app.use(async (err: Error, req: Request, res: Response, next: NextFunction) => {
   } else {
     await errorHandler.handleError(err);
     if (err instanceof BaseError) {
-      const baseError = err as BaseError;
-      res.status(baseError.httpCode).send(baseError.message);
+      res.status(err.httpCode).send(err.message);
     }
   }
 });
@@ -69,10 +70,25 @@ async function handleUncaught(error: Error) {
 
 // in production serve the built vue-app from static public folder:
 if (AppSettings.IS_PRODUCTION) {
-  app.use(express.static("./public"));
-  app.get("*", (req, res) => {
+  const indexResponse = (req: Request, res: Response) => {
+    fs.readFile(
+      path.join(__dirname, "public/index.html"), //
+      { encoding: "utf-8" },
+      (err, data) => {
+        if (err) {
+          res.status(404).send(null);
+        } else {
+          res.status(200).send(data.replace("%VITE_APP_DATA%", JSON.stringify(AppSettings.DTO)));
+        }
+      },
+    );
     res.sendFile(path.join(__dirname, "public/index.html"));
-  });
+  };
+  app.get("/index.html", indexResponse);
+  app.use(express.static("./public", { redirect: false, index: false }));
+  app.get("*", indexResponse);
+} else {
+  fs.writeFileSync("../client/.env.development", "VITE_APP_DATA=" + JSON.stringify(AppSettings.DTO), { encoding: "utf-8" });
 }
 
 app.listen(ServerSettings.PORT, () => {

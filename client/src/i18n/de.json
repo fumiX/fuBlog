@@ -12,7 +12,8 @@
       "read": "Lesen",
       "create_post": "Post erstellen",
       "roles": "Rollen",
-      "login": "Anmelden"
+      "login": "Anmelden",
+      "githubLinkText": "Die Blog-Software auf GitHub"
     }
   },
   "nav": {

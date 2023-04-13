@@ -1,10 +1,56 @@
+import console from "console";
+import { AppSettings } from "../settings.js";
 import express, { Request, Response, Router } from "express";
+import fetch from "node-fetch";
 import { AppDataSource } from "../data-source.js";
 import { PostEntity } from "../entity/Post.entity.js";
 import { Word } from "@fumix/fu-blog-common";
 import { Not } from "typeorm";
 
 const router: Router = express.Router();
+
+let cachedSharepic: { url: string; bytes: Uint8Array } | undefined = undefined;
+router.get("/github-sharepic", async (req, res) => {
+  const timestamp = Math.floor(Date.now() / 3600000);
+  const url = `https://opengraph.githubassets.com/${timestamp}/${AppSettings.GITHUB_REPOSITORY_SLUG}`;
+  if (cachedSharepic && cachedSharepic.url === url) {
+    if (req.header("If-None-Match") === `${timestamp}`) {
+      res.status(304).send(null);
+    } else {
+      res
+        .status(200)
+        .header("ETag", `${timestamp}`)
+        .header("Cache-Control", "max-age=7200000")
+        .contentType("image/png")
+        .write(cachedSharepic.bytes);
+      res.end();
+    }
+  } else {
+    const sendCachedBytesOrNotFound = () => {
+      if (cachedSharepic) {
+        res
+          .status(200)
+          .header("ETag", `${timestamp}`)
+          .header("Cache-Control", "max-age=7200000")
+          .contentType("image/png")
+          .write(cachedSharepic.bytes);
+        res.end();
+      } else {
+        res.status(404).send(null);
+      }
+    };
+    fetch(url)
+      .then((r) => {
+        r.arrayBuffer()
+          .then((buf) => {
+            cachedSharepic = { url, bytes: new Uint8Array(buf) };
+            sendCachedBytesOrNotFound();
+          })
+          .catch(sendCachedBytesOrNotFound);
+      })
+      .catch(sendCachedBytesOrNotFound);
+  }
+});
 
 // get words for word cloud
 router.get("/", async (req: Request, res: Response) => {
