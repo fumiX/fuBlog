@@ -5,23 +5,11 @@
     <fa-icon :icon="faQuestion" class="text-warning" v-else />
   </div>
 </template>
-<script lang="ts">
-import { faCheck, faX, faQuestion } from "@fortawesome/free-solid-svg-icons";
-import { defineComponent, type PropType } from "vue";
 
-export default defineComponent({
-  props: {
-    value: {
-      type: Boolean as PropType<boolean | null>,
-      required: true,
-    },
-  },
-  setup() {
-    return {
-      faCheck,
-      faQuestion,
-      faX,
-    };
-  },
-});
+<script setup lang="ts">
+import { faCheck, faQuestion, faX } from "@fortawesome/free-solid-svg-icons";
+import type { PropType } from "vue";
+const props = defineProps(
+  { value: { type: Boolean as PropType<boolean | null>, required: true } }, //
+);
 </script>

@@ -12,51 +12,39 @@
     </div>
   </div>
 </template>
-<script lang="ts">
+<script setup lang="ts">
 import { faPaste, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { blobToArray, bytesToDataUrl, convertToHumanReadableFileSize, escapeMarkdownAltText } from "@fumix/fu-blog-common";
-import { defineComponent, type PropType } from "vue";
+import type { PropType } from "vue";
 
-export default defineComponent({
-  emits: ["paste", "delete"],
-  methods: {
-    convertToHumanReadableFileSize,
-    getMarkdownString() {
-      return `![${escapeMarkdownAltText(this.value.name)}](${this.hash})`;
-    },
-    onDragStart(event: DragEvent) {
-      if (this.showPaste) {
-        event.dataTransfer?.setData("text/markdown", this.getMarkdownString());
-      }
-    },
+defineEmits(["paste", "delete"]);
+function getMarkdownString() {
+  return `![${escapeMarkdownAltText(props.value.name)}](${props.hash})`;
+}
+function onDragStart(event: DragEvent) {
+  if (props.showPaste) {
+    event.dataTransfer?.setData("text/markdown", getMarkdownString());
+  }
+}
+const props = defineProps({
+  hash: {
+    type: String,
+    required: true,
   },
-  props: {
-    hash: {
-      type: String,
-      required: true,
-    },
-    value: {
-      type: Object as PropType<File>,
-      required: true,
-    },
-    showDelete: {
-      type: Boolean,
-      default: true,
-    },
-    showPaste: {
-      type: Boolean,
-      default: true,
-    },
+  value: {
+    type: Object as PropType<File>,
+    required: true,
   },
-  async setup(props) {
-    const dataUrl = await blobToArray(props.value).then((it) => bytesToDataUrl(props.value.type, it));
-    return {
-      dataUrl,
-      faPaste,
-      faTrash,
-    };
+  showDelete: {
+    type: Boolean,
+    default: true,
+  },
+  showPaste: {
+    type: Boolean,
+    default: true,
   },
 });
+const dataUrl = await blobToArray(props.value).then((it) => bytesToDataUrl(props.value.type, it));
 </script>
 <style scoped lang="scss">
 div.img-container {
