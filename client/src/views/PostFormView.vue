@@ -31,21 +31,6 @@
                 <div id="markdownHelp" class="form-text">{{ t("posts.form.message.hint") }}</div>
               </div>
 
-              <!-- <div class="form-control file-upload">
-                <input type="file" id="file" ref="file" v-on:change="handleFileChange($event)" accept="image/png, image/jpeg" />
-              </div> -->
-              <div class="mb-3">
-                <label for="formFile" class="form-label">{{ t("posts.form.imageupload") }}</label>
-                <input
-                  class="form-control"
-                  type="file"
-                  id="file"
-                  ref="file"
-                  v-on:change="handleFileChange($event)"
-                  accept="image/png, image/jpeg"
-                />
-              </div>
-
               <div class="form-floating mb-3">
                 <label for="stringTags">{{ t("posts.form.tags") }}</label>
                 <vue3-tags-input :tags="form.stringTags" placeholder="Geben Sie Schlagwörter ein..." @on-tags-changed="handleTagsChanged" />
