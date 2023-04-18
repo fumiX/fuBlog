@@ -20,7 +20,6 @@
                   v-model="form.markdown"
                   class="form-control"
                   placeholder="Blogpost"
-                  id="markdown"
                   ref="markdownArea"
                   style="height: 40vh; min-height: 200px"
                   aria-describedby="markdownHelp"
@@ -82,14 +81,14 @@
           v-on:drop="handleFileChange($event)"
           v-on:dragover="highlightDropzone($event, true)"
           v-on:dragleave="highlightDropzone($event, false)"
-          :class="{ active: this.dropzoneHighlight }"
+          :class="{ active: dropzoneHighlight }"
         >
           <div class="plus"><fa-icon :icon="faUpload"></fa-icon></div>
-          <span class="label" v-if="this.dropzoneHighlight">Dateien fallen lassen</span>
+          <span class="label" v-if="dropzoneHighlight">Dateien fallen lassen</span>
           <span class="label" v-else>Neue Dateien hierher ziehen oder hier klicken um Dateien auszuwählen</span>
         </div>
         <Suspense v-for="hash in Object.keys(files)" v-bind:key="hash">
-          <ImagePreview :value="files[hash]" :hash="hash" @paste="pasteImageFileToMarkdown" @delete="delete files[hash]"></ImagePreview>
+          <ImagePreview :value="files[hash]" :hash="hash" @paste="pasteImageFileToMarkdown" @delete="delete files[hash]"> </ImagePreview>
         </Suspense>
       </div>
     </div>
@@ -121,13 +120,16 @@
   border: 2px solid #ddd;
   box-shadow: inset 0 0 0 0 #ffc377;
   transition: 0.5s ease-out box-shadow, 3s ease border-color;
+
   .plus {
     font-size: 5rem;
     line-height: 7rem;
   }
+
   .label {
     font-size: 1rem;
   }
+
   &.active,
   &:active {
     border: 2px dashed #aaa;
@@ -137,7 +139,7 @@
 }
 </style>
 
-<script lang="ts">
+<script setup lang="ts">
 import ImagePreview from "@client/components/ImagePreview.vue";
 import MarkDown from "@client/components/MarkDown.vue";
 import { debounce } from "@client/debounce.js";
@@ -147,152 +149,144 @@ import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import { t, tc } from "@fumix/fu-blog-client/src/plugins/i18n.js";
 import type { DraftResponseDto, NewPostRequestDto, Post } from "@fumix/fu-blog-common";
 import { bytesToBase64URL } from "@fumix/fu-blog-common";
-import { defineComponent, reactive, ref } from "vue";
-import { useRoute } from "vue-router";
+import { defineProps, onMounted, reactive, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
-export default defineComponent({
-  components: { ImagePreview, MarkDown },
-  props: {
-    postId: {
-      type: Number,
-      required: false,
-    },
-  },
-  setup() {
-    const md = ref<string | null>(null);
-    const loading = ref<boolean>(false);
-    const files = reactive<{ [sha256: string]: File }>({});
-    const dropzoneHighlight = ref<boolean>(false);
+const md = ref<string | null>(null);
+const loading = ref<boolean>(false);
+const files = reactive<{ [sha256: string]: File }>({});
+const dropzoneHighlight = ref<boolean>(false);
+const router = useRouter();
+const markdownArea = ref(null);
 
-    const form = reactive<NewPostRequestDto>({
-      title: "",
-      description: "",
-      markdown: "",
-      draft: false,
-    });
+const form = reactive<NewPostRequestDto>({
+  title: "",
+  description: "",
+  markdown: "",
+  draft: false,
+});
 
-    return {
-      faUpload,
-      form,
-      md,
-      loading,
-      file: "",
-      files,
-      dropzoneHighlight,
-      t,
-      tc,
-    };
-  },
-
-  async mounted() {
-    const route = useRoute();
-    // prefill form with values fom loaded post
-    if (this.postId) {
-      try {
-        const res = await fetch(`/api/posts/${this.postId}`);
-        const resJson = (await res.json())?.data as Post;
-        this.form.title = resJson.title;
-        this.form.description = resJson.description;
-        this.form.markdown = resJson.markdown;
-        this.form.draft = resJson.draft;
-        //this.files = Object.fromEntries(resJson.attachments.map((it, i) => [i, new File([it.binaryData], it.filename)]));
-      } catch (e) {
-        console.log("ERROR: ", e);
-      }
-    }
-
-    this.md = debounce(() => {
-      this.loading = true;
-      return this.form.markdown;
-    }, 1000) as unknown as string;
-  },
-
-  methods: {
-    pasteImageFileToMarkdown(markdown: string) {
-      this.form.markdown = this.insertIntoTextarea(markdown, this.$el.querySelector("textarea#markdown"));
-    },
-    dropMarkdown(evt: DragEvent) {
-      const items = evt.dataTransfer?.items;
-      const textArea = evt.target as HTMLTextAreaElement;
-      if (items && textArea) {
-        for (const item of items) {
-          if (item.kind === "string" && item.type === "text/markdown") {
-            evt.preventDefault();
-            item.getAsString((markdown) => {
-              this.form.markdown = this.insertIntoTextarea(markdown, textArea, "before");
-            });
-          }
-        }
-      }
-    },
-    openFileDialog() {
-      document.getElementById("file")?.click();
-    },
-    highlightDropzone(event: DragEvent, value: boolean = false) {
-      event.preventDefault();
-      this.dropzoneHighlight = value && [...(event.dataTransfer?.items ?? [])].some((it) => it.kind === "file");
-    },
-    handleFileChange(e: Event) {
-      if (e instanceof DragEvent) {
-        e.preventDefault();
-        const items: DataTransferItemList | undefined = e.dataTransfer?.items as DataTransferItemList;
-        if (items) {
-          [...items].forEach((item) => {
-            if (item.kind === "file") {
-              const file = item.getAsFile();
-              if (file) {
-                this.addFile(file);
-              } else {
-                console.error("Can't process null file!");
-              }
-            } else {
-              console.error("Can't process item of kind " + item.kind);
-              item.getAsString((it) => console.log("Item", item.kind, it));
-            }
-          });
-        }
-        this.highlightDropzone(e, false);
-      } else if (e.target instanceof HTMLInputElement && e.target.files) {
-        Array.from(e.target.files).forEach((it) => this.addFile(it));
-      }
-    },
-    addFile(file: File) {
-      file
-        .arrayBuffer()
-        .then((it) => window.crypto.subtle.digest("SHA-256", it))
-        .then((it) => bytesToBase64URL(new Uint8Array(it)))
-        .then((it) => (this.files[it] = file))
-        .catch((it) => console.error("Failed to calculate SHA-256 hash!"));
-    },
-
-    submitForm(e: Event) {
-      e.preventDefault();
-      this.send(this.postId);
-    },
-
-    insertIntoTextarea(insertedText: string, area: HTMLTextAreaElement, insertPosition: "before" | "after" | "replace" = "after"): string {
-      const start = area.selectionStart;
-      const end = area.selectionEnd;
-      const text = area.value;
-      const before = text.substring(0, insertPosition == "after" ? end : start);
-      const after = text.substring(insertPosition == "before" ? start : end);
-      return before + insertedText + after;
-    },
-
-    async send(id: number | undefined) {
-      const successAction = (r: DraftResponseDto) => {
-        this.$router.push(`/posts/post/${r.postId}`);
-      };
-      if (!id) {
-        await PostEndpoints.createPost(this.form, Object.values(this.files))
-          .then(successAction)
-          .catch((reason) => console.log("Create post request failed", reason));
-      } else {
-        await PostEndpoints.editPost(Object.assign(this.form, { id }), Object.values(this.files))
-          .then(successAction)
-          .catch((reason) => console.log("Edit post request failed", reason));
-      }
-    },
+const props = defineProps({
+  postId: {
+    type: Number,
+    required: false,
   },
 });
+
+onMounted(async () => {
+  const route = useRoute();
+  // prefill form with values fom loaded post
+  if (props.postId) {
+    try {
+      const res = await fetch(`/api/posts/${props.postId}`);
+      const resJson = (await res.json())?.data as Post;
+      form.title = resJson.title;
+      form.description = resJson.description;
+      form.markdown = resJson.markdown;
+      form.draft = resJson.draft;
+    } catch (e) {
+      console.log("ERROR: ", e);
+    }
+  }
+
+  debounce(() => {
+    loading.value = true;
+    md.value = form.markdown;
+  }, 1000);
+});
+
+const pasteImageFileToMarkdown = (markdown: string) => {
+  form.markdown = insertIntoTextarea(markdown, markdownArea.value as unknown as HTMLTextAreaElement);
+};
+
+const dropMarkdown = (evt: DragEvent) => {
+  const items = evt.dataTransfer?.items;
+  const textArea = evt.target as HTMLTextAreaElement;
+  if (items && textArea) {
+    for (const item of items) {
+      if (item.kind === "string" && item.type === "text/markdown") {
+        evt.preventDefault();
+        item.getAsString((markdown) => {
+          form.markdown = insertIntoTextarea(markdown, textArea, "before");
+        });
+      }
+    }
+  }
+};
+
+const openFileDialog = () => {
+  document.getElementById("file")?.click();
+};
+
+const highlightDropzone = (event: DragEvent, value: boolean = false) => {
+  event.preventDefault();
+  dropzoneHighlight.value = value && [...(event.dataTransfer?.items ?? [])].some((it) => it.kind === "file");
+};
+
+const handleFileChange = (e: Event) => {
+  if (e instanceof DragEvent) {
+    e.preventDefault();
+    const items: DataTransferItemList | undefined = e.dataTransfer?.items as DataTransferItemList;
+    if (items) {
+      [...items].forEach((item) => {
+        if (item.kind === "file") {
+          const file = item.getAsFile();
+          if (file) {
+            addFile(file);
+          } else {
+            console.error("Can't process null file!");
+          }
+        } else {
+          console.error("Can't process item of kind " + item.kind);
+          item.getAsString((it) => console.log("Item", item.kind, it));
+        }
+      });
+    }
+    highlightDropzone(e, false);
+  } else if (e.target instanceof HTMLInputElement && e.target.files) {
+    Array.from(e.target.files).forEach((it) => addFile(it));
+  }
+};
+
+const addFile = (file: File) => {
+  file
+    .arrayBuffer()
+    .then((it) => window.crypto.subtle.digest("SHA-256", it))
+    .then((it) => bytesToBase64URL(new Uint8Array(it)))
+    .then((it) => (files[it] = file))
+    .catch((it) => console.error("Failed to calculate SHA-256 hash!"));
+};
+
+const submitForm = (e: Event) => {
+  e.preventDefault();
+  send(props.postId);
+};
+
+const insertIntoTextarea = (
+  insertedText: string,
+  area: HTMLTextAreaElement,
+  insertPosition: "before" | "after" | "replace" = "after",
+): string => {
+  const start = area.selectionStart;
+  const end = area.selectionEnd;
+  const text = area.value;
+  const before = text.substring(0, insertPosition == "after" ? end : start);
+  const after = text.substring(insertPosition == "before" ? start : end);
+  return before + insertedText + after;
+};
+
+const send = async (id: number | undefined) => {
+  const successAction = (r: DraftResponseDto) => {
+    router.push(`/posts/post/${r.postId}`);
+  };
+  if (!id) {
+    await PostEndpoints.createPost(form, Object.values(files))
+      .then(successAction)
+      .catch((reason) => console.log("Create post request failed", reason));
+  } else {
+    await PostEndpoints.editPost(Object.assign(form, { id }), Object.values(files))
+      .then(successAction)
+      .catch((reason) => console.log("Edit post request failed", reason));
+  }
+};
 </script>
