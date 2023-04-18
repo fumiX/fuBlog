@@ -13,6 +13,7 @@ export * from "./entity/DraftResponseDto.js";
 export * from "./entity/OAuthAccount.js";
 export * from "./entity/OAuthProvider.js";
 export * from "./entity/Post.js";
+export * from "./entity/Tag.js";
 export * from "./entity/User.js";
 export * from "./entity/UserRole.js";
 export * from "./entity/permission/UserRolePermissions.js";

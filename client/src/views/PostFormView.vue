@@ -35,6 +35,11 @@
                 <div id="markdownHelp" class="form-text">{{ t("posts.form.message.hint") }}</div>
               </div>
 
+              <div class="form-floating mb-3">
+                <label for="stringTags">{{ t("posts.form.tags") }}</label>
+                <vue3-tags-input :tags="form.stringTags" placeholder="Geben Sie Schlagwörter ein..." @on-tags-changed="handleTagsChanged" />
+              </div>
+
               <div class="form-check form-switch">
                 <input v-model="form.draft" class="form-check-input" type="checkbox" id="draft" />
                 <label class="form-check-label" for="draft">{{ t("posts.form.draft") }}</label>
@@ -145,6 +150,8 @@ import ImagePreview from "@client/components/ImagePreview.vue";
 import LoadingSpinner from "@client/components/LoadingSpinner.vue";
 import MarkDown from "@client/components/MarkDown.vue";
 import { debounce } from "@client/debounce.js";
+import Vue3TagsInput from "vue3-tags-input";
+
 import { PostEndpoints } from "@client/util/api-client.js";
 
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
@@ -155,7 +162,7 @@ import { defineComponent, reactive, ref } from "vue";
 import { useRoute } from "vue-router";
 
 export default defineComponent({
-  components: { AiSummaries, LoadingSpinner, ImagePreview, MarkDown },
+  components: { AiSummaries, LoadingSpinner, ImagePreview, MarkDown, Vue3TagsInput  },
   props: {
     postId: {
       type: Number,
@@ -173,6 +180,7 @@ export default defineComponent({
       description: "",
       markdown: "",
       draft: false,
+      stringTags: [],
     });
 
     return {
@@ -199,6 +207,7 @@ export default defineComponent({
         this.form.description = resJson.description;
         this.form.markdown = resJson.markdown;
         this.form.draft = resJson.draft;
+        this.form.stringTags = resJson.tags?.map((tag) => tag.name) || [];
         //this.files = Object.fromEntries(resJson.attachments.map((it, i) => [i, new File([it.binaryData], it.filename)]));
       } catch (e) {
         console.log("ERROR: ", e);
@@ -267,6 +276,10 @@ export default defineComponent({
         .then((it) => bytesToBase64URL(new Uint8Array(it)))
         .then((it) => (this.files[it] = file))
         .catch((it) => console.error("Failed to calculate SHA-256 hash!"));
+    },
+
+    handleTagsChanged(tags: any) {
+      this.form.stringTags = tags;
     },
 
     submitForm(e: Event) {

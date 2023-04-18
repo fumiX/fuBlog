@@ -1,5 +1,6 @@
 import { Attachment } from "./Attachment.js";
 import type { User } from "./User.js";
+import type { Tag } from "./Tag.js";
 
 export type Post = {
   id?: number;
@@ -13,7 +14,8 @@ export type Post = {
   updatedBy?: User;
   attachments?: Attachment[];
   draft: boolean;
+  tags?: Tag[];
 };
 
-export type NewPostRequestDto = Pick<Post, "title" | "description" | "markdown" | "draft">;
+export type NewPostRequestDto = Pick<Post, "title" | "description" | "markdown" | "draft"> & { stringTags: string[] };
 export type EditPostRequestDto = NewPostRequestDto & { id: number };

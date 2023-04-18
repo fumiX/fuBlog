@@ -8,6 +8,7 @@ import { BadRequestError } from "../errors/BadRequestError.js";
 import { ForbiddenError } from "../errors/ForbiddenError.js";
 import { InternalServerError } from "../errors/InternalServerError.js";
 import { NotFoundError } from "../errors/NotFoundError.js";
+import { TagEntity } from "../entity/Tag.entity.js";
 import { UnauthorizedError } from "../errors/UnauthorizedError.js";
 import { MarkdownConverterServer } from "../markdown-converter-server.js";
 import { authMiddleware } from "../service/middleware/auth.js";
@@ -73,7 +74,7 @@ router.get("/:id([1-9][0-9]*)", async (req: Request, res: Response, next) => {
       where: {
         id: +req.params.id,
       },
-      relations: ["createdBy", "updatedBy"],
+      relations: ["createdBy", "updatedBy", "tags"],
     })
     .then((result) => {
       if (result === null) {
@@ -111,6 +112,9 @@ router.post("/new", authMiddleware, multipleFilesUpload, async (req: Request, re
 
   // TODO handle
   try {
+    const tagsToUseInPost: TagEntity[] = await getPersistedTagsForPost(body).catch((err) => {
+      throw new InternalServerError(true, "Error getting tags" + err);
+    });
     const post: PostEntity = {
       title: body.title,
       description: body.description,
@@ -118,8 +122,9 @@ router.post("/new", authMiddleware, multipleFilesUpload, async (req: Request, re
       createdBy: loggedInUser.user,
       createdAt: new Date(),
       sanitizedHtml: await MarkdownConverterServer.Instance.convert(body.markdown),
-      draft: body.draft,
+      draft: !!body.draft,
       attachments: [],
+      tags: tagsToUseInPost,
     };
 
     // TODO: Make this a transaction with proper rollback and error message
@@ -145,12 +150,42 @@ router.post("/new", authMiddleware, multipleFilesUpload, async (req: Request, re
   }
 });
 
+async function getPersistedTagsForPost(bodyJson: any) {
+  const tagsToUseInPost: TagEntity[] = [];
+  const alreadySavedTags = await AppDataSource.manager
+    .getRepository(TagEntity)
+    .createQueryBuilder("tagEntity")
+    .select()
+    .where("tagEntity.name IN(:...names)", { names: bodyJson.stringTags })
+    .getMany();
+  tagsToUseInPost.push(...alreadySavedTags);
+
+  const unsavedTags = bodyJson.stringTags
+    ?.filter((tag: string) => {
+      return !alreadySavedTags.some((tagEntity: TagEntity) => {
+        return tagEntity.name === tag;
+      });
+    })
+    .map(
+      (tagToSave: string) =>
+        <TagEntity>{
+          name: tagToSave,
+        },
+    );
+
+  const newlySavedTags = await AppDataSource.manager.getRepository(TagEntity).save(unsavedTags);
+  tagsToUseInPost.push(...newlySavedTags);
+
+  return tagsToUseInPost.filter((value) => value !== null && value !== undefined);
+}
+
 // EDIT EXISTING POST
 router.post("/:id([1-9][0-9]*)", authMiddleware, multipleFilesUpload, async (req: Request, res: Response, next) => {
   const postId = +req.params.id;
   const post = await AppDataSource.manager.getRepository(PostEntity).findOneBy({
     id: postId,
   });
+
   const body = extractJsonBody<EditPostRequestDto>(req);
 
   if (!post || postId < 1) {
@@ -165,9 +200,13 @@ router.post("/:id([1-9][0-9]*)", authMiddleware, multipleFilesUpload, async (req
     return next(new ForbiddenError());
   }
 
+  const tagsToUseInPost: TagEntity[] = await getPersistedTagsForPost(body).catch((err) => {
+    throw new InternalServerError(true, "Error getting tags" + err);
+  });
+
   AppDataSource.manager
     .transaction(async (manager) => {
-      return manager
+      manager
         .getRepository(PostEntity)
         .update(postId, {
           title: body.title,
@@ -177,12 +216,26 @@ router.post("/:id([1-9][0-9]*)", authMiddleware, multipleFilesUpload, async (req
           sanitizedHtml: await MarkdownConverterServer.Instance.convert(body.markdown),
           updatedBy: account.user,
           draft: body.draft,
+          // tags: tagsToUseInPost,
         })
         .then((updateResult) => {
           // TODO: Optimize, so unchanged attachments are not deleted and re-added
           manager.getRepository(AttachmentEntity).delete({ post: { id: post.id } });
           manager.getRepository(AttachmentEntity).insert(extractUploadFiles(req).map((it) => convertAttachment(post, it)));
+          // tagsToUseInPost.forEach((tag) => {
+          //   manager.getRepository(PostEntity).createQueryBuilder().relation(PostEntity, "tags").add(tag);
+          // });
         })
+        .catch(next);
+      // many to many cant be updated so we have to save again
+      return manager
+        .getRepository(PostEntity)
+        .findOneByOrFail({ id: postId })
+        .then((post) => {
+          post.tags = tagsToUseInPost;
+          return post;
+        })
+        .then((updatedPost) => manager.getRepository(PostEntity).save(updatedPost))
         .catch(next);
     })
     .then((it) => res.status(200).json({ postId: post.id } as DraftResponseDto))

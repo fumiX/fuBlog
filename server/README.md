@@ -22,7 +22,7 @@
 
 To create a new migration use the following:
 
-`npx typeorm migration:create src/migration/MigrationName`
+`npx typeorm migration:create server/src/migration/MigrationName`
 
 All entities are currently run automatically upon starting the node server. To change this, set the `migrationsRun: true`-Flag to false.
 

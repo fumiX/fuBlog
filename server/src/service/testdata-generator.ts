@@ -11,6 +11,7 @@ import { MarkdownConverterServer } from "../markdown-converter-server.js";
 import { AppSettings, OAuthSettings } from "../settings.js";
 import { generateProfilePicture, generateRandomPng } from "./testdata/images.js";
 import logger from "../logger.js";
+import { TagEntity } from "../entity/Tag.entity.js";
 
 const usersCount = 10;
 const postsPerUser = 15;
@@ -39,6 +40,8 @@ export async function initDatabase(): Promise<void> {
 async function generate(): Promise<void> {
   logger.info(`Generating test data (${usersCount} users, ${postsPerUser} posts per user, ${attachmentsPerPost} attachments per post)`);
   faker.seed(42);
+
+  await Array.from({ length: 42 }).forEach(() => createRandomTag());
 
   await Promise.all(
     Array.from({ length: usersCount }).map(() =>
@@ -119,6 +122,7 @@ export async function createRandomPost(createdBy: UserEntity, seed?: number): Pr
     const sanitized = await MarkdownConverterServer.Instance.convert(dirty);
     const title = faker.lorem.sentence(4);
     console.debug(`Generating 🖺 ${title} (by ${createdBy.fullName})`);
+    const tags: TagEntity[] = await AppDataSource.manager.createQueryBuilder(TagEntity, "t").select().orderBy("RANDOM()").take(5).getMany();
     const post: PostEntity = {
       title,
       description: faker.lorem.sentences(8),
@@ -128,6 +132,7 @@ export async function createRandomPost(createdBy: UserEntity, seed?: number): Pr
       sanitizedHtml: sanitized,
       draft: false,
       attachments: [],
+      tags: tags,
     };
     const postRep = AppDataSource.manager.getRepository(PostEntity);
     return await postRep.save(post);
@@ -153,4 +158,13 @@ export async function createRandomAttachment(post: PostEntity, seed?: number): P
     logger.error("Error generating attachment", e);
   }
   return new Promise(() => null);
+}
+
+export async function createRandomTag(seed?: number) {
+  faker.seed(seed);
+  const tag: TagEntity = {
+    name: faker.word.noun(),
+  };
+  const tagRep = AppDataSource.manager.getRepository(TagEntity);
+  return await tagRep.save(tag).catch((err) => logger.debug("duplicate tag? ignoring", err));
 }
