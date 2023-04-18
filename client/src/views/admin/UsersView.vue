@@ -111,7 +111,6 @@ import MultiselectDialog from "@client/components/MultiselectDialog.vue";
 import { faPencil } from "@fortawesome/free-solid-svg-icons";
 import type { User, UserRolePermissionsType, UserWithOAuthProviders } from "@fumix/fu-blog-common";
 import { permissionsForUser, UserRoles } from "@fumix/fu-blog-common";
-// import type { PropType } from "vue";
 import { defineProps, defineEmits, type PropType, ref, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 

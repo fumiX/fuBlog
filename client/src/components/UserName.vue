@@ -32,5 +32,4 @@ const props = defineProps({
 });
 
 const emits = defineEmits(["logout"]);
-
 </script>

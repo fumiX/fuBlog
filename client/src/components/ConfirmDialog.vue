@@ -28,6 +28,8 @@ import type { PropType } from "vue";
 import { watch } from "vue";
 import { useI18n } from "vue-i18n";
 
+const { t } = useI18n();
+
 const props = defineProps({
   show: {
     type: Boolean as PropType<boolean>,
@@ -38,8 +40,6 @@ const props = defineProps({
 });
 
 const emits = defineEmits(["confirmed", "canceled"]);
-
-const t = useI18n();
 
 watch(props, () => {
   const myModal = new Modal(document.getElementById("confirmModal") || "", {});
