@@ -6,7 +6,16 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [
-    vue(),
+    vue({
+      // See https://stackoverflow.com/a/73641141 :
+      // This is needed, or else Vite will try to find image paths (which it wont be able to find because this will be called on the web, not directly)
+      // For example <img src="/images/logo.png"> will not work without the code below
+      template: {
+        transformAssetUrls: {
+          includeAbsolute: false,
+        },
+      },
+    }),
     VueI18nPlugin({
       runtimeOnly: false,
       include: resolve(dirname(fileURLToPath(import.meta.url)), "./src/i18n/**"),

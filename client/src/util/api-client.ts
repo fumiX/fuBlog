@@ -69,7 +69,9 @@ export class AuthEndpoints {
 }
 
 export class OpenAiEndpoints {
-  //static async letChatGptSummarize(text: string): Promise<SummaryDto> {}
+  static async letChatGptSummarize(text: string): Promise<SummaryDto> {
+    return callServer<string, SummaryDto>("/api/utility/chatGptSummarize", "POST", { json: text });
+  }
 }
 
 export class PostEndpoints {

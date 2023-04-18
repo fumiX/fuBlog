@@ -1,11 +1,15 @@
-import console from "console";
-import { AppSettings } from "../settings.js";
+import { permissionsForUser, Word } from "@fumix/fu-blog-common";
 import express, { Request, Response, Router } from "express";
 import fetch from "node-fetch";
+import { Not } from "typeorm";
 import { AppDataSource } from "../data-source.js";
 import { PostEntity } from "../entity/Post.entity.js";
-import { Word } from "@fumix/fu-blog-common";
-import { Not } from "typeorm";
+import { BadRequestError } from "../errors/BadRequestError.js";
+import { ForbiddenError } from "../errors/ForbiddenError.js";
+import { UnauthorizedError } from "../errors/UnauthorizedError.js";
+import { authMiddleware } from "../service/middleware/auth.js";
+import { chatGptSummarize } from "../service/openai.js";
+import { AppSettings } from "../settings.js";
 
 const router: Router = express.Router();
 
@@ -97,6 +101,29 @@ router.get("/", async (req: Request, res: Response) => {
   } catch (e) {
     res.status(500).json({ error: "Fehler " + e });
   }
+});
+
+router.post("/chatGptSummarize", authMiddleware, async (req, res, next) => {
+  const body: string | undefined = req.body?.json;
+  const loggedInUser = await req.loggedInUser?.();
+
+  if (!body) {
+    return next(new BadRequestError());
+  } else if (!loggedInUser) {
+    return next(new UnauthorizedError());
+  } else if (!permissionsForUser(loggedInUser.user).canCreatePost) {
+    return next(new ForbiddenError());
+  }
+
+  chatGptSummarize(req.body?.json)
+    .then((it) => {
+      if (it) {
+        res.status(200).json(it);
+      } else {
+        res.status(502).json({});
+      }
+    })
+    .catch(() => res.status(502).json({}));
 });
 
 export default router;

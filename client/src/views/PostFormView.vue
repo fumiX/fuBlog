@@ -16,8 +16,14 @@
                 </div>
                 <label for="description">{{ t("posts.form.description") }}</label>
               </div>
+
+              <div class="form-floating mb-3">
+                <label for="stringTags">{{ t("posts.form.tags") }}</label>
+                <vue3-tags-input :tags="form.stringTags" placeholder="Geben Sie Schlagwörter ein..." @on-tags-changed="handleTagsChanged" />
+              </div>
+
               <div class="mb-3">
-                <ai-summaries class="mb-3" :full-text="form.markdown"></ai-summaries>
+                <ai-summaries class="mb-3" :full-text="form.markdown" :onSetDescription="setDescription" :onAddTag="addTag"></ai-summaries>
               </div>
               <div class="form-floating mb-3">
                 <textarea
@@ -33,11 +39,6 @@
                 ></textarea>
                 <label for="markdown">{{ t("posts.form.message.label") }}</label>
                 <div id="markdownHelp" class="form-text">{{ t("posts.form.message.hint") }}</div>
-              </div>
-
-              <div class="form-floating mb-3">
-                <label for="stringTags">{{ t("posts.form.tags") }}</label>
-                <vue3-tags-input :tags="form.stringTags" placeholder="Geben Sie Schlagwörter ein..." @on-tags-changed="handleTagsChanged" />
               </div>
 
               <div class="form-check form-switch">
@@ -162,7 +163,7 @@ import { defineComponent, reactive, ref } from "vue";
 import { useRoute } from "vue-router";
 
 export default defineComponent({
-  components: { AiSummaries, LoadingSpinner, ImagePreview, MarkDown, Vue3TagsInput  },
+  components: { AiSummaries, LoadingSpinner, ImagePreview, MarkDown, Vue3TagsInput },
   props: {
     postId: {
       type: Number,
@@ -285,6 +286,15 @@ export default defineComponent({
     submitForm(e: Event) {
       e.preventDefault();
       this.send(this.postId);
+    },
+
+    addTag(tag: string) {
+      this.form.stringTags.push(tag);
+      this.form.stringTags = [...new Set(this.form.stringTags)].sort((a, b) => a.localeCompare(b));
+    },
+
+    setDescription(description: string) {
+      this.form.description = description;
     },
 
     insertIntoTextarea(insertedText: string, area: HTMLTextAreaElement, insertPosition: "before" | "after" | "replace" = "after"): string {

@@ -1,22 +1,16 @@
 import { SummaryDto } from "@fumix/fu-blog-common";
-import logger from "@server/logger.js";
-import { OpenAISettings } from "@server/settings.js";
-import console from "console";
 import { Configuration, OpenAIApi } from "openai";
+import logger from "../logger.js";
+import { OpenAISettings, ServerSettings } from "../settings.js";
 
 const openai = new OpenAIApi(
   new Configuration({
     apiKey: OpenAISettings.API_KEY,
   }),
 );
-/*
-export async function askChatGptForSummary(text: string): SummaryDto {
 
-}*/
-
-export async function testAI() {
-  logger.info("Asking ChatGPT …");
-  openai
+export async function chatGptSummarize(text: string): Promise<SummaryDto | null> {
+  return openai
     .createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: [
@@ -31,14 +25,23 @@ Deine Antworten bestehen ausschließlich aus diesem JSON-Objekt mit genau zwei A
         },
         {
           role: "user",
-          content: "…",
+          content: text,
         },
       ],
     })
-    .then(({ data, status }) => {
-      console.log("Completion ", JSON.stringify(data));
+    .then<SummaryDto | null>(({ data, status }) => {
+      const answer = data.choices?.[0]?.message?.content;
+      if (answer) {
+        const dto = JSON.parse(answer) as SummaryDto;
+        if (dto) {
+          return dto;
+        }
+      }
+      logger.error(`Could not decode ChatGPT response ${JSON.stringify(data)} (${status})`);
+      return null;
     })
     .catch((error) => {
       logger.error(error);
+      return null;
     });
 }
