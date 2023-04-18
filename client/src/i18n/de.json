@@ -42,7 +42,10 @@
       "preview": {
         "title": "Vorschau"
       },
-      "tags": "Schlagwörter",
+      "tags": {
+        "tags": "Schlagwörter",
+        "enter": "Geben Sie Schlagwörter ein..."
+      },
       "imageupload": "keine angehängten Bilder | ein angehängtes Bild | {count} angehängte Bilder"
     },
     "confirm": {

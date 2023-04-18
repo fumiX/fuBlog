@@ -11,18 +11,18 @@
               </div>
 
               <div class="form-floating mb-3">
-                <div contenteditable="true" placeholder="TL;DR" style="overflow: scroll; height: 6rem" class="form-control">
+                <div contenteditable="true" style="overflow: scroll; height: 6rem" class="form-control">
                   {{ form.description }}
                 </div>
                 <label for="description">{{ t("posts.form.description") }}</label>
               </div>
 
               <div class="form-floating mb-3">
-                <label for="stringTags">{{ t("posts.form.tags") }}</label>
-                <vue3-tags-input :tags="form.stringTags" placeholder="Geben Sie Schlagwörter ein..." @on-tags-changed="handleTagsChanged" />
+                <label for="stringTags">{{ t("posts.form.tags.tags") }}</label>
+                <vue3-tags-input :tags="form.stringTags" :placeholder="t('posts.form.tags.enter')" @on-tags-changed="handleTagsChanged" />
               </div>
 
-              <div class="mb-3">
+              <div v-if="OpenAISettings.API_KEY" class="mb-3">
                 <ai-summaries class="mb-3" :full-text="form.markdown" :onSetDescription="setDescription" :onAddTag="addTag"></ai-summaries>
               </div>
               <div class="form-floating mb-3">
@@ -151,7 +151,6 @@ import ImagePreview from "@client/components/ImagePreview.vue";
 import LoadingSpinner from "@client/components/LoadingSpinner.vue";
 import MarkDown from "@client/components/MarkDown.vue";
 import { debounce } from "@client/debounce.js";
-import Vue3TagsInput from "vue3-tags-input";
 
 import { PostEndpoints } from "@client/util/api-client.js";
 
@@ -161,6 +160,7 @@ import type { DraftResponseDto, NewPostRequestDto, Post } from "@fumix/fu-blog-c
 import { bytesToBase64URL } from "@fumix/fu-blog-common";
 import { defineComponent, reactive, ref } from "vue";
 import { useRoute } from "vue-router";
+import Vue3TagsInput from "vue3-tags-input";
 
 export default defineComponent({
   components: { AiSummaries, LoadingSpinner, ImagePreview, MarkDown, Vue3TagsInput },

@@ -1,7 +1,7 @@
 import { SummaryDto } from "@fumix/fu-blog-common";
 import { Configuration, OpenAIApi } from "openai";
 import logger from "../logger.js";
-import { OpenAISettings, ServerSettings } from "../settings.js";
+import { OpenAISettings } from "../settings.js";
 
 const openai = new OpenAIApi(
   new Configuration({
