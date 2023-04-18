@@ -24,36 +24,27 @@
 }
 </style>
 
-<script lang="ts">
+<script setup lang="ts">
 import { saveOauthState } from "@client/util/storage.js";
 import { faArrowUpRightFromSquare, faUser, faUserSlash } from "@fortawesome/free-solid-svg-icons";
 import type { OAuthProvidersDto } from "@fumix/fu-blog-common";
 import { bytesToBase64URL } from "@fumix/fu-blog-common";
-import { defineComponent, ref } from "vue";
+import { onMounted, ref } from "vue";
 
-export default defineComponent({
-  setup() {
-    const state = new Uint8Array(21);
-    crypto.getRandomValues(state);
-    return {
-      providers: ref<OAuthProvidersDto | null>(null),
-      state: bytesToBase64URL(state),
-      faArrowUpRightFromSquare,
-      faUser,
-      faUserSlash,
-    };
-  },
-  async mounted() {
-    const response = await fetch(`/api/auth/providers`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ state: this.state }),
-    }).then((it) => it.json());
-    this.providers = response;
+const providers = ref<OAuthProvidersDto | null>(null);
+const state = new Uint8Array(21);
+crypto.getRandomValues(state);
 
-    saveOauthState({
-      key: this.state,
-    });
-  },
+onMounted(async () => {
+  const response = await fetch(`/api/auth/providers`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ state: bytesToBase64URL(state) }),
+  }).then((it) => it.json());
+  providers.value = response;
+
+  saveOauthState({
+    key: bytesToBase64URL(state),
+  });
 });
 </script>

@@ -48,67 +48,53 @@
 }
 </style>
 
-<script lang="ts">
+<script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { ref } from "vue";
 import type { PropType } from "vue";
-import { defineComponent, watch } from "vue";
+import { defineProps, defineEmits, ref, watch } from "vue";
 import { Modal } from "bootstrap";
 import type { User } from "@fumix/fu-blog-common";
 
-export default defineComponent({
-  props: {
-    show: {
-      type: Boolean as PropType<boolean>,
-      required: true,
-    },
-    user: {
-      type: Object as PropType<User | null>,
-    },
-    roles: {
-      type: Array as PropType<string[]>,
-      required: true,
-    },
-    saveCallback: {
-      type: Function as PropType<(selectedKeys: string[]) => void>,
-      required: true,
-    },
+const { t } = useI18n();
+const value = ref<string[]>([]);
+
+const props = defineProps({
+  show: {
+    type: Boolean as PropType<boolean>,
+    required: true,
   },
-
-  emits: ["confirmed", "canceled", "input"],
-
-  setup(props, emits) {
-    const { t } = useI18n();
-    const value = ref<string[]>([]);
-
-    watch(props, () => {
-      const availableRoles = props.roles;
-      const initialRoles: string[] | undefined = props.user ? props.user.roles.filter((value) => value) : [];
-
-      value.value = initialRoles;
-
-      const myModal = new Modal(document.getElementById("multiselectDialog") || "", {});
-      const show = props.show;
-      show ? myModal?.show() : myModal.hide();
-    });
-
-    return {
-      props,
-      emits,
-      value,
-      t,
-    };
+  user: {
+    type: Object as PropType<User | null>,
   },
-
-  methods: {
-    updateInput($event: Event, key: string) {
-      const isChecked = ($event.target as HTMLInputElement).checked;
-      if (isChecked) {
-        this.value.push(key);
-      } else {
-        this.value = this.value.filter((k) => k !== key);
-      }
-    },
+  roles: {
+    type: Array as PropType<string[]>,
+    required: true,
+  },
+  saveCallback: {
+    type: Function as PropType<(selectedKeys: string[]) => void>,
+    required: true,
   },
 });
+
+const emits = defineEmits(["confirmed", "canceled", "input"]);
+
+watch(props, () => {
+  const availableRoles = props.roles;
+  const initialRoles: string[] | undefined = props.user ? props.user.roles.filter((value) => value) : [];
+
+  value.value = initialRoles;
+
+  const myModal = new Modal(document.getElementById("multiselectDialog") || "", {});
+  const show = props.show;
+  show ? myModal?.show() : myModal.hide();
+});
+
+const updateInput = ($event: Event, key: string) => {
+  const isChecked = ($event.target as HTMLInputElement).checked;
+  if (isChecked) {
+    value.value.push(key);
+  } else {
+    value.value = value.value.filter((k) => k !== key);
+  }
+};
 </script>

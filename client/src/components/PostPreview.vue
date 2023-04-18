@@ -61,48 +61,33 @@
 }
 </style>
 
-<script lang="ts">
+<script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import type { PropType } from "vue";
-import { defineComponent } from "vue";
+import { defineProps, defineEmits } from "vue";
 import type { Post } from "@fumix/fu-blog-common";
 import { faBookReader, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { faClock } from "@fortawesome/free-regular-svg-icons";
 import type { UserRolePermissionsType } from "@fumix/fu-blog-common";
+import { useRouter } from "vue-router";
 
-export default defineComponent({
-  props: {
-    post: {
-      type: Object as PropType<Post>,
-      required: true,
-    },
-    userPermissions: {
-      type: Object as PropType<UserRolePermissionsType>,
-    },
+const router = useRouter();
+const { t } = useI18n();
+const locale = useI18n().locale.value;
+
+const props = defineProps({
+  post: {
+    type: Object as PropType<Post>,
+    required: true,
   },
-
-  emits: ["deletePost", "changePost"],
-
-  setup(props, emits) {
-    const { t } = useI18n();
-    const locale = useI18n().locale.value;
-
-    return {
-      props,
-      emits,
-      faBookReader,
-      faTrash,
-      faEdit,
-      faClock,
-      t,
-      locale,
-    };
-  },
-
-  methods: {
-    goTo(path: string) {
-      this.$router.push(path);
-    },
+  userPermissions: {
+    type: Object as PropType<UserRolePermissionsType>,
   },
 });
+
+const emits = defineEmits(["deletePost", "changePost"]);
+
+const goTo = (path: string) => {
+  router.push(path);
+};
 </script>

@@ -9,42 +9,6 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { saveCssPreference, loadCssPreference } from "@client/util/storage.js";
-import type { UserTheme } from "@fumix/fu-blog-common";
-
-const emit = defineEmits(["themeChanged"]);
-
-const setTheme = (theme: UserTheme) => {
-  saveCssPreference(theme);
-  userTheme.value = theme;
-  emit("themeChanged", userTheme.value);
-};
-
-const toggleTheme = (): void => {
-  const activeTheme = localStorage.getItem("cssTheme");
-  if (activeTheme === "lightTheme") {
-    setTheme("darkTheme");
-  } else {
-    setTheme("lightTheme");
-  }
-};
-
-const getMediaPreference = (): UserTheme => {
-  const hasDarkPreference = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  if (hasDarkPreference) {
-    return "darkTheme";
-  } else {
-    return "lightTheme";
-  }
-};
-
-const userTheme = ref<UserTheme>(loadCssPreference() || getMediaPreference());
-
-onMounted(() => setTheme(userTheme.value));
-</script>
-
 <style lang="scss">
 .emoji {
   font-family: Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, Android Emoji, EmojiSymbols, EmojiOne Mozilla, Twemoji Mozilla,
@@ -106,3 +70,39 @@ onMounted(() => setTheme(userTheme.value));
   }
 }
 </style>
+
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
+import { saveCssPreference, loadCssPreference } from "@client/util/storage.js";
+import type { UserTheme } from "@fumix/fu-blog-common";
+
+const emit = defineEmits(["themeChanged"]);
+
+const setTheme = (theme: UserTheme) => {
+  saveCssPreference(theme);
+  userTheme.value = theme;
+  emit("themeChanged", userTheme.value);
+};
+
+const toggleTheme = (): void => {
+  const activeTheme = localStorage.getItem("cssTheme");
+  if (activeTheme === "lightTheme") {
+    setTheme("darkTheme");
+  } else {
+    setTheme("lightTheme");
+  }
+};
+
+const getMediaPreference = (): UserTheme => {
+  const hasDarkPreference = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  if (hasDarkPreference) {
+    return "darkTheme";
+  } else {
+    return "lightTheme";
+  }
+};
+
+const userTheme = ref<UserTheme>(loadCssPreference() || getMediaPreference());
+
+onMounted(() => setTheme(userTheme.value));
+</script>

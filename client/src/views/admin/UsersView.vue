@@ -105,82 +105,71 @@
 }
 </style>
 
-<script lang="ts">
+<script setup lang="ts">
 import BooleanDisplay from "@client/components/BooleanDisplay.vue";
 import MultiselectDialog from "@client/components/MultiselectDialog.vue";
 import { faPencil } from "@fortawesome/free-solid-svg-icons";
 import type { User, UserRolePermissionsType, UserWithOAuthProviders } from "@fumix/fu-blog-common";
 import { permissionsForUser, UserRoles } from "@fumix/fu-blog-common";
-import type { PropType } from "vue";
-import { defineComponent, ref } from "vue";
+// import type { PropType } from "vue";
+import { defineProps, defineEmits, type PropType, ref, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 
-export default defineComponent({
-  name: "UsersView",
-  components: {
-    MultiselectDialog,
-    BooleanDisplay,
-  },
+const { t } = useI18n();
+const showModal = ref(false);
+const loading = ref(true);
+const users = ref<UserWithOAuthProviders[]>([]);
+const editUser = ref<User | null>(null);
 
-  props: {
-    userPermissions: {
-      type: Object as PropType<UserRolePermissionsType>,
-    },
+const props = defineProps({
+  userPermissions: {
+    type: Object as PropType<UserRolePermissionsType>,
   },
+});
+const emits = defineEmits(["canceled"]);
 
-  setup(props) {
-    const { t } = useI18n();
-    return {
-      showModal: ref(false),
-      loading: ref(true),
-      users: ref<UserWithOAuthProviders[]>([]),
-      editUser: ref<User | null>(null),
-      permissionsForUser: permissionsForUser,
-      faPencil,
-      props,
-      t,
-    };
-  },
-  async mounted() {
-    await this.loadList();
-  },
-  methods: {
-    async saveSettings(savedKeys: string[]) {
-      await this.send(this.editUser?.id, savedKeys);
+const saveSettings = async (savedKeys: string[]) => {
+  await send(editUser.value?.id, savedKeys);
 
-      this.closeDialog();
-      this.loadList();
-    },
-    setEditUser(user: User) {
-      this.editUser = user;
-      this.showModal = true;
-    },
-    closeDialog() {
-      this.editUser = null;
-      this.showModal = false;
-    },
-    async loadList() {
-      this.loading = true;
-      const authUrlRequest = new Request("/api/admin/users", {
-        method: "GET",
-      });
-      const response = await fetch(authUrlRequest);
-      this.users = ((await response.json()) as UserWithOAuthProviders[]) ?? [];
-      this.loading = false;
-    },
-    getAllRoles(): string[] {
-      return Object.keys(UserRoles);
-    },
+  closeDialog();
+  loadList();
+};
 
-    async send(id: number | undefined, roles: string[]) {
-      const requestOptions = {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ roles }),
-      };
-      const postUrl = `/api/admin/users/roles/${id}`;
-      await fetch(postUrl, requestOptions);
-    },
-  },
+const setEditUser = (user: User) => {
+  editUser.value = user;
+  showModal.value = true;
+};
+
+const closeDialog = () => {
+  editUser.value = null;
+  showModal.value = false;
+};
+
+const loadList = async () => {
+  loading.value = true;
+  const authUrlRequest = new Request("/api/admin/users", {
+    method: "GET",
+  });
+  const response = await fetch(authUrlRequest);
+  users.value = ((await response.json()) as UserWithOAuthProviders[]) ?? [];
+  loading.value = false;
+};
+
+const getAllRoles = (): string[] => {
+  return Object.keys(UserRoles);
+};
+
+const send = async (id: number | undefined, roles: string[]) => {
+  const requestOptions = {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ roles }),
+  };
+  const postUrl = `/api/admin/users/roles/${id}`;
+  await fetch(postUrl, requestOptions);
+};
+
+onMounted(async () => {
+  await loadList();
 });
 </script>
