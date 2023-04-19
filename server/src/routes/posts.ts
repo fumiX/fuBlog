@@ -58,7 +58,7 @@ router.get("/page/:page([0-9]+)/count/:count([0-9]+)/", async (req: Request, res
       },
       skip: skipEntries,
       take: itemsPerPage,
-      relations: ["createdBy", "updatedBy"],
+      relations: ["createdBy", "updatedBy", "tags"],
     })
     .then((result) => res.status(200).json({ data: result }))
     .catch((error) => {

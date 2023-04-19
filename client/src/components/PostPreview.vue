@@ -34,6 +34,8 @@
             <i>{{ post.updatedBy.fullName }}</i>
           </div>
 
+          <display-tags :tags="post.tags"></display-tags>
+
           <p class="card-text my-4">{{ post.description }}</p>
 
           <div class="my-4">
@@ -69,6 +71,7 @@ import { faBookReader, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons
 import { faClock } from "@fortawesome/free-regular-svg-icons";
 import type { UserRolePermissionsType } from "@fumix/fu-blog-common";
 import { useRouter } from "vue-router";
+import DisplayTags from "@client/components/DisplayTags.vue";
 
 const router = useRouter();
 const { t } = useI18n();

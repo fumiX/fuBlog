@@ -44,6 +44,8 @@
               <i>{{ post.updatedBy.fullName }}</i>
             </div>
 
+            <display-tags :tags="post.tags"></display-tags>
+
             <div v-html="post.sanitizedHtml" class="mt-4"></div>
           </div>
         </div>
@@ -76,6 +78,7 @@
 </style>
 
 <script setup lang="ts">
+import DisplayTags from "@client/components/DisplayTags.vue";
 import ConfirmDialog from "@client/components/ConfirmDialog.vue";
 import LoadingSpinner from "@client/components/LoadingSpinner.vue";
 import { faClock } from "@fortawesome/free-regular-svg-icons";
