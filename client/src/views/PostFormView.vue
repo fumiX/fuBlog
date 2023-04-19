@@ -11,7 +11,7 @@
               </div>
 
               <div class="form-floating mb-3">
-                <div contenteditable="true" style="overflow: scroll; height: 6rem" class="form-control">
+                <div contenteditable="true" style="overflow-y: scroll; height: 6rem" class="form-control">
                   {{ form.description }}
                 </div>
                 <label for="description">{{ t("posts.form.description") }}</label>
@@ -22,7 +22,7 @@
                 <vue3-tags-input :tags="form.stringTags" :placeholder="t('posts.form.tags.enter')" @on-tags-changed="handleTagsChanged" />
               </div>
 
-              <div v-if="OpenAISettings.API_KEY" class="mb-3">
+              <div class="mb-3">
                 <ai-summaries class="mb-3" :full-text="form.markdown" :onSetDescription="setDescription" :onAddTag="addTag"></ai-summaries>
               </div>
               <div class="form-floating mb-3">
@@ -90,10 +90,10 @@
           v-on:drop="handleFileChange($event)"
           v-on:dragover="highlightDropzone($event, true)"
           v-on:dragleave="highlightDropzone($event, false)"
-          :class="{ active: this.dropzoneHighlight }"
+          :class="{ active: dropzoneHighlight }"
         >
           <div class="plus"><fa-icon :icon="faUpload"></fa-icon></div>
-          <span class="label" v-if="this.dropzoneHighlight">Dateien fallen lassen</span>
+          <span class="label" v-if="dropzoneHighlight">Dateien fallen lassen</span>
           <span class="label" v-else>Neue Dateien hierher ziehen oder hier klicken um Dateien auszuwählen</span>
         </div>
         <Suspense v-for="hash in Object.keys(files)" v-bind:key="hash">
