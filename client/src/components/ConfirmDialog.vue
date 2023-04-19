@@ -22,13 +22,11 @@
 </template>
 
 <script setup lang="ts">
+import { t } from "@client/plugins/i18n.js";
 import type { ConfirmDialogData } from "@fumix/fu-blog-common";
 import { Modal } from "bootstrap";
 import type { PropType } from "vue";
 import { watch } from "vue";
-import { useI18n } from "vue-i18n";
-
-const { t } = useI18n();
 
 const props = defineProps({
   show: {

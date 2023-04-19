@@ -46,6 +46,7 @@ watch(props, async () => {
   try {
     emits("loading", true);
     sanitizedHtml.value = await MarkdownConverterClient.Instance.convert(props.markdown ?? "", {
+      /* // TODO: Fix this, so images and diagrams are both replaced correctly
       walkTokens: async (token) => {
         if (token.type === "image") {
           const customFile = props.customImageUrls[token.href];
@@ -53,7 +54,7 @@ watch(props, async () => {
             token.href = await blobToArray(customFile).then((it) => bytesToDataUrl(customFile.type, it));
           }
         }
-      },
+      },*/
     });
   } catch (e) {
     console.error("Markdown error", e);
