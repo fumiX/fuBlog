@@ -5,6 +5,7 @@
 <style lang="scss">
 .mdPreview {
   min-height: 520px;
+
   svg {
     max-width: 100% !important;
     height: auto !important;
@@ -13,6 +14,7 @@
       stroke: #ccc !important;
     }
   }
+
   img {
     max-width: 100% !important;
     height: auto !important;
@@ -20,54 +22,44 @@
 }
 </style>
 
-<script lang="ts">
+<script setup lang="ts">
 import { blobToArray, bytesToDataUrl } from "@fumix/fu-blog-common";
 import type { PropType } from "vue";
-import { defineComponent, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import { MarkdownConverterClient } from "../markdown-converter-client.js";
 
-export default defineComponent({
-  props: {
-    markdown: {
-      type: String as PropType<string | null>,
-    },
-    customImageUrls: {
-      type: Object as PropType<{ [sha256: string]: File }>,
-      default: () => {},
-    },
+const sanitizedHtml = ref<string>("");
+
+const props = defineProps({
+  markdown: {
+    type: String as PropType<string | null>,
   },
+  customImageUrls: {
+    type: Object as PropType<{ [sha256: string]: File }>,
+    default: () => {},
+  },
+});
 
-  emits: ["loading"],
+const emits = defineEmits(["loading"]);
 
-  setup(props, emits) {
-    const sanitizedHtml = ref<string>("");
-
-    watch(props, async () => {
-      try {
-        emits.emit("loading", true);
-        sanitizedHtml.value = await MarkdownConverterClient.Instance.convert(props.markdown ?? "", {
-          walkTokens: async (token) => {
-            if (token.type === "image") {
-              const customFile = props.customImageUrls[token.href];
-              if (customFile) {
-                token.href = await blobToArray(customFile).then((it) => bytesToDataUrl(customFile.type, it));
-              }
-            }
-          },
-        });
-      } catch (e) {
-        console.error("Markdown error", e);
-        // TODO erro handling
-      } finally {
-        emits.emit("loading", false);
-      }
+watch(props, async () => {
+  try {
+    emits("loading", true);
+    sanitizedHtml.value = await MarkdownConverterClient.Instance.convert(props.markdown ?? "", {
+      walkTokens: async (token) => {
+        if (token.type === "image") {
+          const customFile = props.customImageUrls[token.href];
+          if (customFile) {
+            token.href = await blobToArray(customFile).then((it) => bytesToDataUrl(customFile.type, it));
+          }
+        }
+      },
     });
-    return {
-      sanitizedHtml,
-      emits,
-    };
-  },
-
-  methods: {},
+  } catch (e) {
+    console.error("Markdown error", e);
+    // TODO erro handling
+  } finally {
+    emits("loading", false);
+  }
 });
 </script>

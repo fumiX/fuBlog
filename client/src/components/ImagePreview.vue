@@ -12,20 +12,59 @@
     </div>
   </div>
 </template>
+<style scoped lang="scss">
+div.img-container {
+  width: 12rem;
+  margin: 0.25rem;
+  position: relative;
+  display: inline-block;
+  text-align: center;
+  vertical-align: bottom;
+
+  img {
+    &[draggable="true"] {
+      cursor: move;
+    }
+
+    min-width: 2rem;
+    min-height: 2rem;
+    max-width: 12rem;
+    max-height: 12rem;
+  }
+
+  div {
+    font-size: 0.75em;
+
+    strong {
+      font-weight: bold;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: clip;
+      display: block;
+    }
+
+    display: block;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+}
+</style>
+
 <script setup lang="ts">
 import { faPaste, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { blobToArray, bytesToDataUrl, convertToHumanReadableFileSize, escapeMarkdownAltText } from "@fumix/fu-blog-common";
 import type { PropType } from "vue";
 
-defineEmits(["paste", "delete"]);
-function getMarkdownString() {
+const getMarkdownString = () => {
   return `![${escapeMarkdownAltText(props.value.name)}](${props.hash})`;
-}
-function onDragStart(event: DragEvent) {
+};
+
+const onDragStart = (event: DragEvent) => {
   if (props.showPaste) {
     event.dataTransfer?.setData("text/markdown", getMarkdownString());
   }
-}
+};
+
 const props = defineProps({
   hash: {
     type: String,
@@ -44,37 +83,7 @@ const props = defineProps({
     default: true,
   },
 });
+
+const emits = defineEmits(["paste", "delete"]);
 const dataUrl = await blobToArray(props.value).then((it) => bytesToDataUrl(props.value.type, it));
 </script>
-<style scoped lang="scss">
-div.img-container {
-  width: 12rem;
-  margin: 0.25rem;
-  position: relative;
-  display: inline-block;
-  text-align: center;
-  vertical-align: bottom;
-  img {
-    &[draggable="true"] {
-      cursor: move;
-    }
-    min-width: 2rem;
-    min-height: 2rem;
-    max-width: 12rem;
-    max-height: 12rem;
-  }
-  div {
-    font-size: 0.75em;
-    strong {
-      font-weight: bold;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      overflow: clip;
-      display: block;
-    }
-    display: block;
-    padding-bottom: 0.5rem;
-    margin-bottom: 0.5rem;
-  }
-}
-</style>

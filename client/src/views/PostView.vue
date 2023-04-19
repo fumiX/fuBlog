@@ -75,89 +75,70 @@
 }
 </style>
 
-<script lang="ts">
+<script setup lang="ts">
 import ConfirmDialog from "@client/components/ConfirmDialog.vue";
 import LoadingSpinner from "@client/components/LoadingSpinner.vue";
 import { faClock } from "@fortawesome/free-regular-svg-icons";
 import { faArrowLeft, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import type { ConfirmDialogData, Post, UserRolePermissionsType } from "@fumix/fu-blog-common";
-import type { PropType } from "vue";
-import { defineComponent, ref } from "vue";
+import { ref, onMounted, type PropType } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
-export default defineComponent({
-  components: {
-    LoadingSpinner,
-    ConfirmDialog,
-  },
+const { t } = useI18n();
+const loading = ref(true);
+const post = ref<Post | null>(null);
+const showDialog = ref<boolean>(false);
+const currentPost = ref<Post | null>(null);
+const dialogData = ref<ConfirmDialogData | null>(null);
+const router = useRouter();
 
-  props: {
-    userPermissions: {
-      type: Object as PropType<UserRolePermissionsType>,
-    },
-  },
-
-  setup(props) {
-    const { t } = useI18n();
-    return {
-      loading: ref(true),
-      post: ref<Post | null>(null),
-      showDialog: ref<boolean>(false),
-      currentPost: ref<Post | null>(null),
-      dialogData: ref<ConfirmDialogData | null>(null),
-      faArrowLeft,
-      faTrash,
-      faEdit,
-      faClock,
-      props,
-      t,
-    };
-  },
-
-  async mounted() {
-    try {
-      const route = useRoute();
-      const id = route.params.id;
-      const res = await fetch(`/api/posts/${id}`);
-      const response = await res.json();
-      this.post = response.data;
-      this.loading = false;
-    } catch (e) {
-      console.log("ERROR: ", e);
-      this.loading = false;
-    }
-  },
-
-  methods: {
-    async deletePost(post: Post) {
-      try {
-        const res = await fetch(`/api/posts/delete/${post.id}`);
-        await res.json();
-        this.$router.push("/posts");
-      } catch (e) {
-        console.log("ERROR: ", e);
-      }
-    },
-
-    showConfirm(post: Post | null) {
-      this.currentPost = post as Post;
-      this.dialogData = {
-        title: this.t("posts.confirm.title"),
-        message: this.t("posts.confirm.message", { post: this.currentPost.title }),
-      };
-      this.showDialog = true;
-    },
-
-    canceled() {
-      this.showDialog = false;
-    },
-
-    confirmed() {
-      this.deletePost(this.currentPost as Post);
-      this.currentPost = null;
-      this.showDialog = false;
-    },
+const props = defineProps({
+  userPermissions: {
+    type: Object as PropType<UserRolePermissionsType>,
   },
 });
+
+onMounted(async () => {
+  try {
+    const route = useRoute();
+    const id = route.params.id;
+    const res = await fetch(`/api/posts/${id}`);
+    const response = await res.json();
+    post.value = response.data;
+    loading.value = false;
+  } catch (e) {
+    console.log("ERROR: ", e);
+    loading.value = false;
+  }
+});
+
+const deletePost = async (post: Post) => {
+  try {
+    const res = await fetch(`/api/posts/delete/${post.id}`);
+    await res.json();
+    router.push("/posts");
+  } catch (e) {
+    console.log("ERROR: ", e);
+  }
+};
+
+const showConfirm = (post: Post | null) => {
+  currentPost.value = post as Post;
+  dialogData.value = {
+    title: t("posts.confirm.title"),
+    message: t("posts.confirm.message", { post: currentPost.value.title }),
+  };
+  showDialog.value = true;
+};
+
+const canceled = () => {
+  showDialog.value = false;
+};
+
+const confirmed = () => {
+  deletePost(currentPost.value as Post);
+  currentPost.value = null;
+  showDialog.value = false;
+};
 </script>

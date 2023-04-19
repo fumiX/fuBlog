@@ -19,25 +19,17 @@
 }
 </style>
 
-<script lang="ts">
-import { defineComponent, type PropType } from "vue";
+<script setup lang="ts">
+import type { PropType } from "vue";
 import { faSignOut } from "@fortawesome/free-solid-svg-icons";
 import type { User } from "@fumix/fu-blog-common";
 
-export default defineComponent({
-  props: {
-    user: {
-      type: Object as PropType<User>,
-      required: true,
-    },
-  },
-  emits: ["logout"],
-  setup(props, emits) {
-    return {
-      props,
-      emits,
-      faSignOut,
-    };
+const props = defineProps({
+  user: {
+    type: Object as PropType<User>,
+    required: true,
   },
 });
+
+const emits = defineEmits(["logout"]);
 </script>

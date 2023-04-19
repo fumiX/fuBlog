@@ -39,7 +39,7 @@
           <paginate
             v-if="totalPages > 1"
             :page-count="totalPages"
-            :click-handler="paginate"
+            :click-handler="onPaginate"
             :prev-text="'<'"
             :next-text="'>'"
             :container-class="'pagination justify-content-end'"
@@ -69,7 +69,7 @@
 }
 </style>
 
-<script lang="ts">
+<script setup lang="ts">
 import ConfirmDialog from "@client/components/ConfirmDialog.vue";
 import LoadingSpinner from "@client/components/LoadingSpinner.vue";
 import PostPreview from "@client/components/PostPreview.vue";
@@ -78,151 +78,113 @@ import { faSadTear } from "@fortawesome/free-regular-svg-icons";
 import { faAdd } from "@fortawesome/free-solid-svg-icons";
 import type { ConfirmDialogData, Post, UserRolePermissionsType } from "@fumix/fu-blog-common";
 import type { PropType } from "vue";
-import { defineComponent, onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import Paginate from "vuejs-paginate-next";
 
-export default defineComponent({
-  components: {
-    LoadingSpinner,
-    PostPreview,
-    ConfirmDialog,
-    Paginate,
-    WordCloud,
-  },
+const route = useRoute();
+const router = useRouter();
+const itemsPerPage = 12;
+const loading = ref(true);
+const posts = ref<Post[]>([]);
+const showDialog = ref<boolean>(false);
+const dialogData = ref<ConfirmDialogData | null>(null);
+const currentPost = ref<Post | null>(null);
+const totalPages = ref<number>(1);
+const { t } = useI18n();
 
-  props: {
-    userPermissions: {
-      type: Object as PropType<UserRolePermissionsType>,
-    },
-  },
+const blogTitle = ref<string>("");
+const blogShortDescription = ref<string>("");
 
-  setup(props) {
-    const route = useRoute();
-    const itemsPerPage = 12;
-    const loading = ref(true);
-    const posts = ref<Post[]>([]);
-    const showDialog = ref<boolean>(false);
-    const dialogData = ref<ConfirmDialogData | null>(null);
-    const currentPost = ref<Post | null>(null);
-    const currentPage = ref<number>(1);
-    const totalPages = ref<number>(1);
-    const { t } = useI18n();
-
-    const blogTitle = ref<string>("");
-    const blogShortDescription = ref<string>("");
-
-    const loadPostsWithPagination = async (pageIndex: number, search: string, operator: string) => {
-      try {
-        let link = !search
-          ? `/api/posts/page/${pageIndex}/count/${itemsPerPage}`
-          : `/api/posts/page/${pageIndex}/count/${itemsPerPage}/search/${encodeURIComponent(search)}/operator/${encodeURIComponent(
-              operator,
-            )}`;
-        const res = await fetch(link);
-        const response = await res.json();
-        posts.value = response.data[0];
-
-        totalPages.value = Math.ceil((await response.data[1]) / itemsPerPage);
-        currentPage.value = pageIndex;
-        loading.value = false;
-      } catch (e) {
-        console.log("ERROR: ", e);
-        loading.value = false;
-      }
-    };
-
-    const paginate = (page: number) => {
-      const searchValue = (route.query?.search || "") as string;
-      const operator = (route.query?.operator || "and") as string;
-      loadPostsWithPagination(page, searchValue, operator);
-    };
-
-    watch(
-      () => route.query,
-      (query) => {
-        const searchValue = (query?.search || "") as string;
-        const operator = (route.query?.operator || "and") as string;
-        loadPostsWithPagination(1, searchValue, operator);
-      },
-    );
-
-    onMounted(() => {
-      const searchValue = (route.query?.search || "") as string;
-      const operator = (route.query?.operator || "and") as string;
-
-      blogTitle.value = "fumiX Blog";
-      blogShortDescription.value = "Alle Beiträge auf einen Blick";
-
-      loadPostsWithPagination(1, searchValue, operator);
-    });
-
-    return {
-      itemsPerPage,
-      loading,
-      posts,
-      showDialog,
-      dialogData,
-      currentPost,
-      currentPage,
-      totalPages,
-      faAdd,
-      faSadTear,
-      paginate,
-      loadPostsWithPagination,
-      route,
-      blogTitle,
-      blogShortDescription,
-      props,
-      t,
-    };
-  },
-
-  methods: {
-    async deletePost(post: Post) {
-      try {
-        const res = await fetch(`/api/posts/delete/${post.id}`);
-        await res.json();
-        const searchValue = (this.route.query?.search || "") as string;
-        const operator = (this.route.query?.operator || "and") as string;
-        await this.loadPostsWithPagination(1, searchValue, operator);
-      } catch (e) {
-        console.log("ERROR: ", e);
-      }
-    },
-
-    goTo(path: string) {
-      this.$router.push(path);
-    },
-
-    searchWord(event: any) {
-      this.goTo(`/posts/?search=${event[0]}&operator=and`);
-    },
-    showConfirm(post: Post) {
-      this.currentPost = post as Post;
-      this.dialogData = {
-        title: this.t("posts.confirm.title"),
-        message: this.t("posts.confirm.message", { post: this.currentPost.title }),
-      };
-      this.showDialog = true;
-    },
-
-    canceled() {
-      this.showDialog = false;
-    },
-
-    confirmed() {
-      this.deletePost(this.currentPost as Post);
-      this.currentPost = null;
-      this.showDialog = false;
-    },
-
-    changePost(post: Post) {
-      this.goTo(`/posts/post/${post.id}/edit`);
-    },
+const props = defineProps({
+  userPermissions: {
+    type: Object as PropType<UserRolePermissionsType>,
+    required: true,
   },
 });
-</script>
 
-<style lang="scss" scoped></style>
+const loadPostsWithPagination = async (pageIndex: number, search: string, operator: string) => {
+  try {
+    let link = !search
+      ? `/api/posts/page/${pageIndex}/count/${itemsPerPage}`
+      : `/api/posts/page/${pageIndex}/count/${itemsPerPage}/search/${encodeURIComponent(search)}/operator/${encodeURIComponent(operator)}`;
+    const res = await fetch(link);
+    const response = await res.json();
+    posts.value = response.data[0];
+    totalPages.value = Math.ceil((await response.data[1]) / itemsPerPage);
+    loading.value = false;
+  } catch (e) {
+    console.log("ERROR: ", e);
+    loading.value = false;
+  }
+};
+
+const onPaginate = (page: number) => {
+  const searchValue = (route.query?.search || "") as string;
+  const operator = (route.query?.operator || "and") as string;
+  loadPostsWithPagination(page, searchValue, operator);
+};
+
+watch(
+  () => route.query,
+  (query) => {
+    const searchValue = (query?.search || "") as string;
+    const operator = (route.query?.operator || "and") as string;
+    loadPostsWithPagination(1, searchValue, operator);
+  },
+);
+
+onMounted(() => {
+  const searchValue = (route.query?.search || "") as string;
+  const operator = (route.query?.operator || "and") as string;
+
+  blogTitle.value = "fumiX Blog";
+  blogShortDescription.value = "Alle Beiträge auf einen Blick";
+
+  loadPostsWithPagination(1, searchValue, operator);
+});
+
+const deletePost = async (post: Post) => {
+  try {
+    const res = await fetch(`/api/posts/delete/${post.id}`);
+    await res.json();
+    const searchValue = (route.query?.search || "") as string;
+    const operator = (route.query?.operator || "and") as string;
+    await loadPostsWithPagination(1, searchValue, operator);
+  } catch (e) {
+    console.log("ERROR: ", e);
+  }
+};
+
+const goTo = (path: string) => {
+  router.push(path);
+};
+
+const searchWord = (event: any) => {
+  goTo(`/posts/?search=${event[0]}&operator=and`);
+};
+
+const showConfirm = (post: Post) => {
+  currentPost.value = post as Post;
+  dialogData.value = {
+    title: t("posts.confirm.title"),
+    message: t("posts.confirm.message", { post: currentPost.value.title }),
+  };
+  showDialog.value = true;
+};
+
+const canceled = () => {
+  showDialog.value = false;
+};
+
+const confirmed = () => {
+  deletePost(currentPost.value as Post);
+  currentPost.value = null;
+  showDialog.value = false;
+};
+
+const changePost = (post: Post) => {
+  goTo(`/posts/post/${post.id}/edit`);
+};
+</script>
