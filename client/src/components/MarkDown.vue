@@ -27,6 +27,8 @@ import { blobToArray, bytesToDataUrl } from "@fumix/fu-blog-common";
 import type { PropType } from "vue";
 import { ref, watch } from "vue";
 import { MarkdownConverterClient } from "../markdown-converter-client.js";
+import highlightjs from "highlight.js";
+import { marked } from "marked";
 
 const sanitizedHtml = ref<string>("");
 
@@ -46,15 +48,18 @@ watch(props, async () => {
   try {
     emits("loading", true);
     sanitizedHtml.value = await MarkdownConverterClient.Instance.convert(props.markdown ?? "", {
-      /* // TODO: Fix this, so images and diagrams are both replaced correctly
-      walkTokens: async (token) => {
-        if (token.type === "image") {
-          const customFile = props.customImageUrls[token.href];
-          if (customFile) {
-            token.href = await blobToArray(customFile).then((it) => bytesToDataUrl(customFile.type, it));
-          }
-        }
-      },*/
+      highlight: function (code, lang) {
+        return highlightjs.highlightAuto(code).value;
+      },
+      // TODO: Fix this, so images and diagrams are both replaced correctly
+      // walkTokens: async (token) => {
+      //   if (token.type === "image") {
+      //     const customFile = props.customImageUrls[token.href];
+      //     if (customFile) {
+      //       token.href = await blobToArray(customFile).then((it) => bytesToDataUrl(customFile.type, it));
+      //     }
+      //   }
+      // },
     });
   } catch (e) {
     console.error("Markdown error", e);
