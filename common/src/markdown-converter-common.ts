@@ -81,6 +81,8 @@ export abstract class MarkdownConverter {
               const res = Buffer.from(compressed).toString("base64").replace(/\+/g, "-").replace(/\//g, "_");
               token.text = await fetchTextFromUrl(`${MarkdownConverter.KROKI_SERVICE_URL}/${diagramType.id}/svg/${res}`);
             }
+          } else if (token.type === "image") {
+            token.href = "";
           }
         },
       };

@@ -22,6 +22,8 @@
             {{ post.title }}
           </h3>
 
+          <p class="card-text my-4">{{ post.description }}</p>
+
           <div class="mb-1 text-muted creator">
             <fa-icon :icon="faClock" />
             {{ $luxonDateTime.fromISO(post.createdAt.toString(), { locale: locale }).toRelativeCalendar() }}
@@ -35,8 +37,6 @@
           </div>
 
           <display-tags :tags="post.tags"></display-tags>
-
-          <p class="card-text my-4">{{ post.description }}</p>
 
           <div class="my-4">
             <router-link :to="'/posts/post/' + post.id" class="text-decoration-none">
@@ -60,6 +60,10 @@
 .creator {
   display: inline-block;
   font-size: 0.8rem;
+}
+
+.postTitle {
+  font-size: 2.5rem;
 }
 </style>
 

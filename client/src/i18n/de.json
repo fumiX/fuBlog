@@ -16,7 +16,8 @@
       "create_post": "Post erstellen",
       "roles": "Rollen",
       "login": "Anmelden",
-      "githubLinkText": "Die Blog-Software auf GitHub"
+      "githubLinkText": "Die Blog-Software auf GitHub",
+      "startpage": "Startseite"
     }
   },
   "nav": {
@@ -51,6 +52,12 @@
     "confirm": {
       "title": "Löschen bestätigen",
       "message": "Willst du \"{post}\" wirklich löschen?"
+    },
+    "post": {
+      "not-available": {
+        "title": "Post nicht vorhanden",
+        "message": "Der Post ist nicht verfügbar oder wurde gelöscht. Sie können mit dem Button zur Startseite zurück, oder nutzen sie die Suchfunktion um einen bestimmten Post zu finden."
+      } 
     }
   },
   "admin": {

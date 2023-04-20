@@ -26,11 +26,13 @@
                 {{ t("app.base.edit") }}
               </button>
             </div>
-            <h1 class="mb-0 display-4 font-italic">
+            <h1 class="mb-0 display-4">
               {{ post.title }}
             </h1>
 
-            <div class="mb-1 text-muted creator">
+            <p class="card-text my-4 fst-italic text-muted">{{ post.description }}</p>
+
+            <div v-if="post.createdAt" class="mb-1 text-muted creator">
               <fa-icon :icon="faClock" />
               {{ $luxonDateTime.fromISO(post.createdAt.toString(), { locale: "de-DE" }).toRelativeCalendar() }}
               <span v-if="post.createdBy"> von </span>
@@ -53,6 +55,26 @@
     </div>
 
     <confirm-dialog :data="dialogData" :show="showDialog" @canceled="canceled()" @confirmed="confirmed()"></confirm-dialog>
+  </div>
+  <div class="container" v-else>
+    <div class="row mb-2">
+      <div class="col">
+        <div class="card flex-md-row mb-4 box-shadow h-md-250">
+          <div class="card-body">
+            <div class="clearfix mb-4">
+              <h1 class="mb-0 display-4">{{ t("posts.post.not-available.title") }}</h1>
+
+              <p class="card-text my-4 fst-italic text-muted">{{ t("posts.post.not-available.message") }}.</p>
+
+              <button class="btn btn-sm btn-outline-primary" @click="$router.push('/')">
+                <fa-icon :icon="faArrowLeft" />
+                {{ t("app.base.startpage") }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 

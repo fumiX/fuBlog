@@ -1,6 +1,20 @@
 <template>
-  <split-flap v-for="(char, i) in chars" :target-char="char" v-bind:key="i"></split-flap>
+  <div class="flap-container">
+    <split-flap v-for="(char, i) in chars" :target-char="char" v-bind:key="i"></split-flap>
+  </div>
 </template>
+
+<style lang="scss">
+.flap-container {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  padding: 0;
+  margin: 0 0 1rem 0;
+  justify-content: center;
+}
+</style>
+
 <script setup lang="ts">
 import SplitFlap from "@client/components/SplitFlap.vue";
 import { computed, reactive } from "vue";
