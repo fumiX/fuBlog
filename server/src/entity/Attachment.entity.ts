@@ -1,6 +1,7 @@
 import { Attachment } from "@fumix/fu-blog-common";
+import { FileEntity } from "./File.entity.js";
 import type { Relation } from "typeorm";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { PostEntity } from "./Post.entity.js";
 
 @Entity("attachment")
@@ -11,12 +12,10 @@ export class AttachmentEntity implements Attachment {
   @Column({ nullable: false })
   filename: string;
 
-  @Column({ type: "bytea", nullable: false })
-  binaryData: Buffer;
-
   @ManyToOne(() => PostEntity, { nullable: false })
   post: Relation<PostEntity>;
 
-  @Column({ nullable: false })
-  mimeType: string;
+  @JoinColumn({ name: "file_sha256", referencedColumnName: "sha256" })
+  @ManyToOne(() => FileEntity, { nullable: false, eager: true })
+  file: FileEntity;
 }

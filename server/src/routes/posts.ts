@@ -1,4 +1,5 @@
 import { DraftResponseDto, EditPostRequestDto, NewPostRequestDto, permissionsForUser } from "@fumix/fu-blog-common";
+import { FileEntity } from "../entity/File.entity.js";
 import express, { NextFunction, Request, Response, Router } from "express";
 import multer from "multer";
 import { AppDataSource } from "../data-source.js";
@@ -88,11 +89,10 @@ router.get("/:id([1-9][0-9]*)", async (req: Request, res: Response, next) => {
     });
 });
 
-function convertAttachment(post: PostEntity, file: Express.Multer.File): AttachmentEntity {
+async function convertAttachment(post: PostEntity, file: Express.Multer.File): Promise<AttachmentEntity> {
   return {
     filename: file.originalname,
-    binaryData: file.buffer,
-    mimeType: file.mimetype,
+    file: await FileEntity.fromData(file.buffer),
     post,
   };
 }
@@ -131,8 +131,14 @@ router.post("/new", authMiddleware, multipleFilesUpload, async (req: Request, re
     const savedPost = await AppDataSource.manager.getRepository(PostEntity).save<PostEntity>(post).catch(next);
 
     if (savedPost) {
-      const attachmentEntities: AttachmentEntity[] = extractUploadFiles(req).map((it) => convertAttachment(post, it));
+      const attachmentEntities: AttachmentEntity[] = await Promise.all(extractUploadFiles(req).map((it) => convertAttachment(post, it)));
       if (attachmentEntities.length > 0) {
+        await AppDataSource.createQueryBuilder()
+          .insert()
+          .into(FileEntity)
+          .values(attachmentEntities.map((it) => it.file))
+          .onConflict('("sha256") DO NOTHING')
+          .execute();
         await AppDataSource.getRepository(AttachmentEntity)
           .save<AttachmentEntity>(attachmentEntities)
           .then((it) => {
@@ -221,7 +227,7 @@ router.post("/:id([1-9][0-9]*)", authMiddleware, multipleFilesUpload, async (req
         .then((updateResult) => {
           // TODO: Optimize, so unchanged attachments are not deleted and re-added
           manager.getRepository(AttachmentEntity).delete({ post: { id: post.id } });
-          manager.getRepository(AttachmentEntity).insert(extractUploadFiles(req).map((it) => convertAttachment(post, it)));
+          //manager.getRepository(AttachmentEntity).insert(extractUploadFiles(req).map((it) => convertAttachment(post, it)));
           // tagsToUseInPost.forEach((tag) => {
           //   manager.getRepository(PostEntity).createQueryBuilder().relation(PostEntity, "tags").add(tag);
           // });

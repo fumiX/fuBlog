@@ -11,6 +11,7 @@ import { logger } from "./logger.js";
 import adminRoutes from "./routes/admin.js";
 import attRoutes from "./routes/attachments.js";
 import authRoutes from "./routes/auth.js";
+import fileRoutes from "./routes/file.js";
 import postRoutes from "./routes/posts.js";
 import utilityRoutes from "./routes/utility.js";
 import { errorHandler } from "./service/error-handler.js";
@@ -35,6 +36,8 @@ app.use(cors(corsOptions));
 app.use(`${ServerSettings.API_PATH}/auth`, authRoutes);
 
 app.use(`${ServerSettings.API_PATH}/admin`, adminRoutes);
+
+app.use(`${ServerSettings.API_PATH}/file`, fileRoutes);
 
 app.use(`${ServerSettings.API_PATH}/posts`, postRoutes);
 
