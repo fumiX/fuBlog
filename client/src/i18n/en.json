@@ -2,6 +2,9 @@
   "ai": {
     "summarize": "Summarize",
     "summary": {
+      "dialog": {
+        "title": "Description and Tags"
+      },
       "accept": "Accept summary",
       "hint": "{ count } characters left to create an AI supported summary",
       "tags": {

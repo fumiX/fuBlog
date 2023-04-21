@@ -25,6 +25,7 @@
               <div class="mb-3">
                 <ai-summaries class="mb-3" :full-text="form.markdown" :onSetDescription="setDescription" :onAddTag="addTag"></ai-summaries>
               </div>
+
               <div class="form-floating mb-3">
                 <textarea
                   v-model="form.markdown"
@@ -192,7 +193,6 @@ import AiSummaries from "@client/components/AiSummaries.vue";
 import { debounce } from "@client/debounce.js";
 import Vue3TagsInput from "vue3-tags-input";
 import { PostEndpoints } from "@client/util/api-client.js";
-
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import { t, tc } from "@fumix/fu-blog-client/src/plugins/i18n.js";
 import type { DraftResponseDto, NewPostRequestDto, Post } from "@fumix/fu-blog-common";
@@ -206,6 +206,8 @@ const files = reactive<{ [sha256: string]: File }>({});
 const dropzoneHighlight = ref<boolean>(false);
 const router = useRouter();
 const markdownArea = ref(null);
+const showAiDialog = ref<boolean>(false);
+const aiDialogData = ref<any | null>(null);
 
 const form = reactive<NewPostRequestDto>({
   title: "",

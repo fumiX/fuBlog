@@ -1,6 +1,6 @@
 <template>
   <div v-if="isSuccessfulAiSummaryData(summaryData)">
-    <button v-if="onSetDescription" class="btn btn-sm btn-outline-success" @click="acceptDescription($event, summaryData.summary)">
+    <button type="button" class="btn btn-sm btn-outline-success" @click="$emit('acceptDescription', summaryData.summary)">
       {{ t("ai.summary.accept") }}
     </button>
     <button type="button" class="btn-close btn-close-white float-end" aria-label="Close" @click="$emit('removeData')"></button>
@@ -12,7 +12,7 @@
         v-bind:key="keyword"
         class="btn badge rounded-pill bg-success"
         style="margin-right: 2px"
-        @click="acceptTag($event, keyword)"
+        @click="$emit('addTag', keyword)"
       >
         {{ keyword }}
       </button>
@@ -44,17 +44,18 @@ const props = defineProps({
   onSetDescription: { type: Function as PropType<(description: string) => void> },
 });
 
-function acceptDescription(e: MouseEvent, description: string) {
-  e.preventDefault();
-  props.onSetDescription?.(description);
-}
+// function acceptDescription(e: MouseEvent, description: string) {
+//   e.preventDefault();
+//   props.onSetDescription?.(description);
+// }
 
-function acceptTag(e: MouseEvent, tag: string) {
-  e.preventDefault();
-  props.onAddTag?.(tag);
-}
+// function acceptTag(e: MouseEvent, tag: string) {
+//   e.preventDefault();
+//   props.onAddTag?.(tag);
+// }
 
-const emit = defineEmits(["removeData"]);
+const emit = defineEmits(["removeData", "acceptDescription"]);
+
 onMounted(() => {
   // auto remove if error
   if (!isSuccessfulAiSummaryData(props.summaryData)) {

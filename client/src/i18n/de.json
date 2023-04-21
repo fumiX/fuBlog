@@ -2,6 +2,9 @@
   "ai": {
     "summarize": "Zusammenfassung und Schlagworte generieren",
     "summary": {
+      "dialog": {
+        "title": "Zusammenfassung und Schlagworte"
+      },
       "accept": "Kurzbeschreibung übernehmen",
       "hint": "Noch { count } Zeichen, dann kann eine Zusammenfassung mit KI generiert werden",
       "tags": {
