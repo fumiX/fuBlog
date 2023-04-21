@@ -47,19 +47,16 @@ const emits = defineEmits(["loading"]);
 watch(props, async () => {
   try {
     emits("loading", true);
-    sanitizedHtml.value = await MarkdownConverterClient.Instance.convert(props.markdown ?? "", {
-      highlight: function (code, lang) {
-        return highlightjs.highlightAuto(code).value;
-      },
-      // TODO: Fix this, so images and diagrams are both replaced correctly
-      // walkTokens: async (token) => {
-      //   if (token.type === "image") {
-      //     const customFile = props.customImageUrls[token.href];
-      //     if (customFile) {
-      //       token.href = await blobToArray(customFile).then((it) => bytesToDataUrl(customFile.type, it));
-      //     }
-      //   }
-      // },
+    sanitizedHtml.value = await MarkdownConverterClient.Instance.convert(props.markdown ?? "", async (token: string) => {
+      if (!token || token.length < 10) {
+        return Promise.reject("Image hash too short");
+      }
+      const urls = Object.keys(props.customImageUrls).filter((it) => it.startsWith(token));
+      if (urls && urls.length === 1) {
+        const customFile = props.customImageUrls[urls[0]];
+        return blobToArray(customFile).then((it) => bytesToDataUrl(customFile.type, it));
+      }
+      return Promise.reject("No custom file found");
     });
   } catch (e) {
     console.error("Markdown error", e);

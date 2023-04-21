@@ -41,20 +41,4 @@ router.get("/attachment/:id([0-9]+)", async (req: Request, res: Response, next) 
     .catch((err) => next(err));
 });
 
-// get single attachment as binary data, file name is arbitrary
-router.get("/attachment/:id([0-9]+)/:filename", async (req: Request, res: Response, next) => {
-  const attachmentId = +req.params.id;
-  await AppDataSource.manager
-    .getRepository(AttachmentEntity)
-    .findOneBy({ id: attachmentId })
-    .then((result) => {
-      if (result) {
-        return res.type(result.mimeType).status(200).send(result.binaryData);
-      } else {
-        throw new NotFoundError("No attachment found");
-      }
-    })
-    .catch((err) => next(err));
-});
-
 export default router;

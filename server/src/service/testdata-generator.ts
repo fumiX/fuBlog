@@ -1,6 +1,7 @@
 import { Sex } from "@faker-js/faker";
 import { faker } from "@faker-js/faker/locale/de";
 import { DataUrl, imageBytesToDataUrl, isNeitherNullNorUndefined, OAuthAccount } from "@fumix/fu-blog-common";
+import { FileEntity } from "../entity/File.entity.js";
 import console from "console";
 import { AppDataSource } from "../data-source.js";
 import { AttachmentEntity } from "../entity/Attachment.entity.js";
@@ -146,14 +147,11 @@ export async function createRandomAttachment(post: PostEntity, seed?: number): P
   faker.seed(seed);
   try {
     const data = await generateRandomPng(faker.datatype.number());
-    const attachment: AttachmentEntity = {
-      post: post,
-      binaryData: Buffer.from(await data.arrayBuffer()),
-      filename: faker.random.word() + ".png",
-      mimeType: "image/png",
-    };
-    const attRep = AppDataSource.manager.getRepository(AttachmentEntity);
-    return await attRep.save(attachment);
+    const file: FileEntity = await FileEntity.fromData(await data.arrayBuffer());
+    await AppDataSource.manager.createQueryBuilder().insert().into(FileEntity).values(file).onConflict('("sha256") DO NOTHING').execute();
+    const attachment: AttachmentEntity = { post, file, filename: faker.random.word() + ".png" };
+    await AppDataSource.manager.getRepository(AttachmentEntity).insert(attachment);
+    return attachment;
   } catch (e) {
     logger.error("Error generating attachment", e);
   }

@@ -5,6 +5,8 @@ services:
     build:
       context: docker/postgres
       dockerfile: Dockerfile
+      args:
+        language: de_DE
     environment:
       POSTGRES_USER: "fublog"
       POSTGRES_PASSWORD: "8!06"
