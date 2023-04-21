@@ -145,6 +145,43 @@
     transition: 0.5s ease-in box-shadow, 3s ease border-color;
   }
 }
+
+.v3ti {
+  transition: 0.3s;
+  background-color: #dee2e6 !important;
+  border: 1px solid #404040 !important;
+  outline: none !important;
+  box-shadow: none !important;
+
+  &:focus,
+  &--focus {
+    border: 1px solid #ffce80 !important;
+  }
+
+  .v3ti-tag {
+    background: #75d6fd !important;
+    color: #333 !important;
+    border: 1px solid #ccc;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 0.75rem;
+    padding: 3px 0px 0 5px !important;
+    /*border-radius: 0;*/
+  }
+
+  .v3ti-remove-tag {
+    // color: #000000;
+    transition: color 0.3s;
+  }
+
+  .v3ti-remove-tag {
+    color: #333 !important;
+    text-decoration: none;
+  }
+
+  .v3ti-tag .v3ti-remove-tag:hover {
+    color: #cc0000 !important;
+  }
+}
 </style>
 
 <script setup lang="ts">

@@ -91,3 +91,43 @@ pre {
 img[alt~="img-wide"] {
   width: 100%;
 }
+
+// FIX FOR FLOATING LABELS
+
+.form-floating > .form-control:not(:-moz-placeholder-shown) ~ label {
+  transition: 0.3s;
+  opacity: 1;
+  color: rgba(0, 0, 0, 0.5);
+  background-color: $form-floating-label-background-color;
+  height: auto;
+  padding: 0px;
+  padding: 0px 0px 0px 10px;
+  width: 98%;
+  transform: scale(0.982) translateY(0.045rem) translateX(0.1rem);
+  border-radius: 5px 0 0 0;
+}
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label,
+.form-floating > .form-select ~ label {
+  transition: 0.3s;
+  opacity: 1;
+  color: rgba(0, 0, 0, 0.5);
+  background-color: $form-floating-label-background-color;
+  height: auto;
+  padding: 0px 0px 0px 10px;
+  width: 98%;
+  transform: scale(0.97) translateY(0.045rem) translateX(0.1rem);
+  border-radius: 5px 0 0 0;
+}
+.form-floating > .form-control:-webkit-autofill ~ label {
+  transition: 0.3s;
+  opacity: 1;
+  color: rgba(0, 0, 0, 0.5);
+  background-color: $form-floating-label-background-color;
+  height: auto;
+  padding: 0px;
+  padding: 0px 0px 0px 10px;
+  width: 98%;
+  transform: scale(0.982) translateY(0.045rem) translateX(0.1rem);
+  border-radius: 5px 0 0 0;
+}

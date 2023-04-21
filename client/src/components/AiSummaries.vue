@@ -1,24 +1,38 @@
 <template>
-  <div v-for="(d, i) in data" v-bind:key="i" class="bg-success bg-opacity-25 m-1 p-1">
+  <div v-for="(d, i) in data" v-bind:key="i" class="summary-container bg-success bg-opacity-25">
     <button v-if="onSetDescription" class="btn btn-sm btn-outline-success" @click="acceptDescription($event, d.summary)">
-      Kurzbeschreibung übernehmen
+      {{ t("ai.summary.accept") }}
     </button>
-    <button type="button" class="btn-close float-end" aria-label="Close" @click="removeData(d)"></button>
+    <button type="button" class="btn-close btn-close-white float-end" aria-label="Close" @click="removeData(d)"></button>
     <ai-summary :summary-data="d" :onAddTag="props.onAddTag"></ai-summary>
   </div>
-  <small v-if="fullText.length < 500" class="text-muted">
-    🤖 Noch {{ 500 - fullText.length }} Zeichen, dann kann eine Zusammenfassung mit KI generiert werden.
-  </small>
-  <button
-    v-else-if="data.length < 3"
-    class="btn btn-outline-success"
-    :class="{ 'btn-lg': data.length <= 0 }"
-    :disabled="loading"
-    @click="loadNewSummary"
-  >
-    <loading-spinner v-if="loading" /><span v-else>🤖🪄 {{ t("ai.summarize") }}</span>
+  <small v-if="fullText.length < 500" class="text-muted"> 🤖 {{ t("ai.summary.hint", { number: 500 - fullText.length }) }} </small>
+  <button v-else-if="data.length < 3" class="btn btn-sm btn-outline-success" :disabled="loading" @click="loadNewSummary">
+    <loading-spinner v-if="loading" class="smallSpinner" /><span v-else>🤖🪄</span> {{ t("ai.summarize") }}
   </button>
 </template>
+
+<style lang="scss">
+.summary-container {
+  border: 1px solid #404040;
+  border-radius: 5px;
+  margin: 0 0 1rem 0;
+  padding: 0.75rem;
+}
+
+.smallSpinner {
+  width: 10px;
+  height: 10px;
+  border-width: 2px;
+}
+
+.close-btn {
+  &:focus {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+}
+</style>
 
 <script setup lang="ts">
 import AiSummary from "@client/components/AiSummary.vue";
