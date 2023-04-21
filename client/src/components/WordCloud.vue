@@ -5,7 +5,7 @@
 <style lang="scss"></style>
 
 <script setup lang="ts">
-import { defineEmits, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 import type { Word } from "@fumix/fu-blog-common";
 import WordCloud from "wordcloud";
 

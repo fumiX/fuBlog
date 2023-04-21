@@ -3,7 +3,10 @@
     "summarize": "Zusammenfassung und Schlagworte generieren",
     "summary": {
       "accept": "Kurzbeschreibung übernehmen",
-      "hint": "Noch { count } Zeichen, dann kann eine Zusammenfassung mit KI generiert werden"
+      "hint": "Noch { count } Zeichen, dann kann eine Zusammenfassung mit KI generiert werden",
+      "tags": {
+        "hint": "Klicken, um Schlagworte zu übernehmen"
+      }
     }
   },
   "app": {

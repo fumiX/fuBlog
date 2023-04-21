@@ -1,4 +1,3 @@
-import console from "console";
 import { AppDataSource } from "../data-source.js";
 import { FileEntity } from "../entity/File.entity.js";
 import express, { Router } from "express";
