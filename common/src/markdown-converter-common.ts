@@ -103,7 +103,7 @@ export abstract class MarkdownConverter {
     marked.use({
       walkTokens: async (token) => {
         if (token.type === "image") {
-          token.href = (await this.f?.(token.href)) ?? token.href;
+          token.href = (await this.f?.(token.href).catch(() => undefined)) ?? token.href;
         }
       },
     });

@@ -122,9 +122,8 @@ router.post("/new", authMiddleware, multipleFilesUpload, async (req: Request, re
       markdown: body.markdown,
       createdBy: loggedInUser.user,
       createdAt: new Date(),
-      sanitizedHtml: await MarkdownConverterServer.Instance.convert(
-        body.markdown,
-        (hash: string) => new Promise((resolve, reject) => resolve(`/api/file/${hash}`)),
+      sanitizedHtml: await MarkdownConverterServer.Instance.convert(body.markdown, (hash: string) =>
+        Promise.resolve<`/api/file/${string}`>(`/api/file/${hash}`),
       ),
       draft: !!body.draft,
       attachments: [],

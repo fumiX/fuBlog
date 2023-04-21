@@ -48,8 +48,12 @@ watch(props, async () => {
   try {
     emits("loading", true);
     sanitizedHtml.value = await MarkdownConverterClient.Instance.convert(props.markdown ?? "", async (token: string) => {
-      const customFile = props.customImageUrls[token];
-      if (customFile) {
+      if (!token || token.length < 10) {
+        return Promise.reject("Image hash too short");
+      }
+      const urls = Object.keys(props.customImageUrls).filter((it) => it.startsWith(token));
+      if (urls && urls.length === 1) {
+        const customFile = props.customImageUrls[urls[0]];
         return blobToArray(customFile).then((it) => bytesToDataUrl(customFile.type, it));
       }
       return Promise.reject("No custom file found");
