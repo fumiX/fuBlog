@@ -53,16 +53,11 @@ function findNextChar(current: string): string | undefined {
 
 <style lang="scss" scoped>
 div.outline {
-  display: inline-block;
-  border: solid #ff9c00;
-  border-width: 0 0.1rem;
-  margin: 0 0.1rem 0;
+  margin: 0 2px;
+  padding: 0;
   div {
-    font-family: "Roboto Condensed";
-    font-weight: bold;
     width: 5rem;
     height: 8rem;
-    background: #ccc;
     perspective: 30rem;
 
     span {
@@ -77,7 +72,7 @@ div.outline {
       position: absolute;
       overflow: clip;
       backface-visibility: hidden;
-      border: 0.1rem solid #ff9c00;
+      border: 1px solid #ff9c00;
       user-select: none;
 
       span {
@@ -98,7 +93,7 @@ div.outline {
       &.bottom {
         top: 4rem;
         span {
-          top: -4.1rem;
+          top: -4.2rem;
           overflow: visible;
         }
         &.b {

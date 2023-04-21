@@ -22,6 +22,8 @@
             {{ post.title }}
           </h3>
 
+          <p class="card-text my-4">{{ post.description }}</p>
+
           <div class="mb-1 text-muted creator">
             <fa-icon :icon="faClock" />
             {{ $luxonDateTime.fromISO(post.createdAt.toString(), { locale: locale }).toRelativeCalendar() }}
@@ -34,7 +36,7 @@
             <i>{{ post.updatedBy.fullName }}</i>
           </div>
 
-          <p class="card-text my-4">{{ post.description }}</p>
+          <display-tags :tags="post.tags"></display-tags>
 
           <div class="my-4">
             <router-link :to="'/posts/post/' + post.id" class="text-decoration-none">
@@ -59,6 +61,10 @@
   display: inline-block;
   font-size: 0.8rem;
 }
+
+.postTitle {
+  font-size: 2.5rem;
+}
 </style>
 
 <script setup lang="ts">
@@ -69,6 +75,7 @@ import { faBookReader, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons
 import { faClock } from "@fortawesome/free-regular-svg-icons";
 import type { UserRolePermissionsType } from "@fumix/fu-blog-common";
 import { useRouter } from "vue-router";
+import DisplayTags from "@client/components/DisplayTags.vue";
 
 const router = useRouter();
 const { t } = useI18n();

@@ -33,7 +33,7 @@ router.get("/page/:page([0-9]+)/count/:count([0-9]+)/search/:search/operator/:op
       .filter(Boolean)
       .join(operator);
   }
-
+  // TODO : add createdBy and tags to search results
   await AppDataSource.manager
     .getRepository(PostEntity)
     .createQueryBuilder()
@@ -59,7 +59,7 @@ router.get("/page/:page([0-9]+)/count/:count([0-9]+)/", async (req: Request, res
       },
       skip: skipEntries,
       take: itemsPerPage,
-      relations: ["createdBy", "updatedBy"],
+      relations: ["createdBy", "updatedBy", "tags"],
     })
     .then((result) => res.status(200).json({ data: result }))
     .catch((error) => {
@@ -79,7 +79,8 @@ router.get("/:id([1-9][0-9]*)", async (req: Request, res: Response, next) => {
     })
     .then((result) => {
       if (result === null) {
-        throw new NotFoundError("No post found with id " + req.params.id);
+        res.status(410).json({ data: null });
+        // throw new NotFoundError("No post found with id " + req.params.id);
       } else {
         res.status(200).json({ data: result });
       }

@@ -1,6 +1,7 @@
 import { DataUrl } from "@common/util/base64.js";
 import { Buffer } from "buffer";
 import { DOMPurifyI } from "dompurify";
+import highlightjs from "highlight.js";
 import { marked } from "marked";
 import pako from "pako";
 
@@ -83,6 +84,8 @@ export abstract class MarkdownConverter {
               const res = Buffer.from(compressed).toString("base64").replace(/\+/g, "-").replace(/\//g, "_");
               token.text = await fetchTextFromUrl(`${MarkdownConverter.KROKI_SERVICE_URL}/${diagramType.id}/svg/${res}`);
             }
+          } else if (token.type === "image") {
+            token.href = "";
           }
         },
       };
@@ -113,6 +116,9 @@ export abstract class MarkdownConverter {
     this.f = imgHashToUrl;
     return marked
       .parse(input, {
+        highlight: function (code, lang) {
+          return highlightjs.highlightAuto(code).value;
+        },
         async: true,
       }) //
       .then((parsedInput) =>

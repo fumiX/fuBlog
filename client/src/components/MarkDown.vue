@@ -27,6 +27,8 @@ import { blobToArray, bytesToDataUrl } from "@fumix/fu-blog-common";
 import type { PropType } from "vue";
 import { ref, watch } from "vue";
 import { MarkdownConverterClient } from "../markdown-converter-client.js";
+import highlightjs from "highlight.js";
+import { marked } from "marked";
 
 const sanitizedHtml = ref<string>("");
 
