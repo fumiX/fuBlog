@@ -1,5 +1,5 @@
 import { loadIdToken } from "@client/util/storage.js";
-import type { DraftResponseDto, EditPostRequestDto, NewPostRequestDto, OAuthAccount, SummaryDto } from "@fumix/fu-blog-common";
+import type { AiSummaryData, DraftResponseDto, EditPostRequestDto, NewPostRequestDto, OAuthAccount } from "@fumix/fu-blog-common";
 
 export type ApiUrl = `/api/${string}`;
 
@@ -69,8 +69,8 @@ export class AuthEndpoints {
 }
 
 export class OpenAiEndpoints {
-  static async letChatGptSummarize(text: string): Promise<SummaryDto> {
-    return callServer<string, SummaryDto>("/api/utility/chatGptSummarize", "POST", { json: text });
+  static async letChatGptSummarize(text: string): Promise<AiSummaryData> {
+    return callServer<string, AiSummaryData>("/api/utility/chatGptSummarize", "POST", { json: text });
   }
 }
 

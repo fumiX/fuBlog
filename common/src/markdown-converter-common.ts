@@ -1,8 +1,8 @@
+import { DataUrl } from "@common/util/base64.js";
 import { Buffer } from "buffer";
 import { DOMPurifyI } from "dompurify";
 import { marked } from "marked";
 import pako from "pako";
-import MarkedOptions = marked.MarkedOptions;
 
 /**
  * Takes a URL as argument, fetches text content from there and returns a promise resolving to that content.
@@ -19,6 +19,8 @@ type KrokiDiagramType = {
   /** The ID of the diagram type, as used at the beginning of the Markdown code block */
   markdownId: string;
 };
+
+type ImageHashToUrlFunction = (imgHash: string) => Promise<DataUrl | `/api/file/${string}`>;
 
 export abstract class MarkdownConverter {
   private static readonly KROKI_SERVICE_URL = "https://kroki.io";
@@ -95,12 +97,24 @@ export abstract class MarkdownConverter {
   protected constructor(fetch: FetchTextFromUrlFunction) {
     // Initialize marked with our custom extensions
     marked.use(MarkdownConverter.walkTokensExtension(fetch));
+    marked.use({
+      walkTokens: async (token) => {
+        if (token.type === "image") {
+          token.href = (await this.f?.(token.href)) ?? token.href;
+        }
+      },
+    });
     marked.use(MarkdownConverter.rendererExtension);
   }
 
-  convert(input: string, options?: Omit<MarkedOptions, "async">): Promise<string> {
+  private f: ImageHashToUrlFunction | undefined;
+
+  convert(input: string, imgHashToUrl?: ImageHashToUrlFunction): Promise<string> {
+    this.f = imgHashToUrl;
     return marked
-      .parse(input, { ...(options ?? {}), async: true }) //
+      .parse(input, {
+        async: true,
+      }) //
       .then((parsedInput) =>
         this.dompurify.sanitize(parsedInput, {
           // Allowed tags and attributes inside markdown

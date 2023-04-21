@@ -1,10 +1,6 @@
 <template>
   <div v-for="(d, i) in data" v-bind:key="i" class="bg-success bg-opacity-25 m-1 p-1">
-    <button v-if="onSetDescription" class="btn btn-sm btn-outline-success" @click="acceptDescription($event, d.summary)">
-      Kurzbeschreibung übernehmen
-    </button>
-    <button type="button" class="btn-close float-end" aria-label="Close" @click="removeData(d)"></button>
-    <ai-summary :summary-data="d" :onAddTag="props.onAddTag"></ai-summary>
+    <ai-summary :summary-data="d" :onAddTag="props.onAddTag" @remove-data="removeData(d)"></ai-summary>
   </div>
   <small v-if="fullText.length < 500" class="text-muted">
     🤖 Noch {{ 500 - fullText.length }} Zeichen, dann kann eine Zusammenfassung mit KI generiert werden.
@@ -25,7 +21,7 @@ import AiSummary from "@client/components/AiSummary.vue";
 import LoadingSpinner from "@client/components/LoadingSpinner.vue";
 import { t } from "@client/plugins/i18n.js";
 import { OpenAiEndpoints } from "@client/util/api-client.js";
-import type { SummaryDto } from "@fumix/fu-blog-common";
+import type { AiSummaryData } from "@fumix/fu-blog-common";
 import { ref } from "vue";
 import type { PropType } from "vue";
 
@@ -35,15 +31,10 @@ const props = defineProps({
   onAddTag: { type: Function as PropType<(tag: string) => void> },
 });
 
-const data = ref<SummaryDto[]>([]);
+const data = ref<AiSummaryData[]>([]);
 const loading = ref<boolean>(false);
 
-function acceptDescription(e: MouseEvent, description: string) {
-  e.preventDefault();
-  props.onSetDescription?.(description);
-}
-
-function removeData(d: SummaryDto) {
+function removeData(d: AiSummaryData) {
   data.value = data.value.filter((it) => it != d);
 }
 
@@ -56,7 +47,7 @@ function loadNewSummary(e: MouseEvent) {
       loading.value = false;
     })
     .catch((reason) => {
-      alert(reason);
+      data.value.push({ error: reason });
       loading.value = false;
     });
 }
