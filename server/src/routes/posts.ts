@@ -179,6 +179,20 @@ async function getPersistedTagsForPost(bodyJson: any) {
   return tagsToUseInPost.filter((value) => value !== null && value !== undefined);
 }
 
+// autocompletion suggestions (fuzzy search) for tags
+router.get("/tags/:search", async (req: Request, res: Response, next) => {
+  await AppDataSource.manager
+    .getRepository(TagEntity)
+    .createQueryBuilder()
+    .select()
+    .where("SIMILARITY(name, :search) > 0.3", { search: req.params.search })
+    .orderBy("SIMILARITY(name, '" + req.params.id + "')", "DESC")
+    .limit(5)
+    .getMany()
+    .then((result) => res.status(200).json({ data: result }))
+    .catch(next);
+});
+
 // EDIT EXISTING POST
 router.post("/:id([1-9][0-9]*)", authMiddleware, multipleFilesUpload, async (req: Request, res: Response, next) => {
   const postId = +req.params.id;

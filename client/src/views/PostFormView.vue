@@ -33,7 +33,12 @@
 
               <div class="form-floating mb-3">
                 <label for="stringTags">{{ t("posts.form.tags") }}</label>
-                <vue3-tags-input :tags="form.stringTags" placeholder="Geben Sie Schlagwörter ein..." @on-tags-changed="handleTagsChanged" />
+                <vue3-tags-input
+                  :tags="form.stringTags"
+                  placeholder="Geben Sie Schlagwörter ein..."
+                  @on-tags-changed="handleTagsChanged"
+                  @input="handleAutocompletion"
+                />
               </div>
 
               <div class="form-check form-switch">
@@ -276,6 +281,13 @@ export default defineComponent({
 
     handleTagsChanged(tags: any) {
       this.form.stringTags = tags;
+    },
+
+    async handleAutocompletion(event: any) {
+      console.log("autocomplete for " + event.target.value);
+      let response = await fetch(`/api/posts/tags/` + event.target.value).then((response) =>
+        response.json().then((json) => console.log(JSON.stringify(json.data[0]))),
+      );
     },
 
     submitForm(e: Event) {

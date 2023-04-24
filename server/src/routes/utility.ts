@@ -1,56 +1,25 @@
 import express, { Request, Response, Router } from "express";
 import { AppDataSource } from "../data-source.js";
-import { PostEntity } from "../entity/Post.entity.js";
-import { Word } from "@fumix/fu-blog-common";
-import { Not } from "typeorm";
+import { TagEntity } from "../entity/Tag.entity.js";
 
 const router: Router = express.Router();
 
-// get words for word cloud
-router.get("/", async (req: Request, res: Response) => {
-  const allPosts = await AppDataSource.manager.getRepository(PostEntity).find({
-    cache: true,
-    where: {
-      draft: false,
-      description: Not(""),
-    },
-  });
-
-  // TODO: Find something more efficient than this !!
-  // and also only do this if someone saves a post and not on each request of posts-list
-  // Get most common words on post save and save them in the DB as well.
-
-  const oneBigString = allPosts.map((post) => post.markdown).join(" ");
-
-  const nthMostCommon = (string: string, amount: number): { word: string; occurences: number }[] => {
-    const wordsArray: string[] = string.split(/\s/);
-    const wordOccurrences: { [key: string]: number } = {};
-    for (let i = 0; i < wordsArray.length; i++) {
-      wordOccurrences["_" + wordsArray[i]] = (wordOccurrences["_" + wordsArray[i]] || 0) + 1;
-    }
-    const result = Object.keys(wordOccurrences).reduce(function (acc: { word: string; occurences: number }[], currentKey: string) {
-      for (let i = 0; i < amount; i++) {
-        if (!acc[i]) {
-          acc[i] = { word: currentKey.slice(1, currentKey.length), occurences: wordOccurrences[currentKey] };
-          break;
-        } else if (acc[i].occurences < wordOccurrences[currentKey]) {
-          acc.splice(i, 0, { word: currentKey.slice(1, currentKey.length), occurences: wordOccurrences[currentKey] });
-          if (acc.length > amount) acc.pop();
-          break;
-        }
-      }
-      return acc;
-    }, []);
-    return result;
-  };
-
-  const allWords: Word[] = nthMostCommon(oneBigString, 100).map((word) => ({ name: word.word, value: word.occurences }));
-
-  try {
-    res.status(200).json({ data: allWords });
-  } catch (e) {
-    res.status(500).json({ error: "Fehler " + e });
-  }
+// get most used tags for wordcloud
+router.get("/", async (req: Request, res: Response, next) => {
+  AppDataSource.manager
+    .getRepository(TagEntity)
+    .createQueryBuilder()
+    .select(["name", "cast(count(pt.tag_id) as integer) as value"])
+    .leftJoin("post_tag", "pt", "pt.tag_id = id")
+    .addGroupBy("pt.tag_id")
+    .addGroupBy("name")
+    .orderBy("count(pt.tag_id)", "DESC")
+    .limit(15)
+    .getRawMany()
+    .then((result) => {
+      return res.status(200).json({ data: result });
+    })
+    .catch(next);
 });
 
 export default router;
