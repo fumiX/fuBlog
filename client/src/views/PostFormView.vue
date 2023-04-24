@@ -17,11 +17,6 @@
                 <label for="description">{{ t("posts.form.description") }}</label>
               </div>
 
-              <div class="form-floating mb-3">
-                <label for="stringTags">{{ t("posts.form.tags.tags") }}</label>
-                <vue3-tags-input :tags="form.stringTags" :placeholder="t('posts.form.tags.enter')" @on-tags-changed="handleTagsChanged" />
-              </div>
-
               <div class="mb-3">
                 <ai-summaries class="mb-3" :full-text="form.markdown" :onSetDescription="setDescription" :onAddTag="addTag"></ai-summaries>
               </div>
