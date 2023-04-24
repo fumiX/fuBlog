@@ -3,6 +3,7 @@
     "summarize": "Zusammenfassung und Schlagworte generieren",
     "summary": {
       "dialog": {
+        "open": "Zeige generierte Zusammenfassung",
         "title": "Zusammenfassung und Schlagworte"
       },
       "accept": "Kurzbeschreibung übernehmen",
@@ -18,6 +19,7 @@
       "no": "Nein",
       "loading": "Lade ...",
       "back": "Zurück",
+      "close": "Schließen",
       "save": "Speichern",
       "cancel": "Abbrechen",
       "edit": "Bearbeiten",

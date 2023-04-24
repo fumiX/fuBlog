@@ -3,6 +3,7 @@
     "summarize": "Summarize",
     "summary": {
       "dialog": {
+        "open": "Show generated summary",
         "title": "Description and Tags"
       },
       "accept": "Accept summary",
@@ -18,6 +19,7 @@
       "no": "No",
       "loading": "Loading ...",
       "back": "Back",
+      "close": "Close",
       "save": "Save",
       "cancel": "Cancel",
       "edit": "Edit",

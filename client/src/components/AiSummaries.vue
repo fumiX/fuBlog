@@ -8,9 +8,13 @@
     ></ai-summary>
   </div> -->
 
-  <small v-if="fullText.length < 500" class="text-muted"> 🤖 {{ t("ai.summary.hint", { number: 500 - fullText.length }) }} </small>
+  <small v-if="fullText.length < 500" class="text-muted"> 🤖 {{ t("ai.summary.hint", { count: 500 - fullText.length }) }}</small>
   <button v-else-if="data.length < 3" type="button" class="btn btn-sm btn-outline-success" :disabled="loading" @click="loadNewSummary">
     <loading-spinner v-if="loading" class="smallSpinner" /><span v-else>🤖🪄</span> {{ t("ai.summarize") }}
+  </button>
+
+  <button v-else-if="data.length >= 3" type="button" class="btn btn-sm btn-outline-success" :disabled="loading" @click="openDialog">
+    {{ t("ai.summary.dialog.open") }}
   </button>
 
   <ai-summary-dialog
@@ -48,11 +52,12 @@
 import AiSummaryDialog from "@client/components/AiSummaryDialog.vue";
 import AiSummary from "@client/components/AiSummary.vue";
 import LoadingSpinner from "@client/components/LoadingSpinner.vue";
-import { t } from "@client/plugins/i18n.js";
+import { useI18n } from "vue-i18n";
 import { OpenAiEndpoints } from "@client/util/api-client.js";
 import type { AiSummaryData } from "@fumix/fu-blog-common";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import type { PropType } from "vue";
+const { t } = useI18n();
 
 const props = defineProps({
   fullText: { type: String, required: true },
@@ -85,5 +90,9 @@ const loadNewSummary = (e: MouseEvent) => {
 
 const canceled = () => {
   showAiDialog.value = false;
+};
+
+const openDialog = () => {
+  showAiDialog.value = true;
 };
 </script>
