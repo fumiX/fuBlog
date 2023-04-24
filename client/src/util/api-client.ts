@@ -1,15 +1,15 @@
 import { loadIdToken } from "@client/util/storage.js";
-import type { DraftResponseDto, EditPostRequestDto, NewPostRequestDto, OAuthAccount } from "@fumix/fu-blog-common";
+import type { AiSummaryData, DraftResponseDto, EditPostRequestDto, NewPostRequestDto, OAuthAccount } from "@fumix/fu-blog-common";
 
 export type ApiUrl = `/api/${string}`;
 
-async function callServer<A, B>(
+async function callServer<RequestType, ResponseType>(
   url: ApiUrl,
   method: "GET" | "POST",
-  payload: ApiRequestJsonPayload<A> | null = null,
+  payload: ApiRequestJsonPayload<RequestType> | null = null,
   authenticated = true,
   contentType = "application/json",
-): Promise<B> {
+): Promise<ResponseType> {
   const token = authenticated ? loadIdToken() : undefined;
   const headers: HeadersInit = {};
   if (token) {
@@ -33,7 +33,7 @@ async function callServer<A, B>(
       return response.json();
     })
     .then((data) => {
-      const result: B | undefined = data as B;
+      const result: ResponseType | undefined = data as ResponseType;
       if (result === undefined) {
         throw new Error("Response has wrong type! Received " + JSON.stringify(data));
       }
@@ -68,6 +68,12 @@ export class AuthEndpoints {
   }
 }
 
+export class OpenAiEndpoints {
+  static async letChatGptSummarize(text: string): Promise<AiSummaryData> {
+    return callServer<string, AiSummaryData>("/api/utility/chatGptSummarize", "POST", { json: text });
+  }
+}
+
 export class PostEndpoints {
   static async createPostWithoutFiles(json: NewPostRequestDto): Promise<DraftResponseDto> {
     return callServer<NewPostRequestDto, DraftResponseDto>("/api/posts/new", "POST", { json: json });
@@ -83,6 +89,6 @@ export class PostEndpoints {
     );
   }
   static async deletePost(id: number): Promise<{ affected: number }> {
-    return callServer<null, { affected: number }>(`/api/posts/delete/${id}`, "POST", null);
+    return callServer<void, { affected: number }>(`/api/posts/delete/${id}`, "POST");
   }
 }

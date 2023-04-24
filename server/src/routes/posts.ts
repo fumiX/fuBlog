@@ -1,4 +1,5 @@
 import { DraftResponseDto, EditPostRequestDto, NewPostRequestDto, permissionsForUser } from "@fumix/fu-blog-common";
+import { FileEntity } from "../entity/File.entity.js";
 import express, { NextFunction, Request, Response, Router } from "express";
 import multer from "multer";
 import { AppDataSource } from "../data-source.js";
@@ -32,7 +33,7 @@ router.get("/page/:page([0-9]+)/count/:count([0-9]+)/search/:search/operator/:op
       .filter(Boolean)
       .join(operator);
   }
-
+  // TODO : add createdBy and tags to search results
   await AppDataSource.manager
     .getRepository(PostEntity)
     .createQueryBuilder()
@@ -58,7 +59,7 @@ router.get("/page/:page([0-9]+)/count/:count([0-9]+)/", async (req: Request, res
       },
       skip: skipEntries,
       take: itemsPerPage,
-      relations: ["createdBy", "updatedBy"],
+      relations: ["createdBy", "updatedBy", "tags"],
     })
     .then((result) => res.status(200).json({ data: result }))
     .catch((error) => {
@@ -78,7 +79,8 @@ router.get("/:id([1-9][0-9]*)", async (req: Request, res: Response, next) => {
     })
     .then((result) => {
       if (result === null) {
-        throw new NotFoundError("No post found with id " + req.params.id);
+        res.status(410).json({ data: null });
+        // throw new NotFoundError("No post found with id " + req.params.id);
       } else {
         res.status(200).json({ data: result });
       }
@@ -88,11 +90,10 @@ router.get("/:id([1-9][0-9]*)", async (req: Request, res: Response, next) => {
     });
 });
 
-function convertAttachment(post: PostEntity, file: Express.Multer.File): AttachmentEntity {
+async function convertAttachment(post: PostEntity, file: Express.Multer.File): Promise<AttachmentEntity> {
   return {
     filename: file.originalname,
-    binaryData: file.buffer,
-    mimeType: file.mimetype,
+    file: await FileEntity.fromData(file.buffer),
     post,
   };
 }
@@ -121,7 +122,9 @@ router.post("/new", authMiddleware, multipleFilesUpload, async (req: Request, re
       markdown: body.markdown,
       createdBy: loggedInUser.user,
       createdAt: new Date(),
-      sanitizedHtml: await MarkdownConverterServer.Instance.convert(body.markdown),
+      sanitizedHtml: await MarkdownConverterServer.Instance.convert(body.markdown, (hash: string) =>
+        Promise.resolve<`/api/file/${string}`>(`/api/file/${hash}`),
+      ),
       draft: !!body.draft,
       attachments: [],
       tags: tagsToUseInPost,
@@ -131,8 +134,14 @@ router.post("/new", authMiddleware, multipleFilesUpload, async (req: Request, re
     const savedPost = await AppDataSource.manager.getRepository(PostEntity).save<PostEntity>(post).catch(next);
 
     if (savedPost) {
-      const attachmentEntities: AttachmentEntity[] = extractUploadFiles(req).map((it) => convertAttachment(post, it));
+      const attachmentEntities: AttachmentEntity[] = await Promise.all(extractUploadFiles(req).map((it) => convertAttachment(post, it)));
       if (attachmentEntities.length > 0) {
+        await AppDataSource.createQueryBuilder()
+          .insert()
+          .into(FileEntity)
+          .values(attachmentEntities.map((it) => it.file))
+          .onConflict('("sha256") DO NOTHING')
+          .execute();
         await AppDataSource.getRepository(AttachmentEntity)
           .save<AttachmentEntity>(attachmentEntities)
           .then((it) => {
@@ -235,7 +244,7 @@ router.post("/:id([1-9][0-9]*)", authMiddleware, multipleFilesUpload, async (req
         .then((updateResult) => {
           // TODO: Optimize, so unchanged attachments are not deleted and re-added
           manager.getRepository(AttachmentEntity).delete({ post: { id: post.id } });
-          manager.getRepository(AttachmentEntity).insert(extractUploadFiles(req).map((it) => convertAttachment(post, it)));
+          //manager.getRepository(AttachmentEntity).insert(extractUploadFiles(req).map((it) => convertAttachment(post, it)));
           // tagsToUseInPost.forEach((tag) => {
           //   manager.getRepository(PostEntity).createQueryBuilder().relation(PostEntity, "tags").add(tag);
           // });

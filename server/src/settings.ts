@@ -1,10 +1,23 @@
-import { OAUTH_TYPES, OAuthProvider, OAuthType } from "@fumix/fu-blog-common";
-import { isOAuthType } from "@fumix/fu-blog-common";
+import { AppSettingsDto, asHyperlinkDto, isOAuthType, OAUTH_TYPES, OAuthProvider, OAuthType } from "@fumix/fu-blog-common";
+import * as process from "process";
 import { loadOAuthProvidersFromEnv } from "./load-oauth-providers-from-env.js";
 
 export class AppSettings {
   static readonly IS_PRODUCTION = process.env.NODE_ENV !== "development";
   static readonly RUN_MODE: "development" | "production" = AppSettings.IS_PRODUCTION ? "production" : "development";
+  static readonly IMPRINT_LABEL: string | undefined = process.env.APP_IMPRINT_LABEL;
+  static readonly IMPRINT_URL: string | undefined = process.env.APP_IMPRINT_URL;
+  static readonly GITHUB_REPOSITORY_SLUG: string | undefined = process.env.APP_GITHUB_REPOSITORY_SLUG;
+  static readonly MAIN_WEBSITE_LABEL: string | undefined = process.env.APP_MAIN_WEBSITE_LABEL;
+  static readonly MAIN_WEBSITE_URL: string | undefined = process.env.APP_MAIN_WEBSITE_URL;
+
+  static readonly DTO: AppSettingsDto = {
+    isProduction: AppSettings.IS_PRODUCTION,
+    runMode: AppSettings.RUN_MODE,
+    imprint: asHyperlinkDto(AppSettings.IMPRINT_LABEL, AppSettings.IMPRINT_URL),
+    mainWebsite: asHyperlinkDto(AppSettings.MAIN_WEBSITE_LABEL, AppSettings.MAIN_WEBSITE_URL),
+    githubRepositorySlug: AppSettings.GITHUB_REPOSITORY_SLUG,
+  };
 }
 
 export class ClientSettings {
@@ -22,9 +35,7 @@ export class DatabaseSettings {
 
 export class ServerSettings {
   static readonly API_PATH: string = process.env.SERVER_API_PATH ?? "/api";
-  static readonly HOST: string = process.env.SERVER_HOST ?? "localhost";
   static readonly PORT: number = toNumberOrDefault(process.env.SERVER_PORT, 5000);
-  static readonly PROTOCOL: "http" | "https" = AppSettings.IS_PRODUCTION ? "https" : "http";
 }
 
 export class OAuthSettings {
@@ -72,6 +83,10 @@ export class OAuthSettings {
   static findByTypeAndDomain<T extends OAuthType>(type: T, domain: string): OAuthProvider<T> | undefined {
     return this.findByType(type).find((it) => it.domain === domain);
   }
+}
+
+export class OpenAISettings {
+  static readonly API_KEY: string | undefined = process.env.OPENAI_API_KEY;
 }
 
 function toNumberOrDefault(value: string | undefined | null, defaultValue: number): number {

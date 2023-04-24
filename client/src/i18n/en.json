@@ -1,4 +1,7 @@
 {
+  "ai": {
+    "summarize": "Summarize"
+  },
   "app": {
     "base": {
       "yes": "Yes",
@@ -12,7 +15,9 @@
       "read": "Read",
       "create_post": "Create Post",
       "roles": "Roles",
-      "login": "Login"
+      "login": "Login",
+      "githubLinkText": "The blog software on GitHub",
+      "startpage": "Startpage"
     }
   },
   "nav": {
@@ -44,6 +49,12 @@
     "confirm": {
       "title": "Confirm deletion",
       "message": "Are you sure to delete \"{post}\" ?"
+    },
+    "post": {
+      "not-available": {
+        "title": "Post not available",
+        "message": "This post is not available or has been deleted. You can find all posts in the overview, or use the search function to find a specific post."
+      } 
     }
   },
   "admin": {

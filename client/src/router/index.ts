@@ -1,3 +1,4 @@
+import ErrorView from "@client/views/ErrorView.vue";
 import { createRouter, createWebHistory } from "vue-router";
 
 const router = createRouter({
@@ -40,6 +41,11 @@ const router = createRouter({
       name: "edit-post",
       component: () => import("@client/views/PostFormView.vue"),
       props: true,
+    },
+    {
+      path: "/:pathMatch(.*)*",
+      name: "NotFound",
+      component: ErrorView,
     },
   ],
 });

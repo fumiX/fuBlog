@@ -1,4 +1,7 @@
 {
+  "ai": {
+    "summarize": "Zusammenfassung generieren"
+  },
   "app": {
     "base": {
       "yes": "Ja",
@@ -12,7 +15,9 @@
       "read": "Lesen",
       "create_post": "Post erstellen",
       "roles": "Rollen",
-      "login": "Anmelden"
+      "login": "Anmelden",
+      "githubLinkText": "Die Blog-Software auf GitHub",
+      "startpage": "Startseite"
     }
   },
   "nav": {
@@ -38,12 +43,21 @@
       "preview": {
         "title": "Vorschau"
       },
-      "tags": "Schlagwörter",
+      "tags": {
+        "tags": "Schlagwörter",
+        "enter": "Geben Sie Schlagwörter ein..."
+      },
       "imageupload": "keine angehängten Bilder | ein angehängtes Bild | {count} angehängte Bilder"
     },
     "confirm": {
       "title": "Löschen bestätigen",
       "message": "Willst du \"{post}\" wirklich löschen?"
+    },
+    "post": {
+      "not-available": {
+        "title": "Post nicht vorhanden",
+        "message": "Der Post ist nicht verfügbar oder wurde gelöscht. Sie können mit dem Button zur Startseite zurück, oder nutzen sie die Suchfunktion um einen bestimmten Post zu finden."
+      } 
     }
   },
   "admin": {

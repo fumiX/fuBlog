@@ -21,43 +21,27 @@
   </div>
 </template>
 
-<style lang="scss" scoped></style>
-
-<script lang="ts">
-import type { PropType } from "vue";
-import { defineComponent, watch } from "vue";
-import { Modal } from "bootstrap";
+<script setup lang="ts">
+import { t } from "@client/plugins/i18n.js";
 import type { ConfirmDialogData } from "@fumix/fu-blog-common";
-import { useI18n } from "vue-i18n";
+import { Modal } from "bootstrap";
+import type { PropType } from "vue";
+import { watch } from "vue";
 
-export default defineComponent({
-  props: {
-    show: {
-      type: Boolean as PropType<boolean>,
-    },
-    data: {
-      type: Object as PropType<ConfirmDialogData | null>,
-    },
+const props = defineProps({
+  show: {
+    type: Boolean as PropType<boolean>,
   },
-
-  emits: ["confirmed", "canceled"],
-
-  setup(props, emits) {
-    const { t } = useI18n();
-
-    watch(props, () => {
-      const myModal = new Modal(document.getElementById("confirmModal") || "", {});
-      const show = props.show;
-      show ? myModal?.show() : myModal.hide();
-    });
-
-    return {
-      props,
-      emits,
-      t,
-    };
+  data: {
+    type: Object as PropType<ConfirmDialogData | null>,
   },
+});
 
-  methods: {},
+const emits = defineEmits(["confirmed", "canceled"]);
+
+watch(props, () => {
+  const myModal = new Modal(document.getElementById("confirmModal") || "", {});
+  const show = props.show;
+  show ? myModal?.show() : myModal.hide();
 });
 </script>

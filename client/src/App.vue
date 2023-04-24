@@ -1,4 +1,10 @@
 <template>
+  <div
+    v-if="appData.runMode === 'development'"
+    style="display: block; position: fixed; bottom: 0; right: 0; background: rgba(0, 100, 0, 0.4)"
+  >
+    {{ appData.runMode }}
+  </div>
   <div :class="cssTheme">
     <div class="content">
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
@@ -45,6 +51,22 @@
 
       <RouterView :userPermissions="userPermissions" />
     </div>
+    <footer class="page-footer">
+      <div class="container">
+        <div class="row py-4">
+          <div class="col-md-6 text-md-start text-center">
+            <a class="sharepic" :href="`https://github.com/${appData.githubRepositorySlug}`"
+              ><span class="btn btn-outline-primary m-1"
+                ><fa-icon :icon="faGithub"></fa-icon> {{ t("app.base.githubLinkText") }} <fa-icon :icon="faExternalLink"></fa-icon></span
+              ><br /><img v-if="appData.githubRepositorySlug" src="/api/utility/github-sharepic" />
+            </a>
+          </div>
+          <div class="col-md-6 text-md-end text-center">
+            <a v-if="appData.imprint" :href="appData.imprint.url">{{ appData.imprint.label }}</a>
+          </div>
+        </div>
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -54,87 +76,99 @@
   margin: 0 auto;
   font-style: italic;
 }
+
+footer.page-footer {
+  background: #222;
+  min-height: 25rem;
+
+  .sharepic {
+    img {
+      max-width: 16rem;
+      opacity: 0.6;
+      clip-path: polygon(0 5%, 100% 5%, 100% 55%, 0 55%);
+      transition: 15s ease-in opacity, 20s ease-in clip-path, 5s ease-in max-width;
+    }
+
+    &:hover img {
+      opacity: 1;
+      transition: 1s ease-out opacity, 1s ease-out clip-path, 1s ease-out max-width;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+      max-width: 25rem;
+    }
+  }
+}
 </style>
 
-<script lang="ts">
+<script setup lang="ts">
 import LightDarkToggler from "@client/components/LightDarkToggler.vue";
 import LoginButton from "@client/components/LoginButton.vue";
 import SearchComponent from "@client/components/SearchComponent.vue";
 import UserName from "@client/components/UserName.vue";
 import { AuthEndpoints } from "@client/util/api-client.js";
 import { saveIdToken } from "@client/util/storage.js";
-import type { User, UserRolePermissionsType } from "@fumix/fu-blog-common";
+import { faGithub } from "@fortawesome/free-brands-svg-icons";
+import { faExternalLink } from "@fortawesome/free-solid-svg-icons";
+import type { AppSettingsDto, User, UserRolePermissionsType } from "@fumix/fu-blog-common";
 import { permissionsForUser } from "@fumix/fu-blog-common";
-import { defineComponent, onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
-export default defineComponent({
-  components: { LoginButton, SearchComponent, UserName, LightDarkToggler },
-  setup() {
-    const { t } = useI18n();
-    const route = useRoute();
-    const searchQuery = ref<string>("");
-    const router = useRouter();
-    const loggedInUser = ref<User | null>(null);
-    const userPermissions = ref<UserRolePermissionsType | null>(null);
-    const cssTheme = ref<string | null>(null);
+const { t } = useI18n();
+const route = useRoute();
+const searchQuery = ref<string>("");
+const router = useRouter();
+const loggedInUser = ref<User | null>(null);
+const userPermissions = ref<UserRolePermissionsType | null>(null);
+const cssTheme = ref<string | null>(null);
 
-    const setOperator = (operator: string) => {
-      router.replace({ query: { ...route.query, operator: operator } });
-    };
+const appData: AppSettingsDto = (JSON.parse(document.getElementById("app-data")?.textContent ?? "{}") as AppSettingsDto) ?? {
+  isProduction: true,
+  runMode: "production",
+};
 
-    const getLoggedInUser = async (): Promise<User> => {
-      return AuthEndpoints.getLoggedInUser().then((it) => it.user);
-    };
+const setOperator = (operator: string) => {
+  router.replace({ query: { ...route.query, operator: operator } });
+};
 
-    const setLoginUSerAndPermissions = async () => {
-      loggedInUser.value = await getLoggedInUser();
-      userPermissions.value = permissionsForUser(loggedInUser.value);
-    };
+const getLoggedInUser = async (): Promise<User> => {
+  return AuthEndpoints.getLoggedInUser().then((it) => it.user);
+};
 
-    watch(route, async (value) => {
-      // prefill search input from queryParam
-      if (value.query.search) {
-        searchQuery.value = value.query.search as string;
-      }
-    });
+const setLoginUSerAndPermissions = async () => {
+  loggedInUser.value = await getLoggedInUser();
+  userPermissions.value = permissionsForUser(loggedInUser.value);
+};
 
-    onMounted(async () => {
-      // listen for token-changed event to gracefully handle login/logout
-      window.addEventListener("token-changed", async (event) => {
-        if (!loggedInUser.value) {
-          setLoginUSerAndPermissions();
-        }
-      });
-      setLoginUSerAndPermissions();
-    });
-
-    return {
-      userPermissions,
-      searchQuery,
-      loggedInUser,
-      setOperator,
-      t,
-      cssTheme,
-    };
-  },
-
-  methods: {
-    startSearch(search: string, operator: string = "and") {
-      this.$router.push(`/posts/?search=${search}&operator=${operator}`);
-    },
-
-    isAdmin() {
-      return this.loggedInUser?.roles.includes("ADMIN");
-    },
-
-    logoutUser(event: Event) {
-      saveIdToken(null); // clear localStorage
-      this.loggedInUser = null;
-      this.userPermissions = null;
-      this.$router.push(`/`);
-    },
-  },
+watch(route, async (value) => {
+  // prefill search input from queryParam
+  if (value.query.search) {
+    searchQuery.value = value.query.search as string;
+  }
 });
+
+onMounted(async () => {
+  // listen for token-changed event to gracefully handle login/logout
+  window.addEventListener("token-changed", async (event) => {
+    if (!loggedInUser.value) {
+      setLoginUSerAndPermissions();
+    }
+  });
+  setLoginUSerAndPermissions();
+});
+
+const startSearch = (search: string, operator: string = "and") => {
+  router.push(`/posts/?search=${search}&operator=${operator}`);
+};
+
+const isAdmin = () => {
+  return loggedInUser.value?.roles.includes("ADMIN");
+};
+
+const logoutUser = (event: Event) => {
+  saveIdToken(null); // clear localStorage
+  loggedInUser.value = null;
+  userPermissions.value = null;
+  router.push(`/`);
+};
 </script>

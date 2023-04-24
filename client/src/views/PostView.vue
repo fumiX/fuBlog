@@ -1,9 +1,7 @@
 <template>
   <div class="container" v-if="post">
-    <div v-if="loading" class="loader">
-      <div class="spinner-border text-secondary" role="status">
-        <span class="visually-hidden">{{ t("app.base.loading") }}</span>
-      </div>
+    <div v-if="loading" class="loader text-secondary">
+      <loading-spinner />
     </div>
 
     <div v-else class="row mb-2">
@@ -28,11 +26,13 @@
                 {{ t("app.base.edit") }}
               </button>
             </div>
-            <h1 class="mb-0 display-4 font-italic">
+            <h1 class="mb-0 display-4">
               {{ post.title }}
             </h1>
 
-            <div class="mb-1 text-muted creator">
+            <p class="card-text my-4 fst-italic text-muted">{{ post.description }}</p>
+
+            <div v-if="post.createdAt" class="mb-1 text-muted creator">
               <fa-icon :icon="faClock" />
               {{ $luxonDateTime.fromISO(post.createdAt.toString(), { locale: "de-DE" }).toRelativeCalendar() }}
               <span v-if="post.createdBy"> von </span>
@@ -46,6 +46,8 @@
               <i>{{ post.updatedBy.fullName }}</i>
             </div>
 
+            <display-tags :tags="post.tags"></display-tags>
+
             <div v-html="post.sanitizedHtml" class="mt-4"></div>
           </div>
         </div>
@@ -53,6 +55,26 @@
     </div>
 
     <confirm-dialog :data="dialogData" :show="showDialog" @canceled="canceled()" @confirmed="confirmed()"></confirm-dialog>
+  </div>
+  <div class="container" v-else>
+    <div class="row mb-2">
+      <div class="col">
+        <div class="card flex-md-row mb-4 box-shadow h-md-250">
+          <div class="card-body">
+            <div class="clearfix mb-4">
+              <h1 class="mb-0 display-4">{{ t("posts.post.not-available.title") }}</h1>
+
+              <p class="card-text my-4 fst-italic text-muted">{{ t("posts.post.not-available.message") }}.</p>
+
+              <button class="btn btn-sm btn-outline-primary" @click="$router.push('/')">
+                <fa-icon :icon="faArrowLeft" />
+                {{ t("app.base.startpage") }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -77,87 +99,71 @@
 }
 </style>
 
-<script lang="ts">
+<script setup lang="ts">
+import DisplayTags from "@client/components/DisplayTags.vue";
 import ConfirmDialog from "@client/components/ConfirmDialog.vue";
+import LoadingSpinner from "@client/components/LoadingSpinner.vue";
 import { faClock } from "@fortawesome/free-regular-svg-icons";
 import { faArrowLeft, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import type { ConfirmDialogData, Post, UserRolePermissionsType } from "@fumix/fu-blog-common";
-import type { PropType } from "vue";
-import { defineComponent, ref } from "vue";
+import { ref, onMounted, type PropType } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
-export default defineComponent({
-  components: {
-    ConfirmDialog,
-  },
+const { t } = useI18n();
+const loading = ref(true);
+const post = ref<Post | null>(null);
+const showDialog = ref<boolean>(false);
+const currentPost = ref<Post | null>(null);
+const dialogData = ref<ConfirmDialogData | null>(null);
+const router = useRouter();
 
-  props: {
-    userPermissions: {
-      type: Object as PropType<UserRolePermissionsType>,
-    },
-  },
-
-  setup(props) {
-    const { t } = useI18n();
-    return {
-      loading: ref(true),
-      post: ref<Post | null>(null),
-      showDialog: ref<boolean>(false),
-      currentPost: ref<Post | null>(null),
-      dialogData: ref<ConfirmDialogData | null>(null),
-      faArrowLeft,
-      faTrash,
-      faEdit,
-      faClock,
-      props,
-      t,
-    };
-  },
-
-  async mounted() {
-    try {
-      const route = useRoute();
-      const id = route.params.id;
-      const res = await fetch(`/api/posts/${id}`);
-      const response = await res.json();
-      this.post = response.data;
-      this.loading = false;
-    } catch (e) {
-      console.log("ERROR: ", e);
-      this.loading = false;
-    }
-  },
-
-  methods: {
-    async deletePost(post: Post) {
-      try {
-        const res = await fetch(`/api/posts/delete/${post.id}`);
-        await res.json();
-        this.$router.push("/posts");
-      } catch (e) {
-        console.log("ERROR: ", e);
-      }
-    },
-
-    showConfirm(post: Post | null) {
-      this.currentPost = post as Post;
-      this.dialogData = {
-        title: this.t("posts.confirm.title"),
-        message: this.t("posts.confirm.message", { post: this.currentPost.title }),
-      };
-      this.showDialog = true;
-    },
-
-    canceled() {
-      this.showDialog = false;
-    },
-
-    confirmed() {
-      this.deletePost(this.currentPost as Post);
-      this.currentPost = null;
-      this.showDialog = false;
-    },
+const props = defineProps({
+  userPermissions: {
+    type: Object as PropType<UserRolePermissionsType>,
   },
 });
+
+onMounted(async () => {
+  try {
+    const route = useRoute();
+    const id = route.params.id;
+    const res = await fetch(`/api/posts/${id}`);
+    const response = await res.json();
+    post.value = response.data;
+    loading.value = false;
+  } catch (e) {
+    console.log("ERROR: ", e);
+    loading.value = false;
+  }
+});
+
+const deletePost = async (post: Post) => {
+  try {
+    const res = await fetch(`/api/posts/delete/${post.id}`);
+    await res.json();
+    router.push("/posts");
+  } catch (e) {
+    console.log("ERROR: ", e);
+  }
+};
+
+const showConfirm = (post: Post | null) => {
+  currentPost.value = post as Post;
+  dialogData.value = {
+    title: t("posts.confirm.title"),
+    message: t("posts.confirm.message", { post: currentPost.value.title }),
+  };
+  showDialog.value = true;
+};
+
+const canceled = () => {
+  showDialog.value = false;
+};
+
+const confirmed = () => {
+  deletePost(currentPost.value as Post);
+  currentPost.value = null;
+  showDialog.value = false;
+};
 </script>

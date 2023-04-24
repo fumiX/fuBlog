@@ -9,6 +9,7 @@ import {
   OAuthProvider,
   OAuthType,
 } from "@fumix/fu-blog-common";
+import logger from "./logger.js";
 import { AppSettings } from "./settings.js";
 import Dict = NodeJS.Dict;
 
@@ -46,7 +47,7 @@ function loadGroupedOAuthEnvVars(envDictionary: Dict<string>): GroupedOAuthEnvVa
         if (isOAuthType(type) && isEnvVarKey(varKey) && varValue) {
           return { type, index, varKey, varValue };
         } else {
-          console.log(`OAuth env var ${env}=${varValue} is ignored (does not match format)!`);
+          logger.warn(`OAuth env var ${env}=${varValue} is ignored (does not match format)!`);
         }
       }
       return null;
@@ -77,18 +78,18 @@ export function loadOAuthProvidersFromEnv() {
         const issuer: string | undefined = value[i]["ISSUER"];
 
         if (issuer && issuer.includes("/")) {
-          console.error(`OAuth issuer "${issuer}" must not contain a forward slash!`);
+          logger.error(`OAuth issuer "${issuer}" must not contain a forward slash!`);
           return null;
         }
 
         if (type === "FAKE") {
           if (AppSettings.IS_PRODUCTION) {
-            console.error("Fake OAuth is not allowed in production!");
+            logger.error("Fake OAuth is not allowed in production!");
             return null;
           }
           return new FakeOAuthProvider(i, clientId, clientSecret, issuer);
         } else if (!clientId || !clientSecret) {
-          console.error(`Missing client ID and/or client secret for OAuth provider ${type} ${i} ${issuer}`);
+          logger.error(`Missing client ID and/or client secret for OAuth provider ${type} ${i} ${issuer}`);
           return null;
         }
         switch (type) {
@@ -106,10 +107,10 @@ export function loadOAuthProvidersFromEnv() {
   }
   return providers.filter((it, i, arr) => {
     if (arr.findIndex((a) => it.getIdentifier() === a.getIdentifier()) === i) {
-      console.log(`Initialized OAuthProvider ${it.getIdentifier()}`);
+      logger.info(`Initialized OAuthProvider ${it.getIdentifier()}`);
       return true;
     } else {
-      console.error(`Duplicate OAuthProvider ${it.getIdentifier()}! This one is being ignored!`);
+      logger.warn(`Duplicate OAuthProvider ${it.getIdentifier()}! This one is being ignored!`);
       return false;
     }
   });

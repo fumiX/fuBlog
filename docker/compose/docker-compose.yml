@@ -3,25 +3,28 @@
 version: '3'
 
 services:
-
   postgres:
-    image: ghcr.io/fumix/fublog-postgres:main
+    image: ghcr.io/fumix/fublog-postgres:main-de_DE
     env_file: .env
     environment:
       # Example
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: ${DATABASE_NAME}
-    ports:
-      - "5120:5432"
     volumes:
-      - /home/florian/Projekte/FumiX/fuBlog/database/
-
+      - fublog_postgres_data:/var/lib/postgresql/data
   app:
     image: ghcr.io/fumix/fublog-app:main
     env_file: .env
     environment:
       DATABASE_HOST: "postgres"
       DATABASE_PORT: "5432"
-    ports:
-      - "5100:5000"
+    networks:
+      - default
+      - outside
+networks:
+  # The docker network that connects the app with the outside world (put e.g. an nginx container in this network)
+  outside:
+    external: true
+volumes:
+  fublog_postgres_data:

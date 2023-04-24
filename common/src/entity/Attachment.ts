@@ -1,9 +1,7 @@
+import { File } from "@common/entity/File.js";
+
 export type Attachment = {
   id?: number;
-
   filename: string;
-
-  binaryData: Buffer;
-
-  mimeType: string;
+  file: File;
 };

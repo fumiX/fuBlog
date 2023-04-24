@@ -22,6 +22,8 @@
             {{ post.title }}
           </h3>
 
+          <p class="card-text my-4">{{ post.description }}</p>
+
           <div class="mb-1 text-muted creator">
             <fa-icon :icon="faClock" />
             {{ $luxonDateTime.fromISO(post.createdAt.toString(), { locale: locale }).toRelativeCalendar() }}
@@ -34,7 +36,7 @@
             <i>{{ post.updatedBy.fullName }}</i>
           </div>
 
-          <p class="card-text my-4">{{ post.description }}</p>
+          <display-tags :tags="post.tags"></display-tags>
 
           <div class="my-4">
             <router-link :to="'/posts/post/' + post.id" class="text-decoration-none">
@@ -59,50 +61,39 @@
   display: inline-block;
   font-size: 0.8rem;
 }
+
+.postTitle {
+  font-size: 2.5rem;
+}
 </style>
 
-<script lang="ts">
+<script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import type { PropType } from "vue";
-import { defineComponent } from "vue";
 import type { Post } from "@fumix/fu-blog-common";
 import { faBookReader, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { faClock } from "@fortawesome/free-regular-svg-icons";
 import type { UserRolePermissionsType } from "@fumix/fu-blog-common";
+import { useRouter } from "vue-router";
+import DisplayTags from "@client/components/DisplayTags.vue";
 
-export default defineComponent({
-  props: {
-    post: {
-      type: Object as PropType<Post>,
-      required: true,
-    },
-    userPermissions: {
-      type: Object as PropType<UserRolePermissionsType>,
-    },
+const router = useRouter();
+const { t } = useI18n();
+const locale = useI18n().locale.value;
+
+const props = defineProps({
+  post: {
+    type: Object as PropType<Post>,
+    required: true,
   },
-
-  emits: ["deletePost", "changePost"],
-
-  setup(props, emits) {
-    const { t } = useI18n();
-    const locale = useI18n().locale.value;
-
-    return {
-      props,
-      emits,
-      faBookReader,
-      faTrash,
-      faEdit,
-      faClock,
-      t,
-      locale,
-    };
-  },
-
-  methods: {
-    goTo(path: string) {
-      this.$router.push(path);
-    },
+  userPermissions: {
+    type: Object as PropType<UserRolePermissionsType>,
   },
 });
+
+const emits = defineEmits(["deletePost", "changePost"]);
+
+const goTo = (path: string) => {
+  router.push(path);
+};
 </script>
