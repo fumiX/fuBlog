@@ -275,8 +275,7 @@ const handleTagsChanged = (tags: any) => {
   form.stringTags = tags;
 };
 
-const handleAutocompletion = (event: any) => {
-  console.log("autocomplete for " + event.target.value);
+const handleAutocompletion = async (event: any) => {
   let response = await fetch(`/api/posts/tags/` + event.target.value).then((response) =>
     response.json().then((json) => console.log(JSON.stringify(json.data[0]))),
   );
