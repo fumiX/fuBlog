@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div v-if="!postHasError" class="container">
     <div class="row mb-2">
       <div class="col w-50">
         <div class="card flex-md-row mb-4 box-shadow h-md-250">
@@ -23,7 +23,7 @@
               </div>
 
               <div class="mb-3">
-                <ai-summaries class="mb-3" :full-text="form.markdown" :onSetDescription="setDescription" :onAddTag="addTag"></ai-summaries>
+                <ai-summaries :full-text="form.markdown" :onSetDescription="setDescription" :onAddTag="addTag"></ai-summaries>
               </div>
 
               <div class="form-floating mb-3">
@@ -102,6 +102,7 @@
       </div>
     </div>
   </div>
+  <post-not-available v-else></post-not-available>
 </template>
 
 <style lang="scss">
@@ -186,6 +187,7 @@
 </style>
 
 <script setup lang="ts">
+import PostNotAvailable from "@client/components/PostNotAvailable.vue";
 import ImagePreview from "@client/components/ImagePreview.vue";
 import LoadingSpinner from "@client/components/LoadingSpinner.vue";
 import MarkDown from "@client/components/MarkDown.vue";
@@ -206,8 +208,7 @@ const files = reactive<{ [sha256: string]: File }>({});
 const dropzoneHighlight = ref<boolean>(false);
 const router = useRouter();
 const markdownArea = ref(null);
-const showAiDialog = ref<boolean>(false);
-const aiDialogData = ref<any | null>(null);
+const postHasError = ref<boolean>(false);
 
 const form = reactive<NewPostRequestDto>({
   title: "",
@@ -236,7 +237,9 @@ onMounted(async () => {
       form.markdown = resJson.markdown;
       form.draft = resJson.draft;
       form.stringTags = resJson.tags?.map((tag) => tag.name) || [];
+      postHasError.value = false;
     } catch (e) {
+      postHasError.value = true;
       console.log("ERROR: ", e);
     }
   }
