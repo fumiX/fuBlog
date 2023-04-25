@@ -271,9 +271,12 @@ const handleTagsChanged = (tags: any) => {
 };
 
 const handleAutocompletion = async (event: any) => {
-  let response = await fetch(`/api/posts/tags/` + event.target.value).then((response) =>
-    response.json().then((json) => console.log(JSON.stringify(json.data[0]))),
-  );
+  // TODO show in frontend
+  // let response = await fetch(`/api/posts/tags/` + event.target.value).then((response) =>
+  //   response.json().then((json) => {
+  //     console.log(JSON.stringify(json.data[0]));
+  //   }),
+  // );
 };
 
 const addTag = (tag: string) => {
