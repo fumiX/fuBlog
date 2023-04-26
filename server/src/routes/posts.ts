@@ -33,16 +33,22 @@ router.get("/page/:page([0-9]+)/count/:count([0-9]+)/search/:search/operator/:op
       .filter(Boolean)
       .join(operator);
   }
+
   // TODO : add createdBy and tags to search results
   await AppDataSource.manager
-    .getRepository(PostEntity)
-    .createQueryBuilder()
-    .where("ts @@ to_tsquery(:searchTerm)", { searchTerm: searchTerm })
-    .skip(skipEntries)
-    .take(itemsPerPage)
-    // .orderBy("createdAt", "DESC")
-    .getManyAndCount()
-    .then((result) => res.status(200).json({ data: result }))
+    .createQueryBuilder(PostEntity, "post")
+    .select(["post.*", "ts_rank_cd(sp.post_tsv, to_tsquery(:searchTerm)) as rank", "count(*) over() as count"])
+    .setParameter("searchTerm", searchTerm)
+    .leftJoin("search_posts", "sp", "sp.post_id = id")
+    .where("sp.post_tsv @@ to_tsquery(:searchTerm)", { searchTerm: searchTerm })
+    .orderBy("rank", "DESC")
+    .offset(skipEntries)
+    .limit(itemsPerPage)
+    .getRawMany()
+    .then((result) => {
+      const count = result?.map((r) => r.count) as number[];
+      return res.status(200).json({ data: [result, count[0]] });
+    })
     .catch((err) => next(err));
 });
 
