@@ -2,6 +2,7 @@ import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class AddTagsToFTS1682426673459 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query("alter table post drop column ts");
     await queryRunner.query(`
       CREATE VIEW search_posts AS
         (
