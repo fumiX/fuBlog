@@ -74,7 +74,7 @@ router.get("/page/:page([0-9]+)/count/:count([0-9]+)/", async (req: Request, res
 });
 
 // GET POST BY ID WITH RELATIONS TO USER
-router.get("/:id([1-9][0-9]*)", async (req: Request, res: Response, next) => {
+router.get("/:id(\\d+$)", async (req: Request, res: Response, next) => {
   await AppDataSource.manager
     .getRepository(PostEntity)
     .findOne({
@@ -209,7 +209,7 @@ router.get("/tags/:search", async (req: Request, res: Response, next) => {
 });
 
 // EDIT EXISTING POST
-router.post("/:id([1-9][0-9]*)", authMiddleware, multipleFilesUpload, async (req: Request, res: Response, next) => {
+router.post("/:id(\\d+$)", authMiddleware, multipleFilesUpload, async (req: Request, res: Response, next) => {
   const postId = +req.params.id;
   const post = await AppDataSource.manager.getRepository(PostEntity).findOneBy({
     id: postId,
@@ -272,7 +272,7 @@ router.post("/:id([1-9][0-9]*)", authMiddleware, multipleFilesUpload, async (req
 });
 
 // DELETE POST
-router.get("/delete/:id([0-9]+)", async (req: Request, res: Response, next) => {
+router.get("/delete/:id(\\d+$)", async (req: Request, res: Response, next) => {
   await AppDataSource.manager.transaction(async (manager) => {
     // find all attachments of post and delete them
     manager
