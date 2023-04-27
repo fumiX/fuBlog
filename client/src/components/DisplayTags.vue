@@ -1,6 +1,6 @@
 <template>
   <div class="badge-container">
-    <div v-for="tag in tags" :key="tag.id" class="custom-badge">
+    <div v-for="tag in tags" :key="tag.id" class="custom-badge" @click="searchTag(tag.name)">
       {{ tag.name }}
     </div>
   </div>
@@ -10,6 +10,7 @@
 .badge-container {
   padding: 0;
   margin: 0;
+  cursor: pointer;
 
   .custom-badge {
     display: inline-block;
@@ -28,6 +29,12 @@
 <script setup lang="ts">
 import type { Tag } from "@fumix/fu-blog-common";
 import type { PropType } from "vue";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const props = defineProps({ tags: { type: Array as PropType<Tag[]>, required: true } });
+
+const searchTag = (tag: string) => {
+  router.push(`/posts/?search=${tag}`);
+};
 </script>
