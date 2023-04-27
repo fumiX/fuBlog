@@ -120,7 +120,7 @@ router.post("/new", authMiddleware, multipleFilesUpload, async (req: Request, re
   // TODO handle
   try {
     const tagsToUseInPost: TagEntity[] = await getPersistedTagsForPost(body).catch((err) => {
-      throw new InternalServerError(true, "Error getting tags" + err);
+      throw new InternalServerError(true, "Error getting tags " + err);
     });
     const post: PostEntity = {
       title: body.title,
@@ -167,12 +167,15 @@ router.post("/new", authMiddleware, multipleFilesUpload, async (req: Request, re
 
 async function getPersistedTagsForPost(bodyJson: any) {
   const tagsToUseInPost: TagEntity[] = [];
-  const alreadySavedTags = await AppDataSource.manager
-    .getRepository(TagEntity)
-    .createQueryBuilder("tagEntity")
-    .select()
-    .where("tagEntity.name IN(:...names)", { names: bodyJson.stringTags })
-    .getMany();
+  const alreadySavedTags =
+    bodyJson.stringTags?.length > 0
+      ? await AppDataSource.manager
+          .getRepository(TagEntity)
+          .createQueryBuilder("tagEntity")
+          .select()
+          .where("tagEntity.name IN(:...names)", { names: bodyJson.stringTags })
+          .getMany()
+      : await Promise.all([]);
   tagsToUseInPost.push(...alreadySavedTags);
 
   const unsavedTags = bodyJson.stringTags

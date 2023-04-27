@@ -12,6 +12,7 @@ export class AttachmentEntity implements Attachment {
   @Column({ nullable: false })
   filename: string;
 
+  @JoinColumn({ name: "post_id", referencedColumnName: "id" })
   @ManyToOne(() => PostEntity, { nullable: false })
   post: Relation<PostEntity>;
 
