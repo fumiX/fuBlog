@@ -15,6 +15,14 @@
         {{ keyword }}
       </button>
     </div>
+    <div class="row">
+      <div class="col-md-4" v-for="prompt in summaryData.imagePrompts" v-bind:key="prompt">
+        <button class="btn btn-sm btn-outline-success" @click="acceptImagePrompt($event, prompt)">
+          <fa-icon :icon="faImage"></fa-icon>🪄
+          {{ prompt }}
+        </button>
+      </div>
+    </div>
   </div>
   <div v-else class="bg-danger">
     {{ summaryData.error }}
@@ -22,10 +30,12 @@
 </template>
 
 <script setup lang="ts">
+import { OpenAiEndpoints } from "@client/util/api-client.js";
 import type { AiSummaryData } from "@fumix/fu-blog-common";
 import { isSuccessfulAiSummaryData } from "@fumix/fu-blog-common";
 import { onMounted } from "vue";
 import type { PropType } from "vue";
+import { faImage, faWandSparkles } from "@fortawesome/free-solid-svg-icons";
 
 const props = defineProps({
   summaryData: { type: Object as PropType<AiSummaryData>, required: true },
@@ -36,6 +46,18 @@ const props = defineProps({
 function acceptDescription(e: MouseEvent, description: string) {
   e.preventDefault();
   props.onSetDescription?.(description);
+}
+
+async function acceptImagePrompt(e: MouseEvent, prompt: string) {
+  e.preventDefault();
+  alert(prompt); // TODO: send event to parent
+  await OpenAiEndpoints.dallEGenerateImage(prompt)
+    .then((it) => {
+      alert(JSON.stringify(it));
+    })
+    .catch((reason) => {
+      alert(reason);
+    });
 }
 
 function acceptTag(e: MouseEvent, tag: string) {

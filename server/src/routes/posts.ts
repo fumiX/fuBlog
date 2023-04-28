@@ -1,22 +1,21 @@
-import { DraftResponseDto, EditPostRequestDto, NewPostRequestDto, permissionsForUser } from "@fumix/fu-blog-common";
-import { FileEntity } from "../entity/File.entity.js";
+import { DraftResponseDto, EditPostRequestDto, NewPostRequestDto, permissionsForUser, PostRequestDto } from "@fumix/fu-blog-common";
+import logger from "../logger.js";
 import express, { NextFunction, Request, Response, Router } from "express";
-import multer from "multer";
 import { AppDataSource } from "../data-source.js";
 import { AttachmentEntity } from "../entity/Attachment.entity.js";
+import { FileEntity } from "../entity/File.entity.js";
 import { PostEntity } from "../entity/Post.entity.js";
+import { TagEntity } from "../entity/Tag.entity.js";
 import { BadRequestError } from "../errors/BadRequestError.js";
 import { ForbiddenError } from "../errors/ForbiddenError.js";
 import { InternalServerError } from "../errors/InternalServerError.js";
 import { NotFoundError } from "../errors/NotFoundError.js";
-import { TagEntity } from "../entity/Tag.entity.js";
 import { UnauthorizedError } from "../errors/UnauthorizedError.js";
 import { MarkdownConverterServer } from "../markdown-converter-server.js";
 import { authMiddleware } from "../service/middleware/auth.js";
 import { extractJsonBody, extractUploadFiles, multipleFilesUpload } from "../service/middleware/files-upload.js";
 
 const router: Router = express.Router();
-const upload = multer();
 
 // search posts
 router.get("/page/:page([0-9]+)/count/:count([0-9]+)/search/:search/operator/:operator", async (req: Request, res: Response, next) => {
@@ -99,67 +98,87 @@ async function convertAttachment(post: PostEntity, file: Express.Multer.File): P
 }
 
 // CREATE NEW POST
-router.post("/new", authMiddleware, multipleFilesUpload, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  const body: NewPostRequestDto | undefined = JSON.parse(req.body?.json) as NewPostRequestDto;
-  const loggedInUser = await req.loggedInUser?.();
+router.post(
+  "/new",
+  authMiddleware,
+  multipleFilesUpload,
+  async (req: Request, res: Response<DraftResponseDto>, next: NextFunction): Promise<void> => {
+    const body: NewPostRequestDto | undefined = JSON.parse(req.body?.json) as NewPostRequestDto;
+    const loggedInUser = await req.loggedInUser?.();
 
-  if (!body) {
-    return next(new BadRequestError());
-  } else if (!loggedInUser) {
-    return next(new UnauthorizedError());
-  } else if (!permissionsForUser(loggedInUser.user).canCreatePost) {
-    return next(new ForbiddenError());
-  }
-
-  // TODO handle
-  try {
-    const tagsToUseInPost: TagEntity[] = await getPersistedTagsForPost(body).catch((err) => {
-      throw new InternalServerError(true, "Error getting tags" + err);
-    });
-    const post: PostEntity = {
-      title: body.title,
-      description: body.description,
-      markdown: body.markdown,
-      createdBy: loggedInUser.user,
-      createdAt: new Date(),
-      sanitizedHtml: await MarkdownConverterServer.Instance.convert(body.markdown, (hash: string) =>
-        Promise.resolve<`/api/file/${string}`>(`/api/file/${hash}`),
-      ),
-      draft: !!body.draft,
-      attachments: [],
-      tags: tagsToUseInPost,
-    };
-
-    // TODO: Make this a transaction with proper rollback and error message
-    const savedPost = await AppDataSource.manager.getRepository(PostEntity).save<PostEntity>(post).catch(next);
-
-    if (savedPost) {
-      const attachmentEntities: AttachmentEntity[] = await Promise.all(extractUploadFiles(req).map((it) => convertAttachment(post, it)));
-      if (attachmentEntities.length > 0) {
-        await AppDataSource.createQueryBuilder()
-          .insert()
-          .into(FileEntity)
-          .values(attachmentEntities.map((it) => it.file))
-          .onConflict('("sha256") DO NOTHING')
-          .execute();
-        await AppDataSource.getRepository(AttachmentEntity)
-          .save<AttachmentEntity>(attachmentEntities)
-          .then((it) => {
-            res.status(201).json({ postId: savedPost.id, attachments: attachmentEntities } as DraftResponseDto);
-          })
-          .catch(next);
-      } else {
-        res.status(201).json({ postId: savedPost.id, attachments: [] } as DraftResponseDto);
-      }
-    } else {
-      next(new InternalServerError(true, "Could not create post!"));
+    if (!body) {
+      return next(new BadRequestError());
+    } else if (!loggedInUser) {
+      return next(new UnauthorizedError());
+    } else if (!permissionsForUser(loggedInUser.user).canCreatePost) {
+      return next(new ForbiddenError());
     }
-  } catch (e) {
-    next(e);
-  }
-});
+    AppDataSource.manager
+      .transaction(async (manager) => {
+        await manager.query("SET CONSTRAINTS ALL DEFERRED");
+        const tags = body.stringTags.map((name) => ({ name: name.toLowerCase() }));
+        return manager
+          .createQueryBuilder(TagEntity, "tag")
+          .insert()
+          .values(tags)
+          .onConflict('("name") DO UPDATE SET "name" = EXCLUDED."name"')
+          .execute()
+          .then(async (it): Promise<DraftResponseDto> => {
+            const post: PostEntity = {
+              title: body.title,
+              description: body.description,
+              markdown: body.markdown,
+              createdBy: loggedInUser.user,
+              createdAt: new Date(),
+              sanitizedHtml: await MarkdownConverterServer.Instance.convert(body.markdown),
+              draft: body.draft,
+              attachments: [],
+              tags,
+            };
 
-async function getPersistedTagsForPost(bodyJson: any) {
+            const insertResult = await manager.getRepository(PostEntity).insert(post);
+            await manager.createQueryBuilder(PostEntity, "tags").relation("tags").of(post).add(tags);
+            const attachmentEntities: AttachmentEntity[] = await Promise.all(
+              extractUploadFiles(req).map((it) => convertAttachment(post, it)),
+            );
+            if (attachmentEntities.length > 0) {
+              await manager
+                .createQueryBuilder()
+                .insert()
+                .into(FileEntity)
+                .values(attachmentEntities.map((it) => it.file))
+                .onConflict('("sha256") DO NOTHING')
+                .execute();
+              return await manager
+                .getRepository(AttachmentEntity)
+                .insert(attachmentEntities)
+                .then((it) => {
+                  return { postId: post.id, attachments: attachmentEntities };
+                });
+            } else {
+              return { postId: post.id, attachments: [] };
+            }
+          })
+          .catch((err) => {
+            throw new InternalServerError(true, "Could not create post " + err);
+          });
+      })
+      .then((response) => res.status(201).json(response))
+      .catch((err) => next(err));
+  },
+);
+
+function saveTags(savedPost: PostEntity, tags: string[]) {
+  const tagsToRemove = savedPost.tags.filter((tag) => !tags.includes(tag.name));
+  const tagsToAdd = tags.filter((tag) => !savedPost.tags.some((savedTag) => savedTag.name === tag));
+  return AppDataSource.createQueryBuilder().relation(PostEntity, "tags").addAndRemove(tagsToAdd, tagsToRemove);
+}
+
+async function getPersistedTagsForPost(post: PostEntity, bodyJson: PostRequestDto): Promise<TagEntity[]> {
+  if (!bodyJson.stringTags || bodyJson.stringTags.length <= 0) {
+    return Promise.resolve([]);
+  }
+
   const tagsToUseInPost: TagEntity[] = [];
   const alreadySavedTags = await AppDataSource.manager
     .getRepository(TagEntity)
@@ -208,10 +227,10 @@ router.post("/:id([1-9][0-9]*)", authMiddleware, multipleFilesUpload, async (req
   } else if (!permissionsForUser(account.user).canEditPost && (account.user.id === null || account.user.id !== post.createdBy?.id)) {
     return next(new ForbiddenError());
   }
-
+  /*
   const tagsToUseInPost: TagEntity[] = await getPersistedTagsForPost(body).catch((err) => {
     throw new InternalServerError(true, "Error getting tags" + err);
-  });
+  });*/
 
   AppDataSource.manager
     .transaction(async (manager) => {
@@ -241,7 +260,7 @@ router.post("/:id([1-9][0-9]*)", authMiddleware, multipleFilesUpload, async (req
         .getRepository(PostEntity)
         .findOneByOrFail({ id: postId })
         .then((post) => {
-          post.tags = tagsToUseInPost;
+          post.tags = [];
           return post;
         })
         .then((updatedPost) => manager.getRepository(PostEntity).save(updatedPost))

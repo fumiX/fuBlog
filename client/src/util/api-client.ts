@@ -1,17 +1,32 @@
 import { loadIdToken } from "@client/util/storage.js";
-import type { AiSummaryData, DraftResponseDto, EditPostRequestDto, NewPostRequestDto, OAuthAccount } from "@fumix/fu-blog-common";
+import { imageBytesToDataUrl } from "@fumix/fu-blog-common";
+import type {
+  AiSummaryData,
+  DataUrl,
+  DraftResponseDto,
+  EditPostRequestDto,
+  JsonMimeType,
+  NewPostRequestDto,
+  OAuthAccount,
+  SupportedImageMimeType,
+} from "@fumix/fu-blog-common";
 
 export type ApiUrl = `/api/${string}`;
 
-async function callServer<RequestType, ResponseType>(
+async function callServer<
+  RequestType,
+  ResponseMimeType extends SupportedImageMimeType | JsonMimeType,
+  ResponseType = ResponseMimeType extends JsonMimeType ? any : ResponseMimeType extends SupportedImageMimeType ? ArrayBuffer : any,
+>(
   url: ApiUrl,
   method: "GET" | "POST",
+  responseType: ResponseMimeType,
   payload: ApiRequestJsonPayload<RequestType> | null = null,
   authenticated = true,
   contentType = "application/json",
 ): Promise<ResponseType> {
   const token = authenticated ? loadIdToken() : undefined;
-  const headers: HeadersInit = {};
+  const headers: HeadersInit = { Accept: responseType };
   if (token) {
     headers["X-OAuth-Type"] = token.type;
     headers["X-OAuth-Issuer"] = token.issuer;
@@ -25,20 +40,25 @@ async function callServer<RequestType, ResponseType>(
     method,
     headers,
     body: payload === null || payload instanceof ApiRequestJsonPayloadWithFiles ? toFormData(payload) : JSON.stringify(payload),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Error response: " + response.status + " " + response.statusText);
-      }
-      return response.json();
-    })
-    .then((data) => {
-      const result: ResponseType | undefined = data as ResponseType;
-      if (result === undefined) {
-        throw new Error("Response has wrong type! Received " + JSON.stringify(data));
-      }
-      return result;
-    });
+  }).then(async (response) => {
+    if (!response.ok) {
+      throw new Error("Error response: " + response.status + " " + response.statusText);
+    }
+    if (responseType === "application/json") {
+      return response
+        .json()
+        .then((it) => it as ResponseType)
+        .then((data) => {
+          if (data === undefined) {
+            throw new Error("Response has wrong type! Received " + JSON.stringify(data));
+          } else {
+            return data;
+          }
+        });
+    } else {
+      return response.arrayBuffer().then((it) => it as ResponseType);
+    }
+  });
 }
 
 interface ApiRequestJsonPayload<T> {
@@ -62,7 +82,7 @@ export class AuthEndpoints {
   static async getLoggedInUser(): Promise<OAuthAccount> {
     const token = loadIdToken();
     if (token) {
-      return callServer<null, OAuthAccount>("/api/auth/loggedInUser/", "POST");
+      return callServer<null, JsonMimeType, OAuthAccount>("/api/auth/loggedInUser/", "POST", "application/json");
     }
     return Promise.reject();
   }
@@ -70,25 +90,43 @@ export class AuthEndpoints {
 
 export class OpenAiEndpoints {
   static async letChatGptSummarize(text: string): Promise<AiSummaryData> {
-    return callServer<string, AiSummaryData>("/api/utility/chatGptSummarize", "POST", { json: text });
+    return callServer<string, JsonMimeType, AiSummaryData>("/api/utility/chatGptSummarize", "POST", "application/json", { json: text });
+  }
+  static async dallEGenerateImage(prompt: string): Promise<DataUrl> {
+    return callServer<string, SupportedImageMimeType, string>("/api/utility/dallEGenerateImage", "POST", "image/png", {
+      json: prompt,
+    })
+      .then((it) => imageBytesToDataUrl(new Uint8Array()))
+      .then((it) => {
+        if (it) {
+          return it;
+        }
+        throw new Error();
+      });
   }
 }
 
 export class PostEndpoints {
   static async createPostWithoutFiles(json: NewPostRequestDto): Promise<DraftResponseDto> {
-    return callServer<NewPostRequestDto, DraftResponseDto>("/api/posts/new", "POST", { json: json });
+    return callServer<NewPostRequestDto, JsonMimeType, DraftResponseDto>("/api/posts/new", "POST", "application/json", { json: json });
   }
   static async createPost(json: NewPostRequestDto, files: File[]): Promise<DraftResponseDto> {
-    return callServer<NewPostRequestDto, DraftResponseDto>("/api/posts/new", "POST", new ApiRequestJsonPayloadWithFiles(json, files));
+    return callServer<NewPostRequestDto, JsonMimeType, DraftResponseDto>(
+      "/api/posts/new",
+      "POST",
+      "application/json",
+      new ApiRequestJsonPayloadWithFiles(json, files),
+    );
   }
   static async editPost(json: EditPostRequestDto, files: File[]): Promise<DraftResponseDto> {
-    return callServer<EditPostRequestDto, DraftResponseDto>(
+    return callServer<EditPostRequestDto, JsonMimeType, DraftResponseDto>(
       `/api/posts/${json.id}`,
       "POST",
+      "application/json",
       new ApiRequestJsonPayloadWithFiles(json, files),
     );
   }
   static async deletePost(id: number): Promise<{ affected: number }> {
-    return callServer<void, { affected: number }>(`/api/posts/delete/${id}`, "POST");
+    return callServer<void, JsonMimeType, { affected: number }>(`/api/posts/delete/${id}`, "POST", "application/json");
   }
 }

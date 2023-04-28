@@ -19,4 +19,11 @@ export class MarkdownConverterServer extends MarkdownConverter {
   public static get Instance() {
     return this.instance ?? (this.instance = new this());
   }
+
+  override convert(input: string): Promise<string> {
+    return super.convert(
+      input, //
+      (hash: string) => Promise.resolve<`/api/file/${string}`>(`/api/file/${hash}`),
+    );
+  }
 }

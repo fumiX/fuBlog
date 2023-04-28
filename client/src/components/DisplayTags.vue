@@ -1,6 +1,6 @@
 <template>
   <div class="badge-container">
-    <div v-for="tag in tags" :key="tag.id" class="custom-badge">
+    <div v-for="tag in tags" :key="tag.id" class="badge me-1">
       {{ tag.name }}
     </div>
   </div>
@@ -11,16 +11,9 @@
   padding: 0;
   margin: 0;
 
-  .custom-badge {
-    display: inline-block;
-    font-family: "Courier New", Courier, monospace;
-    font-size: 9px;
-    border: $badge-border;
-    border-radius: 3px;
+  .badge {
     background-color: $badge-background-color;
     color: $badge-text-color;
-    margin-right: 0.5rem;
-    padding: 2px 2px 0 2px;
   }
 }
 </style>

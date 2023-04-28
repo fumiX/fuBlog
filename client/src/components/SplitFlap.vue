@@ -19,8 +19,8 @@ const props = defineProps({ targetChar: String });
 
 const r = reactive({ char: props.targetChar });
 
-const alphabet = [..." 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ"];
-const currentChar = ref<string>("0");
+const alphabet = [..." ÄÖÜ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
+const currentChar = ref<string>(" ");
 const nextChar = ref<string>(findNextChar(currentChar.value) ?? " ");
 const timeout = ref<number>(100);
 // noinspection JSUnusedGlobalSymbols
@@ -32,16 +32,41 @@ watch(() => props.targetChar, animate);
 animate();
 
 function animate() {
-  if (currentChar.value != props.targetChar) {
+  const targetChar = props.targetChar && alphabet.includes(props.targetChar) ? props.targetChar : " ";
+  const numStepsRemaining = stepsRemaining(currentChar.value, targetChar);
+  if (numStepsRemaining > 4) {
+    // If the target is far away, animate faster
+    timeout.value = 80;
+  } else {
+    // The closer the target, the slower the animation
+    timeout.value = 1000 - numStepsRemaining * 200;
+  }
+  if (numStepsRemaining > 0) {
     isAnimated.isAnimated = true;
+    // Wait for the animation to finish
     setTimeout(() => {
       currentChar.value = nextChar.value;
+      // Execute immediately before the style calculations for the next frame
       requestAnimationFrame(() => {
         isAnimated.isAnimated = false;
         nextChar.value = findNextChar(currentChar.value) ?? " ";
+        // Wait with continuing the animation until immediately before the style calculations for the next frame
         requestAnimationFrame(animate);
       });
-    }, timeout.value + Math.floor(Math.random() * 61 - 30));
+    }, timeout.value + Math.random() * 50);
+  }
+}
+
+function stepsRemaining(currentChar: string, targetChar: string): number {
+  const currentIndex = alphabet.indexOf(currentChar);
+  const targetIndex = alphabet.indexOf(targetChar);
+  if (targetIndex < 0 || currentIndex < 0) {
+    return 1;
+  }
+  if (targetIndex > currentIndex) {
+    return targetIndex - currentIndex;
+  } else {
+    return alphabet.length - currentIndex + targetIndex;
   }
 }
 

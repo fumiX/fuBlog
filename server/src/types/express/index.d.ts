@@ -9,7 +9,10 @@ declare global {
       codeVerifier?: string;
     }
     export interface Request {
-      loggedInUser?: () => Promise<OAuthAccountEntity | undefined | null>;
+      /**
+       * Get the logged-in user by using `req.loggedInUser?.()`
+       */
+      loggedInUser?: () => Promise<OAuthAccountEntity | undefined>;
     }
   }
 }

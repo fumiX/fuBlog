@@ -2,9 +2,10 @@
   <div class="img-container">
     <img :src="dataUrl" class="img-thumbnail" v-on:dragstart="onDragStart($event)" :draggable="showPaste" />
     <div>
-      <strong :title="value.name">{{ value.name }}</strong>
-      <span>{{ convertToHumanReadableFileSize(value.size) }}</span
-      ><br />
+      <code>{{ hash.substring(0, Math.min(10, hash.length)) }}</code>
+      <strong :title="value.name">{{ value.name }}</strong
+      ><span>{{ convertToHumanReadableFileSize(value.size) }}</span
+      ><br class="mb-1" />
       <button class="btn btn-primary mx-1" v-if="showPaste" @click="$emit('paste', getMarkdownString())">
         <fa-icon :icon="faPaste"></fa-icon>
       </button>

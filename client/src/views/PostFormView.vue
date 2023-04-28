@@ -19,7 +19,12 @@
 
               <div class="form-floating mb-3">
                 <label for="stringTags">{{ t("posts.form.tags.tags") }}</label>
-                <vue3-tags-input :tags="form.stringTags" :placeholder="t('posts.form.tags.enter')" @on-tags-changed="handleTagsChanged" />
+                <vue3-tags-input
+                  :tags="form.stringTags"
+                  :placeholder="t('posts.form.tags.enter')"
+                  @on-tags-changed="handleTagsChanged"
+                  :add-tag-on-keys="[13, 188]"
+                />
               </div>
 
               <div class="mb-3">
@@ -57,7 +62,7 @@
       <div class="col w-50">
         <h2 class="display-6">{{ (form?.title?.length ?? 0) > 0 ? form?.title : t("posts.form.preview.title") }}</h2>
         <div class="card flex-md-row mb-4 box-shadow h-md-250">
-          <div class="card-body">
+          <div class="card-body" style="max-width: 100%">
             <div v-if="loading" style="position: absolute; width: 100%; margin-top: 10vh; text-align: center" class="text-primary">
               <loading-spinner />
             </div>
@@ -73,7 +78,12 @@
     </div>
     <div class="card mb-4 box-shadow h-md-250">
       <div class="card-body">
-        <h3>{{ tc("posts.form.imageupload", Object.keys(files).length) }}</h3>
+        <h3>
+          {{ tc("posts.form.imageupload", Object.keys(files).length) }}
+          <small class="text-body-secondary f-4" v-if="Object.keys(files).length > 0"
+            >({{ convertToHumanReadableFileSize(totalBytesInFiles) }})</small
+          >
+        </h3>
         <!-- Hidden file input, used to open the file dialog, when the dropzone is clicked -->
         <input
           style="display: none"
@@ -113,6 +123,10 @@
 
 .w-50 {
   width: 50%;
+}
+.v3ti-tag {
+  background: $badge-background-color !important;
+  color: $badge-text-color !important;
 }
 
 #dropzone {
@@ -159,8 +173,8 @@ import { PostEndpoints } from "@client/util/api-client.js";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import { t, tc } from "@fumix/fu-blog-client/src/plugins/i18n.js";
 import type { DraftResponseDto, NewPostRequestDto, Post } from "@fumix/fu-blog-common";
-import { bytesToBase64URL } from "@fumix/fu-blog-common";
-import { onMounted, reactive, ref } from "vue";
+import { bytesToBase64URL, convertToHumanReadableFileSize } from "@fumix/fu-blog-common";
+import { computed, onMounted, reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 const md = ref<string | null>(null);
@@ -184,6 +198,12 @@ const props = defineProps({
     required: false,
   },
 });
+
+const totalBytesInFiles = computed(() =>
+  Object.values(files)
+    .map((it) => it.size)
+    .reduce((acc, x) => acc + x, 0),
+);
 
 onMounted(async () => {
   const route = useRoute();

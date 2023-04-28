@@ -21,6 +21,12 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
               .getRepository(OAuthAccountEntity)
               .findOne({ where: { oauthId: it.sub }, relations: ["user"] });
           })
+          .then((it) => {
+            if (it) {
+              return it;
+            }
+            return undefined;
+          })
           .catch(() => undefined);
     }
   }

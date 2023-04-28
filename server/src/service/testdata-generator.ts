@@ -28,7 +28,7 @@ export async function initDatabase(): Promise<void> {
     if (usersInDbAtStart !== 0) {
       logger.info("Test data is already generated.");
     } else {
-      logger.info("No test data in DB.");
+      logger.info("No test data in DB. Generating ⏳ …");
       await generate();
     }
   }

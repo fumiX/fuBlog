@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { Tag } from "@fumix/fu-blog-common";
+import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn, Relation } from "typeorm";
+import { PostEntity } from "./Post.entity.js";
 
 /**
  * Blog post
@@ -11,4 +12,8 @@ export class TagEntity implements Tag {
 
   @Column({ nullable: false, unique: true })
   name: string;
+
+  @ManyToMany(() => PostEntity, (post) => post.tags)
+  @JoinTable({ name: "post_tag", joinColumn: { name: "tag_id" }, inverseJoinColumn: { name: "post_id" } })
+  posts?: Relation<PostEntity[]>;
 }

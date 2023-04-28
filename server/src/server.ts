@@ -1,4 +1,3 @@
-import { chatGptSummarize, image } from "./service/openai.js";
 import cors from "cors";
 import express, { Application, NextFunction, Request, Response } from "express";
 import * as fs from "fs";

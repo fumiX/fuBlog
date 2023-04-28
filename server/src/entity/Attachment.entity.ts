@@ -12,7 +12,8 @@ export class AttachmentEntity implements Attachment {
   @Column({ nullable: false })
   filename: string;
 
-  @ManyToOne(() => PostEntity, { nullable: false })
+  @JoinColumn({ name: "postId" })
+  @ManyToOne(() => PostEntity, (post) => post.attachments, { nullable: false })
   post: Relation<PostEntity>;
 
   @JoinColumn({ name: "file_sha256", referencedColumnName: "sha256" })

@@ -1,4 +1,4 @@
-import { permissionsForUser, Word } from "@fumix/fu-blog-common";
+import { determineMimeType, permissionsForUser, Word } from "@fumix/fu-blog-common";
 import express, { Request, Response, Router } from "express";
 import fetch from "node-fetch";
 import { Not } from "typeorm";
@@ -8,7 +8,7 @@ import { BadRequestError } from "../errors/BadRequestError.js";
 import { ForbiddenError } from "../errors/ForbiddenError.js";
 import { UnauthorizedError } from "../errors/UnauthorizedError.js";
 import { authMiddleware } from "../service/middleware/auth.js";
-import { chatGptSummarize } from "../service/openai.js";
+import { chatGptSummarize, dallEGenerateImage } from "../service/openai.js";
 import { AppSettings } from "../settings.js";
 
 const router: Router = express.Router();
@@ -124,6 +124,26 @@ router.post("/chatGptSummarize", authMiddleware, async (req, res, next) => {
       }
     })
     .catch(() => res.status(502).json({}));
+});
+
+router.post("/dalleGenerateImage", authMiddleware, async (req, res, next) => {
+  const body: string | undefined = req.body?.json;
+  const loggedInUser = await req.loggedInUser?.();
+
+  if (!body) {
+    return next(new BadRequestError());
+  } else if (!loggedInUser) {
+    return next(new UnauthorizedError());
+  } else if (!permissionsForUser(loggedInUser.user).canCreatePost) {
+    return next(new ForbiddenError());
+  }
+
+  await dallEGenerateImage(body)
+    .then(([mimeType, bytes]) => {
+      res.status(200).contentType(mimeType).write(bytes, "binary");
+      res.end();
+    })
+    .catch((e) => res.status(502).json({ error: e }));
 });
 
 export default router;
