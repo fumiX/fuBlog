@@ -1,8 +1,8 @@
 import { Post } from "@fumix/fu-blog-common";
-import { AttachmentEntity } from "./Attachment.entity.js";
-import { UserEntity } from "./User.entity.js";
 import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { AttachmentEntity } from "./Attachment.entity.js";
 import { TagEntity } from "./Tag.entity.js";
+import { UserEntity } from "./User.entity.js";
 
 /**
  * Blog post

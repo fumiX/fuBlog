@@ -1,5 +1,5 @@
-import { isOAuthType } from "@fumix/fu-blog-common";
 import type { SavedOAuthToken, UserTheme } from "@fumix/fu-blog-common";
+import { isOAuthType } from "@fumix/fu-blog-common";
 
 type OAuthState = { key: string; redirect_uri?: string };
 const idTokenKey = "id_token";

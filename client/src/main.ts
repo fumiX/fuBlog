@@ -1,12 +1,12 @@
+import i18n from "@client/plugins/i18n.js";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import "bootstrap";
+import { DateTime } from "luxon";
 import { createApp } from "vue";
 import App from "./App.vue";
-import router from "./router/index.js";
-import { DateTime } from "luxon";
 import "./assets/scss/custom.scss";
 import "./assets/scss/style.scss";
-import "bootstrap";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import i18n from "@client/plugins/i18n.js";
+import router from "./router/index.js";
 
 declare module "@vue/runtime-core" {
   export interface ComponentCustomProperties {

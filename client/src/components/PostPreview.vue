@@ -68,14 +68,13 @@
 </style>
 
 <script setup lang="ts">
-import { useI18n } from "vue-i18n";
-import type { PropType } from "vue";
-import type { Post } from "@fumix/fu-blog-common";
-import { faBookReader, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { faClock } from "@fortawesome/free-regular-svg-icons";
-import type { UserRolePermissionsType } from "@fumix/fu-blog-common";
-import { useRouter } from "vue-router";
 import DisplayTags from "@client/components/DisplayTags.vue";
+import { faClock } from "@fortawesome/free-regular-svg-icons";
+import { faBookReader, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import type { Post, UserRolePermissionsType } from "@fumix/fu-blog-common";
+import type { PropType } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 
 const router = useRouter();
 const { t } = useI18n();

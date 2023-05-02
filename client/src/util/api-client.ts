@@ -1,5 +1,4 @@
 import { loadIdToken } from "@client/util/storage.js";
-import { imageBytesToDataUrl } from "@fumix/fu-blog-common";
 import type {
   AiSummaryData,
   DataUrl,
@@ -10,6 +9,7 @@ import type {
   OAuthAccount,
   SupportedImageMimeType,
 } from "@fumix/fu-blog-common";
+import { imageBytesToDataUrl } from "@fumix/fu-blog-common";
 
 export type ApiUrl = `/api/${string}`;
 

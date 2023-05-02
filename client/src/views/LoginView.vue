@@ -55,7 +55,7 @@
 import LoginButton from "@client/components/LoginButton.vue";
 import router from "@client/router/index.js";
 import { loadOauthStateByKey, saveIdToken } from "@client/util/storage.js";
-import type { OAuthCodeDto, OAuthUserInfoDto, OAuthType } from "@fumix/fu-blog-common";
+import type { OAuthCodeDto, OAuthType, OAuthUserInfoDto } from "@fumix/fu-blog-common";
 import { bytesToBase64URL, isOAuthType } from "@fumix/fu-blog-common";
 import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";

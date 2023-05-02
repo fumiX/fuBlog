@@ -1,7 +1,7 @@
 import { MarkdownConverter } from "@fumix/fu-blog-common";
-import fetch from "node-fetch";
 import DOMPurify from "dompurify";
 import { JSDOM } from "jsdom";
+import fetch from "node-fetch";
 
 export class MarkdownConverterServer extends MarkdownConverter {
   private static instance: MarkdownConverterServer;

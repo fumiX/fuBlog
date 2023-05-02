@@ -9,5 +9,6 @@
 <script setup lang="ts">
 import { faCheck, faQuestion, faX } from "@fortawesome/free-solid-svg-icons";
 import type { PropType } from "vue";
+
 const props = defineProps({ value: { type: Boolean as PropType<boolean | null>, required: true } });
 </script>

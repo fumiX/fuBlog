@@ -202,13 +202,12 @@
 </style>
 
 <script setup lang="ts">
-import PostNotAvailable from "@client/components/PostNotAvailable.vue";
+import AiSummaries from "@client/components/AiSummaries.vue";
 import ImagePreview from "@client/components/ImagePreview.vue";
 import LoadingSpinner from "@client/components/LoadingSpinner.vue";
 import MarkDown from "@client/components/MarkDown.vue";
-import AiSummaries from "@client/components/AiSummaries.vue";
+import PostNotAvailable from "@client/components/PostNotAvailable.vue";
 import { debounce } from "@client/debounce.js";
-import Vue3TagsInput from "vue3-tags-input";
 import { PostEndpoints } from "@client/util/api-client.js";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import { t, tc } from "@fumix/fu-blog-client/src/plugins/i18n.js";
@@ -216,6 +215,7 @@ import type { DraftResponseDto, NewPostRequestDto, Post } from "@fumix/fu-blog-c
 import { bytesToBase64URL, convertToHumanReadableFileSize } from "@fumix/fu-blog-common";
 import { computed, onMounted, reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import Vue3TagsInput from "vue3-tags-input";
 
 const md = ref<string | null>(null);
 const loading = ref<boolean>(false);

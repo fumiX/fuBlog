@@ -1,5 +1,4 @@
 import { DraftResponseDto, EditPostRequestDto, NewPostRequestDto, permissionsForUser, PostRequestDto } from "@fumix/fu-blog-common";
-import logger from "../logger.js";
 import express, { NextFunction, Request, Response, Router } from "express";
 import { AppDataSource } from "../data-source.js";
 import { AttachmentEntity } from "../entity/Attachment.entity.js";

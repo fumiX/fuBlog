@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import SplitFlap from "@client/components/SplitFlap.vue";
-import { computed, reactive } from "vue";
+import { computed } from "vue";
 
 const props = defineProps({ text: { type: String, required: true }, width: { type: Number, required: true } });
 const chars = computed(() => {

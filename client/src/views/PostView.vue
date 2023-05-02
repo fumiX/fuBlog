@@ -81,14 +81,14 @@
 </style>
 
 <script setup lang="ts">
-import PostNotAvailable from "@client/components/PostNotAvailable.vue";
-import DisplayTags from "@client/components/DisplayTags.vue";
 import ConfirmDialog from "@client/components/ConfirmDialog.vue";
+import DisplayTags from "@client/components/DisplayTags.vue";
 import LoadingSpinner from "@client/components/LoadingSpinner.vue";
+import PostNotAvailable from "@client/components/PostNotAvailable.vue";
 import { faClock } from "@fortawesome/free-regular-svg-icons";
 import { faArrowLeft, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import type { ConfirmDialogData, Post, UserRolePermissionsType } from "@fumix/fu-blog-common";
-import { ref, onMounted, type PropType } from "vue";
+import { onMounted, type PropType, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 

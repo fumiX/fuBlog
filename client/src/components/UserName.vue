@@ -20,9 +20,9 @@
 </style>
 
 <script setup lang="ts">
-import type { PropType } from "vue";
 import { faSignOut } from "@fortawesome/free-solid-svg-icons";
 import type { User } from "@fumix/fu-blog-common";
+import type { PropType } from "vue";
 
 const props = defineProps({
   user: {

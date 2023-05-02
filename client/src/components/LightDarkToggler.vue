@@ -72,9 +72,9 @@
 </style>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { saveCssPreference, loadCssPreference } from "@client/util/storage.js";
+import { loadCssPreference, saveCssPreference } from "@client/util/storage.js";
 import type { UserTheme } from "@fumix/fu-blog-common";
+import { onMounted, ref } from "vue";
 
 const emit = defineEmits(["themeChanged"]);
 

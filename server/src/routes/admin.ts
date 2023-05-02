@@ -1,7 +1,7 @@
 import { toProviderId, UserWithOAuthProviders } from "@fumix/fu-blog-common";
-import { OAuthAccountEntity } from "../entity/OAuthAccount.entity.js";
 import express, { Request, Response, Router } from "express";
 import { AppDataSource } from "../data-source.js";
+import { OAuthAccountEntity } from "../entity/OAuthAccount.entity.js";
 
 const router: Router = express.Router();
 

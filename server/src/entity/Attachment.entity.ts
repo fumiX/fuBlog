@@ -1,7 +1,7 @@
 import { Attachment } from "@fumix/fu-blog-common";
-import { FileEntity } from "./File.entity.js";
 import type { Relation } from "typeorm";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { FileEntity } from "./File.entity.js";
 import { PostEntity } from "./Post.entity.js";
 
 @Entity("attachment")

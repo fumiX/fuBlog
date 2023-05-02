@@ -1,8 +1,8 @@
 import { faker } from "@faker-js/faker/locale/de";
-import { createJwtToken } from "../util/jwt.js";
 import express, { Router } from "express";
-import { UserInfo } from "../user-info.js";
 import { userInfosById } from "../index.js";
+import { UserInfo } from "../user-info.js";
+import { createJwtToken } from "../util/jwt.js";
 
 const OAUTH_SECRET = "secret";
 

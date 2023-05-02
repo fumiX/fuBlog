@@ -49,11 +49,11 @@
 </style>
 
 <script setup lang="ts">
-import { useI18n } from "vue-i18n";
+import type { User } from "@fumix/fu-blog-common";
+import { Modal } from "bootstrap";
 import type { PropType } from "vue";
 import { ref, watch } from "vue";
-import { Modal } from "bootstrap";
-import type { User } from "@fumix/fu-blog-common";
+import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 const value = ref<string[]>([]);

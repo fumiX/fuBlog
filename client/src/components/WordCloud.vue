@@ -5,8 +5,8 @@
 <style lang="scss"></style>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
 import type { Word } from "@fumix/fu-blog-common";
+import { onMounted, ref } from "vue";
 import WordCloud from "wordcloud";
 
 const words = ref<Word[]>([]);

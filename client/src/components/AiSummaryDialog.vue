@@ -26,8 +26,8 @@
 </template>
 
 <script setup lang="ts">
-import { t } from "@client/plugins/i18n.js";
 import AiSummary from "@client/components/AiSummary.vue";
+import { t } from "@client/plugins/i18n.js";
 import type { AiSummaryData } from "@fumix/fu-blog-common";
 import { Modal } from "bootstrap";
 import type { PropType } from "vue";

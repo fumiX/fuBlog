@@ -20,6 +20,7 @@
 <script setup lang="ts">
 import SplitFlapDisplay from "@client/components/SplitFlapDisplay.vue";
 import { ref } from "vue";
+
 const text = ref<string>("404 NOT FOUND");
 const length = ref<number>(13);
 </script>

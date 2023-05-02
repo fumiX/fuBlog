@@ -1,6 +1,6 @@
-import { determineMimeType } from "./mimeType.js";
 import { Buffer } from "buffer";
 import { Blob } from "node-fetch";
+import { determineMimeType } from "./mimeType.js";
 
 export type DataUrl = `data:${string};base64,${string}`;
 

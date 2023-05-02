@@ -1,6 +1,6 @@
 import { Attachment } from "./Attachment.js";
-import type { PublicUserInfo } from "./User.js";
 import type { Tag } from "./Tag.js";
+import type { PublicUserInfo } from "./User.js";
 
 export type Post = {
   id?: number;

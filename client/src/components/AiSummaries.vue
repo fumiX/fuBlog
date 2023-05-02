@@ -42,13 +42,13 @@
 
 <script setup lang="ts">
 import AiSummaryDialog from "@client/components/AiSummaryDialog.vue";
-import AiSummary from "@client/components/AiSummary.vue";
 import LoadingSpinner from "@client/components/LoadingSpinner.vue";
-import { useI18n } from "vue-i18n";
 import { OpenAiEndpoints } from "@client/util/api-client.js";
 import type { AiSummaryData } from "@fumix/fu-blog-common";
-import { onMounted, ref } from "vue";
 import type { PropType } from "vue";
+import { ref } from "vue";
+import { useI18n } from "vue-i18n";
+
 const { t } = useI18n();
 
 const props = defineProps({
