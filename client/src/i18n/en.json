@@ -1,6 +1,17 @@
 {
   "ai": {
-    "summarize": "Summarize"
+    "summarize": "Summarize",
+    "summary": {
+      "dialog": {
+        "open": "Show generated summary",
+        "title": "Description and Tags"
+      },
+      "accept": "Accept summary",
+      "hint": "{ count } characters left to create an AI supported summary",
+      "tags": {
+        "hint": "Click to add a tag"
+      }
+    }
   },
   "app": {
     "base": {
@@ -8,6 +19,7 @@
       "no": "No",
       "loading": "Loading ...",
       "back": "Back",
+      "close": "Close",
       "save": "Save",
       "cancel": "Cancel",
       "edit": "Edit",

@@ -1,6 +1,17 @@
 {
   "ai": {
-    "summarize": "Zusammenfassung generieren"
+    "summarize": "Zusammenfassung und Schlagworte generieren",
+    "summary": {
+      "dialog": {
+        "open": "Zeige generierte Zusammenfassung",
+        "title": "Zusammenfassung und Schlagworte"
+      },
+      "accept": "Kurzbeschreibung übernehmen",
+      "hint": "Noch { count } Zeichen, dann kann eine Zusammenfassung mit KI generiert werden",
+      "tags": {
+        "hint": "Klicken, um Schlagworte zu übernehmen"
+      }
+    }
   },
   "app": {
     "base": {
@@ -8,6 +19,7 @@
       "no": "Nein",
       "loading": "Lade ...",
       "back": "Zurück",
+      "close": "Schließen",
       "save": "Speichern",
       "cancel": "Abbrechen",
       "edit": "Bearbeiten",
@@ -44,8 +56,8 @@
         "title": "Vorschau"
       },
       "tags": {
-        "tags": "Schlagwörter",
-        "enter": "Geben Sie Schlagwörter ein..."
+        "tags": "Schlagworte",
+        "enter": "Geben Sie Schlagworte ein..."
       },
       "imageupload": "keine angehängten Bilder | ein angehängtes Bild | {count} angehängte Bilder"
     },

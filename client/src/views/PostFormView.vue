@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div v-if="!postHasError" class="container">
     <div class="row mb-2">
       <div class="col w-50">
         <div class="card flex-md-row mb-4 box-shadow h-md-250">
@@ -28,8 +28,9 @@
               </div>
 
               <div class="mb-3">
-                <ai-summaries class="mb-3" :full-text="form.markdown" :onSetDescription="setDescription" :onAddTag="addTag"></ai-summaries>
+                <ai-summaries :full-text="form.markdown" :onSetDescription="setDescription" :onAddTag="addTag"></ai-summaries>
               </div>
+
               <div class="form-floating mb-3">
                 <textarea
                   v-model="form.markdown"
@@ -111,6 +112,7 @@
       </div>
     </div>
   </div>
+  <post-not-available v-else></post-not-available>
 </template>
 
 <style lang="scss">
@@ -159,9 +161,47 @@
     transition: 0.5s ease-in box-shadow, 3s ease border-color;
   }
 }
+
+.v3ti {
+  transition: 0.3s;
+  background-color: #dee2e6 !important;
+  border: 1px solid #404040 !important;
+  outline: none !important;
+  box-shadow: none !important;
+
+  &:focus,
+  &--focus {
+    border: 1px solid #ffce80 !important;
+  }
+
+  .v3ti-tag {
+    background: #75d6fd !important;
+    color: #333 !important;
+    border: 1px solid #ccc;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 0.75rem;
+    padding: 3px 0px 0 5px !important;
+    /*border-radius: 0;*/
+  }
+
+  .v3ti-remove-tag {
+    // color: #000000;
+    transition: color 0.3s;
+  }
+
+  .v3ti-remove-tag {
+    color: #333 !important;
+    text-decoration: none;
+  }
+
+  .v3ti-tag .v3ti-remove-tag:hover {
+    color: #cc0000 !important;
+  }
+}
 </style>
 
 <script setup lang="ts">
+import PostNotAvailable from "@client/components/PostNotAvailable.vue";
 import ImagePreview from "@client/components/ImagePreview.vue";
 import LoadingSpinner from "@client/components/LoadingSpinner.vue";
 import MarkDown from "@client/components/MarkDown.vue";
@@ -169,7 +209,6 @@ import AiSummaries from "@client/components/AiSummaries.vue";
 import { debounce } from "@client/debounce.js";
 import Vue3TagsInput from "vue3-tags-input";
 import { PostEndpoints } from "@client/util/api-client.js";
-
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import { t, tc } from "@fumix/fu-blog-client/src/plugins/i18n.js";
 import type { DraftResponseDto, NewPostRequestDto, Post } from "@fumix/fu-blog-common";
@@ -183,6 +222,7 @@ const files = reactive<{ [sha256: string]: File }>({});
 const dropzoneHighlight = ref<boolean>(false);
 const router = useRouter();
 const markdownArea = ref(null);
+const postHasError = ref<boolean>(false);
 
 const form = reactive<NewPostRequestDto>({
   title: "",
@@ -217,7 +257,9 @@ onMounted(async () => {
       form.markdown = resJson.markdown;
       form.draft = resJson.draft;
       form.stringTags = resJson.tags?.map((tag) => tag.name) || [];
+      postHasError.value = false;
     } catch (e) {
+      postHasError.value = true;
       console.log("ERROR: ", e);
     }
   }

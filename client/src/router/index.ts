@@ -40,7 +40,7 @@ const router = createRouter({
       path: "/posts/post/:postId([1-9][0-9]*)/edit",
       name: "edit-post",
       component: () => import("@client/views/PostFormView.vue"),
-      props: true,
+      props: castId,
     },
     {
       path: "/:pathMatch(.*)*",
@@ -49,5 +49,11 @@ const router = createRouter({
     },
   ],
 });
+
+function castId(route: any) {
+  return {
+    postId: Number(route.params.postId),
+  };
+}
 
 export default router;
