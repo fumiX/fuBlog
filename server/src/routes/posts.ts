@@ -32,16 +32,22 @@ router.get("/page/:page([0-9]+)/count/:count([0-9]+)/search/:search/operator/:op
       .filter(Boolean)
       .join(operator);
   }
+
   // TODO : add createdBy and tags to search results
   await AppDataSource.manager
-    .getRepository(PostEntity)
-    .createQueryBuilder()
-    .where("ts @@ to_tsquery(:searchTerm)", { searchTerm: searchTerm })
-    .skip(skipEntries)
-    .take(itemsPerPage)
-    // .orderBy("createdAt", "DESC")
-    .getManyAndCount()
-    .then((result) => res.status(200).json({ data: result }))
+    .createQueryBuilder(PostEntity, "post")
+    .select(["post.*", "ts_rank_cd(sp.post_tsv, to_tsquery(:searchTerm)) as rank", "count(*) over() as count"])
+    .setParameter("searchTerm", searchTerm)
+    .leftJoin("search_posts", "sp", "sp.post_id = id")
+    .where("sp.post_tsv @@ to_tsquery(:searchTerm)", { searchTerm: searchTerm })
+    .orderBy("rank", "DESC")
+    .offset(skipEntries)
+    .limit(itemsPerPage)
+    .getRawMany()
+    .then((result) => {
+      const count = result?.map((r) => r.count) as number[];
+      return res.status(200).json({ data: [result, count[0]] });
+    })
     .catch((err) => next(err));
 });
 
@@ -67,7 +73,7 @@ router.get("/page/:page([0-9]+)/count/:count([0-9]+)/", async (req: Request, res
 });
 
 // GET POST BY ID WITH RELATIONS TO USER
-router.get("/:id([1-9][0-9]*)", async (req: Request, res: Response, next) => {
+router.get("/:id(\\d+$)", async (req: Request, res: Response, next) => {
   await AppDataSource.manager
     .getRepository(PostEntity)
     .findOne({
@@ -180,12 +186,15 @@ async function getPersistedTagsForPost(post: PostEntity, bodyJson: PostRequestDt
   }
 
   const tagsToUseInPost: TagEntity[] = [];
-  const alreadySavedTags = await AppDataSource.manager
-    .getRepository(TagEntity)
-    .createQueryBuilder("tagEntity")
-    .select()
-    .where("tagEntity.name IN(:...names)", { names: bodyJson.stringTags })
-    .getMany();
+  const alreadySavedTags =
+    bodyJson.stringTags?.length > 0
+      ? await AppDataSource.manager
+          .getRepository(TagEntity)
+          .createQueryBuilder("tagEntity")
+          .select()
+          .where("tagEntity.name IN(:...names)", { names: bodyJson.stringTags })
+          .getMany()
+      : await Promise.all([]);
   tagsToUseInPost.push(...alreadySavedTags);
 
   const unsavedTags = bodyJson.stringTags
@@ -207,8 +216,22 @@ async function getPersistedTagsForPost(post: PostEntity, bodyJson: PostRequestDt
   return tagsToUseInPost.filter((value) => value !== null && value !== undefined);
 }
 
+// autocompletion suggestions (fuzzy search) for tags
+router.get("/tags/:search", async (req: Request, res: Response, next) => {
+  await AppDataSource.manager
+    .getRepository(TagEntity)
+    .createQueryBuilder()
+    .select()
+    .where("SIMILARITY(name, :search) > 0.3", { search: req.params.search })
+    .orderBy("SIMILARITY(name, '" + req.params.id + "')", "DESC")
+    .limit(5)
+    .getMany()
+    .then((result) => res.status(200).json({ data: result }))
+    .catch(next);
+});
+
 // EDIT EXISTING POST
-router.post("/:id([1-9][0-9]*)", authMiddleware, multipleFilesUpload, async (req: Request, res: Response, next) => {
+router.post("/:id(\\d+$)", authMiddleware, multipleFilesUpload, async (req: Request, res: Response, next) => {
   const postId = +req.params.id;
   const post = await AppDataSource.manager.getRepository(PostEntity).findOneBy({
     id: postId,
@@ -271,7 +294,7 @@ router.post("/:id([1-9][0-9]*)", authMiddleware, multipleFilesUpload, async (req
 });
 
 // DELETE POST
-router.get("/delete/:id([0-9]+)", async (req: Request, res: Response, next) => {
+router.get("/delete/:id(\\d+$)", async (req: Request, res: Response, next) => {
   await AppDataSource.manager.transaction(async (manager) => {
     // find all attachments of post and delete them
     manager

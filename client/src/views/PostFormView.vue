@@ -46,6 +46,16 @@
                 <div id="markdownHelp" class="form-text">{{ t("posts.form.message.hint") }}</div>
               </div>
 
+              <div class="form-floating mb-3">
+                <label for="stringTags">{{ t("posts.form.tags") }}</label>
+                <vue3-tags-input
+                  :tags="form.stringTags"
+                  placeholder="Geben Sie Schlagwörter ein..."
+                  @on-tags-changed="handleTagsChanged"
+                  @input="handleAutocompletion"
+                />
+              </div>
+
               <div class="form-check form-switch">
                 <input v-model="form.draft" class="form-check-input" type="checkbox" id="draft" />
                 <label class="form-check-label" for="draft">{{ t("posts.form.draft") }}</label>
@@ -325,6 +335,14 @@ const handleFileChange = (e: Event) => {
 
 const handleTagsChanged = (tags: any) => {
   form.stringTags = tags;
+};
+
+const handleAutocompletion = async (event: any) => {
+  let response = await fetch(`/api/posts/tags/` + event.target.value).then((response) =>
+    response.json().then((json) => {
+      console.log(JSON.stringify(json.data[0]));
+    }),
+  );
 };
 
 const addTag = (tag: string) => {

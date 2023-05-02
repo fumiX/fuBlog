@@ -1,7 +1,7 @@
 import { Post } from "@fumix/fu-blog-common";
 import { AttachmentEntity } from "./Attachment.entity.js";
 import { UserEntity } from "./User.entity.js";
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { TagEntity } from "./Tag.entity.js";
 
 /**
@@ -21,18 +21,20 @@ export class PostEntity implements Post {
   @Column({ nullable: true })
   markdown: string;
 
-  @Column({ nullable: true })
+  @Column({ name: "sanitized_html", nullable: true })
   sanitizedHtml: string;
 
-  @Column()
+  @Column({ name: "created_at" })
   createdAt: Date;
 
+  @JoinColumn({ name: "created_by_id", referencedColumnName: "id" })
   @ManyToOne(() => UserEntity)
   createdBy?: UserEntity;
 
-  @Column({ nullable: true })
+  @Column({ name: "updated_at", nullable: true })
   updatedAt?: Date;
 
+  @JoinColumn({ name: "updated_by_id", referencedColumnName: "id" })
   @ManyToOne(() => UserEntity, (user) => user.id, { nullable: true })
   updatedBy?: UserEntity;
 
