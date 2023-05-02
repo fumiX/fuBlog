@@ -1,13 +1,4 @@
 <template>
-  <!-- <div v-for="(d, i) in data" v-bind:key="i" class="summary-container bg-success bg-opacity-25">
-    <ai-summary
-      :summary-data="d"
-      :onAddTag="props.onAddTag"
-      :onSetDescription="props.onSetDescription"
-      @remove-data="removeData(d)"
-    ></ai-summary>
-  </div> -->
-
   <small v-if="fullText.length < 500" class="text-muted"> 🤖 {{ t("ai.summary.hint", { count: 500 - fullText.length }) }}</small>
   <button v-else-if="data.length < 3" type="button" class="btn btn-sm btn-outline-success" :disabled="loading" @click="loadNewSummary">
     <loading-spinner v-if="loading" class="smallSpinner" /><span v-else>🤖🪄</span> {{ t("ai.summarize") }}
@@ -23,6 +14,7 @@
     @canceled="canceled()"
     @acceptDescription="props.onSetDescription"
     @addTag="props.onAddTag"
+    @remove-ai-summary="removeAiSummary"
   ></ai-summary-dialog>
 </template>
 
@@ -69,9 +61,9 @@ const data = ref<AiSummaryData[]>([]);
 const loading = ref<boolean>(false);
 const showAiDialog = ref<boolean>(false);
 
-// const removeData = (d: AiSummaryData) => {
-//   data.value = data.value.filter((it) => it != d);
-// };
+function removeAiSummary(d: AiSummaryData) {
+  data.value = data.value.filter((it) => it != d);
+}
 
 const loadNewSummary = (e: MouseEvent) => {
   e.preventDefault();

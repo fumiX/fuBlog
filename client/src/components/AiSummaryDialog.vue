@@ -9,9 +9,9 @@
           <div v-for="(d, i) in data" v-bind:key="i" class="summary-container">
             <ai-summary
               :summary-data="d"
-              @addTag="addTag($event)"
-              @acceptDescription="acceptDescription($event)"
-              @remove-data="removeData(d)"
+              @add-tag="addTag($event)"
+              @update-description="acceptDescription($event)"
+              @remove-ai-summary="$emit('removeAiSummary', d)"
             ></ai-summary>
           </div>
         </div>
@@ -42,7 +42,7 @@ const props = defineProps({
   },
 });
 
-const emits = defineEmits(["acceptDescription", "canceled", "addTag"]);
+const emits = defineEmits(["acceptDescription", "canceled", "addTag", "removeAiSummary"]);
 
 watch(props, () => {
   const myModal = new Modal(document.getElementById("aiModal") || "", {});
@@ -50,10 +50,6 @@ watch(props, () => {
   show ? myModal?.show() : myModal.hide();
 });
 
-const removeData = (d: AiSummaryData) => {
-  alert("TODO remove data");
-  // data.value = data.value.filter((it) => it != d);
-};
 const acceptDescription = (description: string) => {
   emits("acceptDescription", description);
 };

@@ -1,10 +1,10 @@
 <template>
   <div>
     <div v-if="isSuccessfulAiSummaryData(summaryData)">
-      <!-- <button type="button" class="btn-close btn-close-white float-end" aria-label="Close" @click="$emit('removeData')"></button> -->
+      <button type="button" class="btn-close btn-close-white float-end" aria-label="Close" @click="$emit('removeAiSummary')"></button>
       <div class="summary-text-container">
         <div class="summary-text">{{ summaryData.summary }}</div>
-        <button type="button" class="btn btn-sm btn-outline-success" @click="$emit('acceptDescription', summaryData.summary)">
+        <button type="button" class="btn btn-sm btn-outline-success" @click="$emit('updateDescription', summaryData.summary)">
           {{ t("ai.summary.accept") }}
         </button>
       </div>
@@ -24,11 +24,12 @@
       <div class="row">
         <div class="col-md-4" v-for="prompt in summaryData.imagePrompts" v-bind:key="prompt">
           <button class="btn btn-sm btn-outline-success" @click="acceptImagePrompt($event, prompt)">
-            <fa-icon :icon="faImage"></fa-icon>🪄
+            <fa-icon :icon="faImage"></fa-icon><fa-icon :icon="faWandMagicSparkles"></fa-icon>
             {{ prompt }}
           </button>
         </div>
       </div>
+    </div>
     <div v-else class="bg-danger">
       {{ summaryData.error }}
     </div>
@@ -44,28 +45,25 @@
 </style>
 
 <script setup lang="ts">
-import { OpenAiEndpoints } from "@client/util/api-client.js";
 import { t } from "@client/plugins/i18n.js";
+import { OpenAiEndpoints } from "@client/util/api-client.js";
+import { faImage, faWandMagicSparkles } from "@fortawesome/free-solid-svg-icons";
 import type { AiSummaryData } from "@fumix/fu-blog-common";
 import { isSuccessfulAiSummaryData } from "@fumix/fu-blog-common";
-import { onMounted } from "vue";
 import type { PropType } from "vue";
-import { faImage, faWandSparkles } from "@fortawesome/free-solid-svg-icons";
+import { onMounted } from "vue";
 
 const props = defineProps({
   summaryData: { type: Object as PropType<AiSummaryData>, required: true },
-  onAddTag: { type: Function as PropType<(tag: string) => void> },
-  onSetDescription: { type: Function as PropType<(description: string) => void> },
 });
 
 function acceptDescription(e: MouseEvent, description: string) {
   e.preventDefault();
-  props.onSetDescription?.(description);
+  emit("updateDescription", description);
 }
 
 async function acceptImagePrompt(e: MouseEvent, prompt: string) {
   e.preventDefault();
-  alert(prompt); // TODO: send event to parent
   await OpenAiEndpoints.dallEGenerateImage(prompt)
     .then((it) => {
       alert(JSON.stringify(it));
@@ -77,16 +75,16 @@ async function acceptImagePrompt(e: MouseEvent, prompt: string) {
 
 function acceptTag(e: MouseEvent, tag: string) {
   e.preventDefault();
-  props.onAddTag?.(tag);
+  emit("addTag", tag);
 }
 
-const emit = defineEmits(["removeData", "acceptDescription"]);
+const emit = defineEmits(["updateDescription", "addTag", "removeAiSummary"]);
 
 onMounted(() => {
   // auto remove if error
   if (!isSuccessfulAiSummaryData(props.summaryData)) {
     setTimeout(() => {
-      emit("removeData");
+      emit("removeAiSummary");
     }, 5000);
   }
 });

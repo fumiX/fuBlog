@@ -24,6 +24,7 @@
                   :placeholder="t('posts.form.tags.enter')"
                   @on-tags-changed="handleTagsChanged"
                   :add-tag-on-keys="[13, 188]"
+                  @input="handleAutocompletion"
                 />
               </div>
 
@@ -44,16 +45,6 @@
                 ></textarea>
                 <label for="markdown">{{ t("posts.form.message.label") }}</label>
                 <div id="markdownHelp" class="form-text">{{ t("posts.form.message.hint") }}</div>
-              </div>
-
-              <div class="form-floating mb-3">
-                <label for="stringTags">{{ t("posts.form.tags") }}</label>
-                <vue3-tags-input
-                  :tags="form.stringTags"
-                  placeholder="Geben Sie Schlagwörter ein..."
-                  @on-tags-changed="handleTagsChanged"
-                  @input="handleAutocompletion"
-                />
               </div>
 
               <div class="form-check form-switch">
