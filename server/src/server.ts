@@ -84,7 +84,6 @@ if (AppSettings.IS_PRODUCTION) {
         }
       },
     );
-    res.sendFile(path.join(__dirname, "public/index.html"));
   };
   app.get("/index.html", indexResponse);
   app.use(express.static("./public", { redirect: false, index: false }));
