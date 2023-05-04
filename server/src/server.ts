@@ -66,7 +66,7 @@ process.on("uncaughtException", async (error) => {
 
 async function handleUncaught(error: Error) {
   await errorHandler.handleError(error);
-  logger.info("Shutting down fumix blog...", error.stack);
+  logger.info(`Shutting down fumix blog...\n${error.stack}`);
   process.exit(1);
 }
 
