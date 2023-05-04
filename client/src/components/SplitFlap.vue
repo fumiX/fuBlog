@@ -63,7 +63,7 @@ function stepsRemaining(currentChar: string, targetChar: string): number {
   if (targetIndex < 0 || currentIndex < 0) {
     return 1;
   }
-  if (targetIndex > currentIndex) {
+  if (targetIndex >= currentIndex) {
     return targetIndex - currentIndex;
   } else {
     return alphabet.length - currentIndex + targetIndex;
