@@ -13,6 +13,7 @@ import { UnauthorizedError } from "../errors/UnauthorizedError.js";
 import { MarkdownConverterServer } from "../markdown-converter-server.js";
 import { authMiddleware } from "../service/middleware/auth.js";
 import { extractJsonBody, extractUploadFiles, multipleFilesUpload } from "../service/middleware/files-upload.js";
+import { In } from "typeorm";
 
 const router: Router = express.Router();
 
@@ -35,7 +36,7 @@ router.get("/page/:page([0-9]+)/count/:count([0-9]+)/search/:search/operator/:op
   // TODO : add createdBy and tags to search results
   await AppDataSource.manager
     .createQueryBuilder(PostEntity, "post")
-    .select(["post.*", "ts_rank_cd(sp.post_tsv, to_tsquery(:searchTerm)) as rank", "count(*) over() as count"])
+    .select(["post.id as post_id", "ts_rank_cd(sp.post_tsv, to_tsquery(:searchTerm)) as rank", "count(*) over() as count"])
     .setParameter("searchTerm", searchTerm)
     .leftJoin("search_posts", "sp", "sp.post_id = id")
     .where("sp.post_tsv @@ to_tsquery(:searchTerm)", { searchTerm: searchTerm })
@@ -43,9 +44,14 @@ router.get("/page/:page([0-9]+)/count/:count([0-9]+)/search/:search/operator/:op
     .offset(skipEntries)
     .limit(itemsPerPage)
     .getRawMany()
-    .then((result) => {
-      const count = result?.map((r) => r.count) as number[];
-      return res.status(200).json({ data: [result, count[0]] });
+    .then(async (result) => {
+      const idArray = result?.map((r) => parseInt(r.post_id)) as number[];
+      const count = result?.map((r) => parseInt(r.count)) as number[];
+
+      await AppDataSource.manager
+        .getRepository(PostEntity)
+        .findBy({ id: In(idArray) })
+        .then((result) => res.status(200).json({ data: [result, count[0]] }));
     })
     .catch((err) => next(err));
 });
