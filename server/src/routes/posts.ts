@@ -255,10 +255,10 @@ router.post("/:id(\\d+$)", authMiddleware, multipleFilesUpload, async (req: Requ
   } else if (!permissionsForUser(account.user).canEditPost && (account.user.id === null || account.user.id !== post.createdBy?.id)) {
     return next(new ForbiddenError());
   }
-  /*
-  const tagsToUseInPost: TagEntity[] = await getPersistedTagsForPost(body).catch((err) => {
+
+  const tagsToUseInPost: TagEntity[] = await getPersistedTagsForPost(post, body).catch((err) => {
     throw new InternalServerError(true, "Error getting tags" + err);
-  });*/
+  });
 
   AppDataSource.manager
     .transaction(async (manager) => {
@@ -288,7 +288,7 @@ router.post("/:id(\\d+$)", authMiddleware, multipleFilesUpload, async (req: Requ
         .getRepository(PostEntity)
         .findOneByOrFail({ id: postId })
         .then((post) => {
-          post.tags = [];
+          post.tags = tagsToUseInPost;
           return post;
         })
         .then((updatedPost) => manager.getRepository(PostEntity).save(updatedPost))
