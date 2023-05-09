@@ -19,13 +19,23 @@
 
               <div class="form-floating mb-3">
                 <label for="stringTags">{{ t("posts.form.tags.tags") }}</label>
-                <vue3-tags-input
+                <!-- <vue3-tags-input
                   :tags="form.stringTags"
                   :placeholder="t('posts.form.tags.enter')"
                   @on-tags-changed="handleTagsChanged"
                   :add-tag-on-keys="[13, 188]"
                   @input="handleAutocompletion"
+                /> -->
+
+                <vue-tags-input
+                  :tags="form.stringTags"
+                  :autocomplete-items="tagList"
+                  :placeholder="t('posts.form.tags.enter')"
+                  @tags-changed="handleTagsChanged"
+                  @input="handleAutocompletion"
                 />
+
+                <!-- <auto-complete :list="tagList" @selectItem="selectItem($event)" /> -->
               </div>
 
               <div class="mb-3">
@@ -127,6 +137,7 @@
 .w-50 {
   width: 50%;
 }
+
 .v3ti-tag {
   background: $badge-background-color !important;
   color: $badge-text-color !important;
@@ -163,19 +174,29 @@
   }
 }
 
-.v3ti {
-  transition: 0.3s;
+.card-body .vue-tags-input {
+  max-width: none !important;
+  width: 100%;
   background-color: #dee2e6 !important;
-  border: 1px solid #404040 !important;
-  outline: none !important;
-  box-shadow: none !important;
+  border-radius: 0.375rem;
 
-  &:focus,
-  &--focus {
+  .ti-input {
+    transition: 0.3s;
+    border: 1px solid #404040 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    border-radius: 0.375rem;
+  }
+
+  .ti-new-tag-input {
+    background-color: transparent !important;
+  }
+
+  &.ti-focus .ti-input {
     border: 1px solid #ffce80 !important;
   }
 
-  .v3ti-tag {
+  .ti-tag {
     background: #75d6fd !important;
     color: #333 !important;
     border: 1px solid #ccc;
@@ -185,18 +206,12 @@
     /*border-radius: 0;*/
   }
 
-  .v3ti-remove-tag {
-    // color: #000000;
-    transition: color 0.3s;
-  }
-
-  .v3ti-remove-tag {
-    color: #333 !important;
-    text-decoration: none;
-  }
-
-  .v3ti-tag .v3ti-remove-tag:hover {
-    color: #cc0000 !important;
+  .ti-deletion-mark {
+    background: #aa0000 !important;
+    span,
+    .ti-actions i {
+      color: #ffffff !important;
+    }
   }
 }
 </style>
@@ -211,12 +226,13 @@ import { debounce } from "@client/debounce.js";
 import { PostEndpoints } from "@client/util/api-client.js";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import { t, tc } from "@fumix/fu-blog-client/src/plugins/i18n.js";
-import type { DraftResponseDto, NewPostRequestDto, Post } from "@fumix/fu-blog-common";
+import type { DraftResponseDto, NewPostRequestDto, Post, Tag } from "@fumix/fu-blog-common";
 import { bytesToBase64URL, convertToHumanReadableFileSize } from "@fumix/fu-blog-common";
 import { computed, onMounted, reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import Vue3TagsInput from "vue3-tags-input";
+import VueTagsInput from "@sipec/vue3-tags-input";
 
+const tag = ref<string>("");
 const md = ref<string | null>(null);
 const loading = ref<boolean>(false);
 const files = reactive<{ [sha256: string]: File }>({});
@@ -224,6 +240,7 @@ const dropzoneHighlight = ref<boolean>(false);
 const router = useRouter();
 const markdownArea = ref(null);
 const postHasError = ref<boolean>(false);
+const tagList = ref<Tag[]>([]);
 
 const form = reactive<NewPostRequestDto>({
   title: "",
@@ -325,20 +342,27 @@ const handleFileChange = (e: Event) => {
 };
 
 const handleTagsChanged = (tags: any) => {
-  form.stringTags = tags;
+  form.stringTags = tags.map((it: any) => it.text);
 };
 
 const handleAutocompletion = async (event: any) => {
-  let response = await fetch(`/api/posts/tags/` + event.target.value).then((response) =>
-    response.json().then((json) => {
-      console.log(JSON.stringify(json.data[0]));
-    }),
-  );
+  if (event.target.value) {
+    let response = await fetch(`/api/posts/tags/` + event.target.value).then((response) =>
+      response.json().then((json) => {
+        console.log(JSON.stringify(json.data));
+        tagList.value = json.data ? json.data.map((it: Tag) => it.name) : [];
+      }),
+    );
+  }
 };
 
 const addTag = (tag: string) => {
   form.stringTags.push(tag);
   form.stringTags = [...new Set(form.stringTags)].sort((a, b) => a.localeCompare(b));
+};
+
+const selectItem = (item: Tag) => {
+  addTag(item.name);
 };
 
 const setDescription = (description: string) => {
