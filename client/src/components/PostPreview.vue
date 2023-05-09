@@ -36,7 +36,7 @@
             <i>{{ post.updatedBy.fullName }}</i>
           </div>
 
-          <display-tags :tags="post.tags"></display-tags>
+          <display-tags v-if="post.tags" :tags="post.tags"></display-tags>
 
           <div class="my-4">
             <router-link :to="'/posts/post/' + post.id" class="text-decoration-none">
