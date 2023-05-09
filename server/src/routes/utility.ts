@@ -14,7 +14,7 @@ const router: Router = express.Router();
 
 let cachedSharepic: { url: string; bytes: Uint8Array } | undefined = undefined;
 router.get("/github-sharepic", async (req, res) => {
-  const timestamp = Math.floor(Date.now() / 3600000);
+  const timestamp = Math.floor(Date.now() / 3600000); // round down to the hour
   const url = `https://opengraph.githubassets.com/${timestamp}/${AppSettings.GITHUB_REPOSITORY_SLUG}`;
   if (cachedSharepic && cachedSharepic.url === url) {
     if (req.header("If-None-Match") === `${timestamp}`) {
@@ -30,7 +30,7 @@ router.get("/github-sharepic", async (req, res) => {
     }
   } else {
     const sendCachedBytesOrNotFound = () => {
-      if (cachedSharepic) {
+      if (cachedSharepic && cachedSharepic.bytes.length > 0) {
         res
           .status(200)
           .header("ETag", `${timestamp}`)
