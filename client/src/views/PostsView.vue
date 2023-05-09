@@ -162,7 +162,6 @@ const goTo = (path: string) => {
 };
 
 const searchWord = (event: any) => {
-  console.log("SEARCH -------->", event);
   goTo(`/posts/?search=${event[0]}&operator=and`);
 };
 
