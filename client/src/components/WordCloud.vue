@@ -63,9 +63,9 @@ const setCanvasCloud = () => {
     click: function (item: any) {
       emits("wordclicked", item);
     },
-    // hover: function (item: any, dimension: any, event: any) {
-    //   cnvs.style.cursor = item ? "pointer" : "default";
-    // },
+    hover: function (item: any, dimension: any, event: any) {
+      cnvs.style.cursor = item ? "pointer" : "default";
+    },
   };
 
   WordCloud(cnvs, config);
