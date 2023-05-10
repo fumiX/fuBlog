@@ -24,7 +24,6 @@
                   :tags="tags"
                   :autocomplete-items="tagList"
                   :placeholder="t('posts.form.tags.enter')"
-                  :add-only-from-autocomplete="true"
                   @tags-changed="handleTagsChanged"
                   @input="handleAutocompletion"
                 />
