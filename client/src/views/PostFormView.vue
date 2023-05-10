@@ -26,6 +26,7 @@
                   :placeholder="t('posts.form.tags.enter')"
                   @tags-changed="handleTagsChanged"
                   @input="handleAutocompletion"
+                  @before-adding-tag="checkTag"
                 />
               </div>
 
@@ -129,11 +130,6 @@
   width: 50%;
 }
 
-.v3ti-tag {
-  background: $badge-background-color !important;
-  color: $badge-text-color !important;
-}
-
 #dropzone {
   color: #555;
   cursor: pointer;
@@ -188,8 +184,8 @@
   }
 
   .ti-tag {
-    background: #75d6fd !important;
-    color: #333 !important;
+    background: #75d6fd;
+    color: #333;
     border: 1px solid #ccc;
     font-family: "Courier New", Courier, monospace;
     font-size: 0.75rem;
@@ -232,6 +228,35 @@
       border-bottom-right-radius: 0.375rem;
     }
   }
+
+  @keyframes shake {
+    10%,
+    90% {
+      transform: scale(0.9) translate3d(-1px, 0, 0);
+    }
+
+    20%,
+    80% {
+      transform: scale(0.9) translate3d(2px, 0, 0);
+    }
+
+    30%,
+    50%,
+    70% {
+      transform: scale(0.9) translate3d(-4px, 0, 0);
+    }
+
+    40%,
+    60% {
+      transform: scale(0.9) translate3d(4px, 0, 0);
+    }
+  }
+
+  .ti-exists {
+    transition-duration: 0.5s;
+    background-color: #ffce80;
+    animation: shake 0.5s;
+  }
 }
 </style>
 
@@ -243,7 +268,7 @@ import MarkDown from "@client/components/MarkDown.vue";
 import PostNotAvailable from "@client/components/PostNotAvailable.vue";
 import { debounce } from "@client/debounce.js";
 import { PostEndpoints } from "@client/util/api-client.js";
-import { faMotorcycle, faUpload } from "@fortawesome/free-solid-svg-icons";
+import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import { t, tc } from "@fumix/fu-blog-client/src/plugins/i18n.js";
 import type { DraftResponseDto, NewPostRequestDto, Post, Tag } from "@fumix/fu-blog-common";
 import { bytesToBase64URL, convertToHumanReadableFileSize } from "@fumix/fu-blog-common";
@@ -252,7 +277,7 @@ import { useRoute, useRouter } from "vue-router";
 import VueTagsInput from "@sipec/vue3-tags-input";
 
 const tag = ref<string>("");
-const tags = ref<{ text: string }[]>([]); // vue-tags-input internal format
+const tags = ref<{ text: string; tiClasses?: string[] }[]>([]); // vue-tags-input internal format
 const md = ref<string | null>(null);
 const loading = ref<boolean>(false);
 const files = reactive<{ [sha256: string]: File }>({});
@@ -382,6 +407,28 @@ const handleAutocompletion = async (event: any) => {
 const addTag = (currentTag: string) => {
   const objTag = { text: currentTag };
   tags.value = !tags.value.map((it) => it.text).includes(currentTag) ? [...tags.value, objTag] : [...tags.value];
+};
+
+const checkTag = (obj: any) => {
+  if (tags.value.map((it) => it.text).includes(obj.tag.text)) {
+    const foundTag = tags.value.find((it) => it.text === obj.tag.text);
+    if (foundTag) {
+      tag.value = "";
+      const span = querySelectorIncludesText(".ti-tags li .ti-tag-center span", obj.tag.text);
+      const parent = span?.parentElement?.parentElement?.parentElement?.classList.add("ti-exists");
+      const to = setTimeout((parent) => {
+        document.querySelector(".ti-exists")?.classList.remove("ti-exists");
+        clearTimeout(to);
+      }, 600);
+    }
+    return;
+  } else {
+    obj.addTag();
+  }
+};
+
+const querySelectorIncludesText = (selector: string, text: string) => {
+  return Array.from(document.querySelectorAll(selector)).find((el) => el.textContent?.includes(text));
 };
 
 const setDescription = (description: string) => {
