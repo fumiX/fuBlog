@@ -1,6 +1,6 @@
 {
   "name": "@fumix/fu-blog-client",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "scripts": {
     "start": "vite --port 5010",
     "build": "run-p type-check build-only",
