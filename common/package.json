@@ -10,15 +10,19 @@
     "test": "node --test --loader ts-node/esm tests/**/*.ts"
   },
   "dependencies": {
+    "@automapper/classes": "^8.7.7",
+    "@automapper/core": "^8.7.7",
     "dompurify": "^3.0.1",
     "highlight.js": "^11.7.0",
     "jsdom": "^21.1.0",
     "marked": "^4.2.12",
     "node-fetch": "^3.3.1",
     "pako": "2.1.0",
+    "reflect-metadata": "^0.1.13",
     "sha.js": "^2.4.11"
   },
   "devDependencies": {
+    "@automapper/types": "^6.3.1",
     "@types/dompurify": "^3.0.0",
     "@types/jsdom": "^21.1.0",
     "@types/marked": "^4.0.7",

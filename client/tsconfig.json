@@ -9,9 +9,9 @@
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
     "module": "esnext", // needed to make env variables work in vue with import.meta.env
-    "moduleResolution": "Node16",
+    "moduleResolution": "Node",
     "resolveJsonModule": true,
-    "types": ["node"]
+    "types": ["node"],
   },
 
   "references": [

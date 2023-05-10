@@ -1,4 +1,4 @@
-import { DraftResponseDto, EditPostRequestDto, NewPostRequestDto, permissionsForUser, PostRequestDto } from "@fumix/fu-blog-common";
+import { DraftResponseDto, EditPostRequestDto, NewPostRequestDto, permissionsForUser, PostRequestDto, Tag } from "@fumix/fu-blog-common";
 import express, { NextFunction, Request, Response, Router } from "express";
 import { AppDataSource } from "../data-source.js";
 import { AttachmentEntity } from "../entity/Attachment.entity.js";
@@ -14,6 +14,8 @@ import { MarkdownConverterServer } from "../markdown-converter-server.js";
 import { authMiddleware } from "../service/middleware/auth.js";
 import { extractJsonBody, extractUploadFiles, multipleFilesUpload } from "../service/middleware/files-upload.js";
 import { In } from "typeorm";
+import { createMap } from "@automapper/core";
+import { mapper } from "@server/service/automapper.js";
 
 const router: Router = express.Router();
 
@@ -231,7 +233,12 @@ router.get("/tags/:search", async (req: Request, res: Response, next) => {
     .orderBy("SIMILARITY(name, '" + req.params.id + "')", "DESC")
     .limit(5)
     .getMany()
-    .then((result) => res.status(200).json({ data: result }))
+    .then((result) => {
+      createMap(mapper, TagEntity, Tag);
+      const tags = result.map((tagEntity) => mapper.map(tagEntity, TagEntity, Tag));
+      console.log(JSON.stringify(tags));
+      return res.status(200).json({ data: result });
+    })
     .catch(next);
 });
 

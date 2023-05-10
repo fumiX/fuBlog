@@ -12,6 +12,8 @@
     "lintfix": "prettier 'src/**/*.(ts|vue)' --write && eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "@automapper/classes": "^8.7.7",
+    "@automapper/core": "^8.7.7",
     "@fortawesome/fontawesome-svg-core": "^6.3.0",
     "@fortawesome/free-brands-svg-icons": "^6.3.0",
     "@fortawesome/free-regular-svg-icons": "^6.3.0",
@@ -21,6 +23,7 @@
     "bootstrap": "^5.2.3",
     "buffer": "^6.0.3",
     "luxon": "^3.3.0",
+    "reflect-metadata": "^0.1.13",
     "stream-browserify": "^3.0.0",
     "vue": "^3.2.45",
     "vue-i18n": "^9.2.2",
@@ -30,6 +33,7 @@
     "wordcloud": "^1.2.2"
   },
   "devDependencies": {
+    "@automapper/types": "^6.3.1",
     "@intlify/unplugin-vue-i18n": "^0.10.0",
     "@rushstack/eslint-patch": "^1.1.4",
     "@types/bootstrap": "^5.2.6",
