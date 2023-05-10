@@ -4,7 +4,7 @@
       <div class="col w-50">
         <div class="card flex-md-row mb-4 box-shadow h-md-250">
           <div class="card-body">
-            <form @submit="submitForm($event)">
+            <form @submit.prevent="submitForm" @input="handleSaveDraft">
               <div class="form-floating mb-3">
                 <input v-model="form.title" type="text" class="form-control" id="title" placeholder="Titel" required />
                 <label for="title">{{ t("posts.form.title") }}</label>
@@ -207,7 +207,6 @@ import ImagePreview from "@client/components/ImagePreview.vue";
 import LoadingSpinner from "@client/components/LoadingSpinner.vue";
 import MarkDown from "@client/components/MarkDown.vue";
 import PostNotAvailable from "@client/components/PostNotAvailable.vue";
-import { debounce } from "@client/debounce.js";
 import { PostEndpoints } from "@client/util/api-client.js";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import { t, tc } from "@fumix/fu-blog-client/src/plugins/i18n.js";
@@ -216,6 +215,7 @@ import { bytesToBase64URL, convertToHumanReadableFileSize } from "@fumix/fu-blog
 import { computed, onMounted, reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import Vue3TagsInput from "vue3-tags-input";
+import { debounce } from "throttle-debounce";
 
 const md = ref<string | null>(null);
 const loading = ref<boolean>(false);
@@ -224,6 +224,7 @@ const dropzoneHighlight = ref<boolean>(false);
 const router = useRouter();
 const markdownArea = ref(null);
 const postHasError = ref<boolean>(false);
+const savedDraftId = ref<number | undefined>(undefined);
 
 const form = reactive<NewPostRequestDto>({
   title: "",
@@ -265,10 +266,10 @@ onMounted(async () => {
     }
   }
 
-  debounce(() => {
+  debounce(1000, () => {
     loading.value = true;
     md.value = form.markdown;
-  }, 1000);
+  });
 });
 
 const pasteImageFileToMarkdown = (markdown: string) => {
@@ -354,9 +355,12 @@ const addFile = (file: File) => {
     .catch((it) => console.error("Failed to calculate SHA-256 hash!"));
 };
 
-const submitForm = (e: Event) => {
-  e.preventDefault();
-  send(props.postId);
+const handleSaveDraft = debounce(1000, () => {
+  send(props.postId, true);
+});
+
+const submitForm = () => {
+  send(props.postId, false);
 };
 
 const insertIntoTextarea = (
@@ -372,10 +376,18 @@ const insertIntoTextarea = (
   return before + insertedText + after;
 };
 
-const send = async (id: number | undefined) => {
+const send = async (id: number | undefined, autosave: boolean) => {
+  form.draft = autosave;
   const successAction = (r: DraftResponseDto) => {
-    router.push(`/posts/post/${r.postId}`);
+    if (!autosave) {
+      router.push(`/posts/post/${r.postId}`);
+    } else {
+      savedDraftId.value = r.postId;
+    }
   };
+  if (savedDraftId.value) {
+    id = savedDraftId.value;
+  }
   if (!id) {
     await PostEndpoints.createPost(form, Object.values(files))
       .then(successAction)
