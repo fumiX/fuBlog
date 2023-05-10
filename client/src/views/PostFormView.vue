@@ -4,7 +4,7 @@
       <div class="col w-50">
         <div class="card flex-md-row mb-4 box-shadow h-md-250">
           <div class="card-body">
-            <form @submit.prevent="submitForm" @input="handleSaveDraft">
+            <form @submit.prevent="submitForm" @input="handleAutoSave">
               <div class="form-floating mb-3">
                 <input v-model="form.title" type="text" class="form-control" id="title" placeholder="Titel" required />
                 <label for="title">{{ t("posts.form.title") }}</label>
@@ -224,7 +224,8 @@ const dropzoneHighlight = ref<boolean>(false);
 const router = useRouter();
 const markdownArea = ref(null);
 const postHasError = ref<boolean>(false);
-const savedDraftId = ref<number | undefined>(undefined);
+const autoSavedDraftId = ref<number | undefined>(undefined);
+const canBeAutosaved = ref<boolean>(true);
 
 const form = reactive<NewPostRequestDto>({
   title: "",
@@ -252,6 +253,8 @@ onMounted(async () => {
   // prefill form with values fom loaded post
   if (props.postId) {
     try {
+      // avoid autosaving in edit mode
+      canBeAutosaved.value = false;
       const res = await fetch(`/api/posts/${props.postId}`);
       const resJson = (await res.json())?.data as Post;
       form.title = resJson.title;
@@ -355,8 +358,10 @@ const addFile = (file: File) => {
     .catch((it) => console.error("Failed to calculate SHA-256 hash!"));
 };
 
-const handleSaveDraft = debounce(1000, () => {
-  send(props.postId, true);
+const handleAutoSave = debounce(1000, () => {
+  if (canBeAutosaved.value) {
+    send(props.postId, true);
+  }
 });
 
 const submitForm = () => {
@@ -382,11 +387,12 @@ const send = async (id: number | undefined, autosave: boolean) => {
     if (!autosave) {
       router.push(`/posts/post/${r.postId}`);
     } else {
-      savedDraftId.value = r.postId;
+      // no routing when autosaving
+      autoSavedDraftId.value = r.postId;
     }
   };
-  if (savedDraftId.value) {
-    id = savedDraftId.value;
+  if (autoSavedDraftId.value) {
+    id = autoSavedDraftId.value;
   }
   if (!id) {
     await PostEndpoints.createPost(form, Object.values(files))
