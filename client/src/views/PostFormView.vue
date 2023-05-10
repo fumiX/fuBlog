@@ -19,23 +19,15 @@
 
               <div class="form-floating mb-3">
                 <label for="stringTags">{{ t("posts.form.tags.tags") }}</label>
-                <!-- <vue3-tags-input
-                  :tags="form.stringTags"
-                  :placeholder="t('posts.form.tags.enter')"
-                  @on-tags-changed="handleTagsChanged"
-                  :add-tag-on-keys="[13, 188]"
-                  @input="handleAutocompletion"
-                /> -->
-
                 <vue-tags-input
-                  :tags="form.stringTags"
+                  v-model="tag"
+                  :tags="tags"
                   :autocomplete-items="tagList"
                   :placeholder="t('posts.form.tags.enter')"
+                  :add-only-from-autocomplete="true"
                   @tags-changed="handleTagsChanged"
                   @input="handleAutocompletion"
                 />
-
-                <!-- <auto-complete :list="tagList" @selectItem="selectItem($event)" /> -->
               </div>
 
               <div class="mb-3">
@@ -252,15 +244,16 @@ import MarkDown from "@client/components/MarkDown.vue";
 import PostNotAvailable from "@client/components/PostNotAvailable.vue";
 import { debounce } from "@client/debounce.js";
 import { PostEndpoints } from "@client/util/api-client.js";
-import { faUpload } from "@fortawesome/free-solid-svg-icons";
+import { faMotorcycle, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { t, tc } from "@fumix/fu-blog-client/src/plugins/i18n.js";
 import type { DraftResponseDto, NewPostRequestDto, Post, Tag } from "@fumix/fu-blog-common";
 import { bytesToBase64URL, convertToHumanReadableFileSize } from "@fumix/fu-blog-common";
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import VueTagsInput from "@sipec/vue3-tags-input";
 
 const tag = ref<string>("");
+const tags = ref<{ text: string }[]>([]); // vue-tags-input internal format
 const md = ref<string | null>(null);
 const loading = ref<boolean>(false);
 const files = reactive<{ [sha256: string]: File }>({});
@@ -291,6 +284,11 @@ const totalBytesInFiles = computed(() =>
     .reduce((acc, x) => acc + x, 0),
 );
 
+watch(tags, (value) => {
+  // keep tag array in sync with form.stringTags
+  form.stringTags = value ? value.map((tag) => tag.text) : [];
+});
+
 onMounted(async () => {
   const route = useRoute();
   // prefill form with values fom loaded post
@@ -302,7 +300,7 @@ onMounted(async () => {
       form.description = resJson.description;
       form.markdown = resJson.markdown;
       form.draft = resJson.draft;
-      form.stringTags = resJson.tags?.map((tag) => tag.name) || [];
+      tags.value = resJson.tags ? resJson.tags?.map((tag) => ({ text: tag.name })) : [];
       postHasError.value = false;
     } catch (e) {
       postHasError.value = true;
@@ -368,28 +366,23 @@ const handleFileChange = (e: Event) => {
   }
 };
 
-const handleTagsChanged = (tags: any) => {
-  form.stringTags = tags.map((it: any) => it.text);
+const handleTagsChanged = (newTags: any[]) => {
+  tags.value = newTags;
 };
 
 const handleAutocompletion = async (event: any) => {
   if (event.target.value) {
     let response = await fetch(`/api/posts/tags/` + event.target.value).then((response) =>
       response.json().then((json) => {
-        console.log(JSON.stringify(json.data));
-        tagList.value = json.data ? json.data.map((it: Tag) => it.name) : [];
+        tagList.value = json.data ? json.data.map((it: Tag) => ({ text: it.name })) : [];
       }),
     );
   }
 };
 
-const addTag = (tag: string) => {
-  form.stringTags.push(tag);
-  form.stringTags = [...new Set(form.stringTags)].sort((a, b) => a.localeCompare(b));
-};
-
-const selectItem = (item: Tag) => {
-  addTag(item.name);
+const addTag = (currentTag: string) => {
+  const objTag = { text: currentTag };
+  tags.value = !tags.value.map((it) => it.text).includes(currentTag) ? [...tags.value, objTag] : [...tags.value];
 };
 
 const setDescription = (description: string) => {
