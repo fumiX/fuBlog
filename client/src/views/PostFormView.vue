@@ -208,9 +208,37 @@
 
   .ti-deletion-mark {
     background: #aa0000 !important;
+    border-radius: 0.25rem;
+
     span,
     .ti-actions i {
       color: #ffffff !important;
+    }
+  }
+
+  .ti-autocomplete {
+    transition: 0.3s;
+    border: 1px solid #404040 !important;
+    border-top: none;
+    outline: none !important;
+    border-radius: 0.375rem;
+    background-color: #dee2e6 !important;
+    box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.35);
+    font-size: 0.95rem;
+
+    .ti-item.ti-selected-item {
+      background: #ffce80;
+      color: #333;
+    }
+
+    .ti-item:first-child {
+      border-top-left-radius: 0.375rem;
+      border-top-right-radius: 0.375rem;
+    }
+
+    .ti-item:last-child {
+      border-bottom-left-radius: 0.375rem;
+      border-bottom-right-radius: 0.375rem;
     }
   }
 }
@@ -278,7 +306,6 @@ onMounted(async () => {
       postHasError.value = false;
     } catch (e) {
       postHasError.value = true;
-      console.log("ERROR: ", e);
     }
   }
 
