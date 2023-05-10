@@ -15,6 +15,7 @@ import fileRoutes from "./routes/file.js";
 import postRoutes from "./routes/posts.js";
 import utilityRoutes from "./routes/utility.js";
 import { errorHandler } from "./service/error-handler.js";
+import { generateShareImage } from "./service/opengraph.js";
 import { initDatabase } from "./service/testdata-generator.js";
 import { AppSettings, ClientSettings, DatabaseSettings, ServerSettings } from "./settings.js";
 

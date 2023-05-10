@@ -1,5 +1,6 @@
 import { DraftResponseDto, EditPostRequestDto, NewPostRequestDto, permissionsForUser, PostRequestDto } from "@fumix/fu-blog-common";
 import express, { NextFunction, Request, Response, Router } from "express";
+import { In } from "typeorm";
 import { AppDataSource } from "../data-source.js";
 import { AttachmentEntity } from "../entity/Attachment.entity.js";
 import { FileEntity } from "../entity/File.entity.js";
@@ -13,7 +14,7 @@ import { UnauthorizedError } from "../errors/UnauthorizedError.js";
 import { MarkdownConverterServer } from "../markdown-converter-server.js";
 import { authMiddleware } from "../service/middleware/auth.js";
 import { extractJsonBody, extractUploadFiles, multipleFilesUpload } from "../service/middleware/files-upload.js";
-import { In } from "typeorm";
+import { generateShareImage } from "../service/opengraph.js";
 
 const router: Router = express.Router();
 
@@ -315,6 +316,22 @@ router.get("/delete/:id(\\d+$)", async (req: Request, res: Response, next) => {
       })
       .catch(next);
   });
+});
+
+router.get("/:id(\\d+)/og-image", async (req: Request, res: Response, next) => {
+  AppDataSource.getRepository(PostEntity)
+    .findOne({ where: { id: +req.params.id } })
+    .then((post) => {
+      if (post) {
+        res.status(200).write(generateShareImage(post.title, post.createdAt));
+        res.end();
+      } else {
+        next(new ForbiddenError("Post not found"));
+      }
+    })
+    .catch((err) => {
+      next(new ForbiddenError("Post not found"));
+    });
 });
 
 export default router;
