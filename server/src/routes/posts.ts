@@ -24,13 +24,10 @@ router.get("/page/:page([0-9]+)/count/:count([0-9]+)/search/:search/operator/:op
   const skipEntries = page * itemsPerPage - itemsPerPage;
   let searchTerm = "";
   if (req.params.search) {
-    const splitSearchParams: string[] = req.params.search.trim().split(" ");
+    const splitSearchParams: string[] = decodeURI(req.params.search).trim().split(" ");
     const operator = req.params.operator === "or" ? " | " : " & ";
 
-    searchTerm = splitSearchParams
-      .map((word) => escape(word))
-      .filter(Boolean)
-      .join(operator);
+    searchTerm = splitSearchParams.filter(Boolean).join(operator);
   }
 
   // TODO : add createdBy and tags to search results
