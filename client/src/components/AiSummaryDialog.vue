@@ -12,6 +12,7 @@
               @add-tag="addTag($event)"
               @update-description="acceptDescription($event)"
               @remove-ai-summary="$emit('removeAiSummary', d)"
+              @set-keyvisual="setKeyvisual($event)"
             ></ai-summary>
           </div>
         </div>
@@ -42,7 +43,7 @@ const props = defineProps({
   },
 });
 
-const emits = defineEmits(["acceptDescription", "canceled", "addTag", "removeAiSummary"]);
+const emits = defineEmits(["acceptDescription", "canceled", "addTag", "removeAiSummary", "setKeyvisual"]);
 
 watch(props, () => {
   const myModal = new Modal(document.getElementById("aiModal") || "", {});
@@ -56,5 +57,9 @@ const acceptDescription = (description: string) => {
 
 const addTag = (tag: string) => {
   emits("addTag", tag);
+};
+
+const setKeyvisual = (kv: string) => {
+  emits("setKeyvisual", kv);
 };
 </script>

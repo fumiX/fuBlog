@@ -31,7 +31,12 @@
               </div>
 
               <div class="mb-3">
-                <ai-summaries :full-text="form.markdown" :onSetDescription="setDescription" :onAddTag="addTag"></ai-summaries>
+                <ai-summaries
+                  :full-text="form.markdown"
+                  :onSetDescription="setDescription"
+                  :onAddTag="addTag"
+                  :onSetKeyvisual="setKeyvisual"
+                ></ai-summaries>
               </div>
 
               <div class="form-floating mb-3">
@@ -110,7 +115,13 @@
           <span class="label" v-else>Neue Dateien hierher ziehen oder hier klicken um Dateien auszuwählen</span>
         </div>
         <Suspense v-for="hash in Object.keys(files)" v-bind:key="hash">
-          <ImagePreview :value="files[hash]" :hash="hash" @paste="pasteImageFileToMarkdown" @delete="delete files[hash]"> </ImagePreview>
+          <ImagePreview
+            :value="files[hash]"
+            :hash="hash"
+            @paste="pasteImageFileToMarkdown($event, 'afterCursor')"
+            @delete="delete files[hash]"
+          >
+          </ImagePreview>
         </Suspense>
       </div>
     </div>
@@ -270,7 +281,7 @@ import { debounce } from "@client/debounce.js";
 import { PostEndpoints } from "@client/util/api-client.js";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import { t, tc } from "@fumix/fu-blog-client/src/plugins/i18n.js";
-import type { DraftResponseDto, NewPostRequestDto, Post, Tag } from "@fumix/fu-blog-common";
+import type { DraftResponseDto, NewPostRequestDto, Post, Tag, SupportedInsertPositionType } from "@fumix/fu-blog-common";
 import { bytesToBase64URL, convertToHumanReadableFileSize } from "@fumix/fu-blog-common";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -337,8 +348,8 @@ onMounted(async () => {
   }, 1000);
 });
 
-const pasteImageFileToMarkdown = (markdown: string) => {
-  form.markdown = insertIntoTextarea(markdown, markdownArea.value as unknown as HTMLTextAreaElement);
+const pasteImageFileToMarkdown = (markdown: string, insertPosition: SupportedInsertPositionType = "afterCursor") => {
+  form.markdown = insertIntoTextarea(markdown, markdownArea.value as unknown as HTMLTextAreaElement, insertPosition);
 };
 
 const dropMarkdown = (evt: DragEvent) => {
@@ -349,7 +360,7 @@ const dropMarkdown = (evt: DragEvent) => {
       if (item.kind === "string" && item.type === "text/markdown") {
         evt.preventDefault();
         item.getAsString((markdown) => {
-          form.markdown = insertIntoTextarea(markdown, textArea, "before");
+          form.markdown = insertIntoTextarea(markdown, textArea, "beforeCursor");
         });
       }
     }
@@ -435,10 +446,24 @@ const setDescription = (description: string) => {
   form.description = description;
 };
 
+const setKeyvisual = (base64Str: string) => {
+  fetch(base64Str)
+    .then((res) => res.blob())
+    .then((blob) => {
+      const file = new File([blob], "keyvisual", { type: "image/png" });
+      // add keyvisual to files
+      addFile(file);
+      // add keyvisual to markdown
+      getBase64Hash(file).then((it) => pasteImageFileToMarkdown(`![keyvisual](${bytesToBase64URL(new Uint8Array(it))})  \n\n`, "top"));
+    });
+};
+
+const getBase64Hash = (file: File): Promise<ArrayBuffer> => {
+  return file.arrayBuffer().then((it) => window.crypto.subtle.digest("SHA-256", it));
+};
+
 const addFile = (file: File) => {
-  file
-    .arrayBuffer()
-    .then((it) => window.crypto.subtle.digest("SHA-256", it))
+  getBase64Hash(file)
     .then((it) => bytesToBase64URL(new Uint8Array(it)))
     .then((it) => (files[it] = file))
     .catch((it) => console.error("Failed to calculate SHA-256 hash!"));
@@ -452,13 +477,14 @@ const submitForm = (e: Event) => {
 const insertIntoTextarea = (
   insertedText: string,
   area: HTMLTextAreaElement,
-  insertPosition: "before" | "after" | "replace" = "after",
+  insertPosition: SupportedInsertPositionType = "afterCursor",
 ): string => {
-  const start = area.selectionStart;
-  const end = area.selectionEnd;
+  const start = insertPosition === "top" ? 0 : area.selectionStart;
+  const end = insertPosition === "top" ? 0 : area.selectionEnd;
   const text = area.value;
-  const before = text.substring(0, insertPosition == "after" ? end : start);
-  const after = text.substring(insertPosition == "before" ? start : end);
+  const before = text.substring(0, insertPosition === "afterCursor" ? end : start);
+  const after = text.substring(insertPosition === "beforeCursor" ? start : end);
+
   return before + insertedText + after;
 };
 

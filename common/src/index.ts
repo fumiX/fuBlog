@@ -4,6 +4,7 @@ export * from "./dto/AppSettingsDto.js";
 export * from "./dto/HyperlinkDto.js";
 export * from "./dto/OAuthProvidersDto.js";
 export * from "./dto/SupportedImageMimeType.js";
+export * from "./dto/SupportedInsertPositionType.js";
 export * from "./dto/oauth/OAuthCodeDto.js";
 export * from "./dto/oauth/OAuthType.js";
 export * from "./dto/oauth/OAuthUserInfoDto.js";
