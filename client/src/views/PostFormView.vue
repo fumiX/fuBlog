@@ -11,9 +11,12 @@
               </div>
 
               <div class="form-floating mb-3">
-                <div contenteditable="true" style="overflow-y: scroll; height: 6rem" class="form-control">
-                  {{ form.description }}
-                </div>
+                <textarea
+                  v-model="form.description"
+                  style="overflow-y: scroll; height: 6rem"
+                  class="form-control"
+                  id="description"
+                ></textarea>
                 <label for="description">{{ t("posts.form.description") }}</label>
               </div>
 
