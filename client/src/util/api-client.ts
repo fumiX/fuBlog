@@ -96,7 +96,9 @@ export class OpenAiEndpoints {
     return callServer<string, SupportedImageMimeType, string>("/api/utility/dallEGenerateImage", "POST", "image/png", {
       json: prompt,
     })
-      .then((it) => imageBytesToDataUrl(new Uint8Array()))
+      .then((it) => {
+        return imageBytesToDataUrl(new Uint8Array(it as unknown as ArrayBufferLike));
+      })
       .then((it) => {
         if (it) {
           return it;

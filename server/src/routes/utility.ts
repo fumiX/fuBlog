@@ -95,7 +95,7 @@ router.post("/chatGptSummarize", authMiddleware, async (req, res, next) => {
     .catch(() => res.status(502).json({}));
 });
 
-router.post("/dalleGenerateImage", authMiddleware, async (req, res, next) => {
+router.post("/dallEGenerateImage", authMiddleware, async (req, res, next) => {
   const body: string | undefined = req.body?.json;
   const loggedInUser = await req.loggedInUser?.();
 
