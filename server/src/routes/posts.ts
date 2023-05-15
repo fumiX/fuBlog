@@ -1,4 +1,5 @@
 import { DraftResponseDto, EditPostRequestDto, NewPostRequestDto, permissionsForUser, PostRequestDto } from "@fumix/fu-blog-common";
+import { GoneError } from "../errors/GoneError.js";
 import express, { NextFunction, Request, Response, Router } from "express";
 import { In } from "typeorm";
 import { AppDataSource } from "../data-source.js";
@@ -90,8 +91,7 @@ router.get("/:id(\\d+$)", async (req: Request, res: Response, next) => {
     })
     .then((result) => {
       if (result === null) {
-        res.status(410).json({ data: null });
-        // throw new NotFoundError("No post found with id " + req.params.id);
+        next(new GoneError("No post found with id " + req.params.id));
       } else {
         res.status(200).json({ data: result });
       }
@@ -278,7 +278,7 @@ router.post("/:id(\\d+$)", authMiddleware, multipleFilesUpload, async (req: Requ
         .then((updateResult) => {
           // TODO: Optimize, so unchanged attachments are not deleted and re-added
           manager.getRepository(AttachmentEntity).delete({ post: { id: post.id } });
-          //manager.getRepository(AttachmentEntity).insert(extractUploadFiles(req).map((it) => convertAttachment(post, it)));
+          // manager.getRepository(AttachmentEntity).insert(extractUploadFiles(req).map((it) => convertAttachment(post, it)));
           // tagsToUseInPost.forEach((tag) => {
           //   manager.getRepository(PostEntity).createQueryBuilder().relation(PostEntity, "tags").add(tag);
           // });
@@ -322,7 +322,7 @@ router.get("/:id(\\d+)/og-image", async (req: Request, res: Response, next) => {
   AppDataSource.getRepository(PostEntity)
     .findOne({ where: { id: +req.params.id } })
     .then((post) => {
-      if (post) {
+      if (post && post.id) {
         res.status(200).write(generateShareImage(post.title, post.createdAt));
         res.end();
       } else {
