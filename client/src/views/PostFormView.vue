@@ -48,7 +48,7 @@
               </div>
 
               <div class="form-check form-switch">
-                <input v-model="form.draft" class="form-check-input" type="checkbox" id="draft" />
+                <input v-model="form.draft" class="form-check-input" type="checkbox" id="draft" v-on:change="canBeAutosaved = form.draft" />
                 <label class="form-check-label" for="draft">{{ t("posts.form.draft") }}</label>
               </div>
 
@@ -253,8 +253,6 @@ onMounted(async () => {
   // prefill form with values fom loaded post
   if (props.postId) {
     try {
-      // avoid autosaving in edit mode
-      canBeAutosaved.value = false;
       const res = await fetch(`/api/posts/${props.postId}`);
       const resJson = (await res.json())?.data as Post;
       form.title = resJson.title;
@@ -263,6 +261,8 @@ onMounted(async () => {
       form.draft = resJson.draft;
       form.stringTags = resJson.tags?.map((tag) => tag.name) || [];
       postHasError.value = false;
+      // avoid autosaving in edit mode, except if its still a draft
+      canBeAutosaved.value = resJson.draft;
     } catch (e) {
       postHasError.value = true;
       console.log("ERROR: ", e);
