@@ -1,6 +1,7 @@
 import {
   bytesToDataUrl,
   convertToUsername,
+  Cookies,
   DataUrl,
   isNeitherNullNorUndefined,
   OAuthProvider,
@@ -10,13 +11,14 @@ import {
   OAuthUserInfoDto,
   UserInfoOAuthToken,
 } from "@fumix/fu-blog-common";
-import console from "console";
 import express, { Request, Response, Router } from "express";
 import fetch from "node-fetch";
 import { BaseClient, Issuer, TokenSet } from "openid-client";
 import { AppDataSource } from "../data-source.js";
 import { OAuthAccountEntity } from "../entity/OAuthAccount.entity.js";
 import { UserEntity } from "../entity/User.entity.js";
+import { BadRequestError } from "../errors/BadRequestError.js";
+import { ForbiddenError } from "../errors/ForbiddenError.js";
 import logger from "../logger.js";
 import { authMiddleware, checkIdToken } from "../service/middleware/auth.js";
 import { OAuthSettings } from "../settings.js";
@@ -32,7 +34,7 @@ OAuthSettings.PROVIDERS.forEach((p) => {
   oauthClients[p.getIdentifier()] = undefined;
 });
 
-async function findOAuthClient(provider: OAuthProvider<OAuthType>): Promise<BaseClient> {
+export async function findOAuthClient(provider: OAuthProvider<OAuthType>): Promise<BaseClient> {
   const existingValue = oauthClients[provider.getIdentifier()];
   if (!existingValue) {
     try {
@@ -109,19 +111,20 @@ router.post("/loggedInUser", authMiddleware, async (req, res) => {
  *
  * This needs an authorization code from the OAuth provider as `code`. To identify the OAuth provider, this also needs `issuer` and `type`.
  */
-router.post("/userinfo", async (req, res) => {
+router.post("/userinfo", async (req, res, next) => {
   const code = req.body.code;
   const issuer = req.body.issuer;
   const type = req.body.type;
   const provider = OAuthSettings.findByTypeAndDomain(type, issuer);
   if (!code || !issuer || !type) {
-    res.status(400).json({ error: "Requires parameters `code`, `issuer` and `type`!" });
+    next(new BadRequestError("Requires parameters `code`, `issuer` and `type`!"));
   } else if (!provider) {
-    res.status(403).json({ error: "We don't accept logins from OAuth provider " + type + "/" + issuer });
+    next(new ForbiddenError("We don't accept logins from OAuth provider " + type + "/" + issuer));
   } else {
     try {
       const client = await findOAuthClient(provider);
       const tokenSet = await client.callback(OAuthSettings.REDIRECT_URI, client.callbackParams(req));
+      Cookies.setRefreshTokenCookie(res, tokenSet.refresh_token);
       // TODO: Differentiate between being not authorized (403 error) and e.g. connection issues to OAuth server (502 error)
       const userInfo = await client.userinfo(tokenSet, { method: "POST", via: "body" });
       const dbUser = await AppDataSource.manager.getRepository(OAuthAccountEntity).findOne({
@@ -141,8 +144,7 @@ router.post("/userinfo", async (req, res) => {
         const username = dbUser?.user?.username ?? convertToUsername(userInfo.nickname ?? userInfo.preferred_username ?? fullName);
         const email = dbUser?.user?.email ?? userInfo.email;
         if (!email) {
-          console.error("Did not receive an email address for new user!");
-          res.status(403);
+          next(new ForbiddenError("Did not receive an email address for new user!"));
           return;
         }
         const result: OAuthUserInfoDto = {
@@ -182,19 +184,19 @@ router.post("/userinfo", async (req, res) => {
   }
 });
 
-router.post("/userinfo/register", async (req, res) => {
+router.post("/userinfo/register", async (req, res, next) => {
   const fullName = req.body.fullName ?? "";
   const username = req.body.username;
   const profilePictureUrl: DataUrl | undefined = (req.body.profilePictureUrl as DataUrl) ?? undefined;
   const savedToken = req.body.savedToken as UserInfoOAuthToken;
   if (!savedToken) {
-    res.status(403).json({ error: "Unauthorized!" });
+    next(new ForbiddenError("No token given!"));
   } else if (!username || username.length < 3 || username.length > 64) {
-    res.status(400).json({ error: "A username with length between 3 and 64 is required!" });
+    next(new BadRequestError("A username with length between 3 and 64 is required!"));
   } else {
     const provider = OAuthSettings.findByTypeAndDomain(savedToken.type, savedToken.issuer);
     if (!provider) {
-      res.status(400).json({ error: "Invalid provider " + savedToken.type + "/" + savedToken.issuer });
+      next(new BadRequestError("Invalid provider " + savedToken.type + "/" + savedToken.issuer));
     } else {
       await checkIdToken(savedToken.id_token, provider)
         .then(async (it) => {
@@ -244,13 +246,16 @@ router.post("/userinfo/register", async (req, res) => {
 
                   res.status(200).json(result);
                 })
-                .catch(() => res.status(403).json({ error: "Unauthorized" }));
+                .catch((err) => {
+                  logger.error("Error creating OAuth account in DB: " + err);
+                  next(new ForbiddenError());
+                });
             }
           }
         })
         .catch((err) => {
-          logger.error("Error", err);
-          res.status(403).json({ error: "Unauthorized" });
+          logger.error("Error registering new OAuth accout: " + err);
+          next(new ForbiddenError());
         });
     }
   }

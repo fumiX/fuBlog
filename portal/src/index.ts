@@ -81,7 +81,7 @@ const serverOptions: ServerOptions = {
 };
 
 https.createServer(serverOptions, app).listen(5030, () => {
-  console.log(`Test data portal listening on port ${port}`);
+  console.log(`Login portal listening on port ${port}`);
 });
 
 async function createCertificate(): Promise<Certificate> {

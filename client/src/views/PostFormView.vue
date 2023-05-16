@@ -11,9 +11,12 @@
               </div>
 
               <div class="form-floating mb-3">
-                <div contenteditable="true" style="overflow-y: scroll; height: 6rem" class="form-control">
-                  {{ form.description }}
-                </div>
+                <textarea
+                  v-model="form.description"
+                  style="overflow-y: scroll; height: 6rem"
+                  class="form-control"
+                  id="description"
+                ></textarea>
                 <label for="description">{{ t("posts.form.description") }}</label>
               </div>
 
@@ -356,16 +359,16 @@ const dropMarkdown = (evt: DragEvent) => {
   }
 };
 
-const openFileDialog = () => {
+const openFileDialog = (): void => {
   document.getElementById("file")?.click();
 };
 
-const highlightDropzone = (event: DragEvent, value: boolean = false) => {
+const highlightDropzone = (event: DragEvent, value: boolean = false): void => {
   event.preventDefault();
   dropzoneHighlight.value = value && [...(event.dataTransfer?.items ?? [])].some((it) => it.kind === "file");
 };
 
-const handleFileChange = (e: Event) => {
+const handleFileChange = (e: Event): void => {
   if (e instanceof DragEvent) {
     e.preventDefault();
     const items: DataTransferItemList | undefined = e.dataTransfer?.items as DataTransferItemList;

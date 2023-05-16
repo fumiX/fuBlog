@@ -1,5 +1,5 @@
-import type { SavedOAuthToken, UserTheme } from "@fumix/fu-blog-common";
-import { isOAuthType } from "@fumix/fu-blog-common";
+import type { JsonWebToken, SavedOAuthToken, UserTheme } from "@fumix/fu-blog-common";
+import { base64UrlToBuffer, isOAuthType } from "@fumix/fu-blog-common";
 
 type OAuthState = { key: string; redirect_uri?: string };
 const idTokenKey = "id_token";
@@ -19,6 +19,7 @@ export function loadOauthStateByKey(key: string | undefined | null): OAuthState 
 
 export function saveIdToken(token: SavedOAuthToken | null): void {
   if (token) {
+    logIdTokenValidity(token.id_token);
     saveToStorageAsString(window.localStorage, idTokenKey, token.id_token);
     saveToStorageAsString(window.localStorage, oauthTypeKey, token.type);
     saveToStorageAsString(window.localStorage, oauthIssuerKey, token.issuer);
@@ -28,6 +29,22 @@ export function saveIdToken(token: SavedOAuthToken | null): void {
     removeKeyFromStorage(window.localStorage, oauthIssuerKey);
   }
   window.dispatchEvent(new CustomEvent("token-changed", { detail: token }));
+}
+
+export function updateIdToken(idToken: JsonWebToken | null): void {
+  if (idToken) {
+    logIdTokenValidity(idToken);
+    saveToStorageAsString(window.localStorage, idTokenKey, idToken);
+  } else {
+    removeKeyFromStorage(window.localStorage, idTokenKey);
+  }
+}
+
+function logIdTokenValidity(idToken: JsonWebToken): void {
+  const payload = idToken.split(".", 3)[1];
+  if (payload) {
+    console.debug("New ID token saved, valid until ", new Date(1000 * JSON.parse(base64UrlToBuffer(payload).toString("utf-8"))["exp"]));
+  }
 }
 
 export function loadIdToken(): SavedOAuthToken | undefined {

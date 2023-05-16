@@ -88,6 +88,7 @@ import PostNotAvailable from "@client/components/PostNotAvailable.vue";
 import { faClock } from "@fortawesome/free-regular-svg-icons";
 import { faArrowLeft, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import type { ConfirmDialogData, Post, UserRolePermissionsType } from "@fumix/fu-blog-common";
+import { useSeoMeta } from "@unhead/vue";
 import { onMounted, type PropType, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
@@ -110,6 +111,11 @@ onMounted(async () => {
   try {
     const route = useRoute();
     const id = route.params.id;
+    useSeoMeta({
+      ogImage: `${window.location.protocol}//${window.location.hostname}/api/posts/${route.params.id}/og-image`,
+      ogType: "article",
+      ogUrl: `${window.location.protocol}//${window.location.hostname}/posts/post/${route.params.id}`,
+    });
     const res = await fetch(`/api/posts/${id}`);
     const response = await res.json();
     post.value = response.data;

@@ -108,8 +108,8 @@ router.post("/dalleGenerateImage", authMiddleware, async (req, res, next) => {
   }
 
   await dallEGenerateImage(body)
-    .then(([mimeType, bytes]) => {
-      res.status(200).contentType(mimeType).write(bytes, "binary");
+    .then(([mimeType, buffer]) => {
+      res.status(200).contentType(mimeType).write(buffer, "binary");
       res.end();
     })
     .catch((e) => res.status(502).json({ error: e }));

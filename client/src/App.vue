@@ -131,13 +131,16 @@ const setOperator = (operator: string) => {
   router.replace({ query: { ...route.query, operator: operator } });
 };
 
-const getLoggedInUser = async (): Promise<User> => {
-  return AuthEndpoints.getLoggedInUser().then((it) => it.user);
-};
-
-const setLoginUSerAndPermissions = async () => {
-  loggedInUser.value = await getLoggedInUser();
-  userPermissions.value = permissionsForUser(loggedInUser.value);
+const setLoginUserAndPermissions = async () => {
+  AuthEndpoints.getLoggedInUser()
+    .then((oauthAccount) => {
+      loggedInUser.value = oauthAccount.user;
+      userPermissions.value = permissionsForUser(oauthAccount.user);
+    })
+    .catch(() => {
+      loggedInUser.value = null;
+      userPermissions.value = null;
+    });
 };
 
 watch(route, async (value) => {
@@ -149,14 +152,14 @@ watch(route, async (value) => {
   }
 });
 
-onMounted(async () => {
+onMounted(() => {
   // listen for token-changed event to gracefully handle login/logout
-  window.addEventListener("token-changed", async (event) => {
+  window.addEventListener("token-changed", (event) => {
     if (!loggedInUser.value) {
-      setLoginUSerAndPermissions();
+      setLoginUserAndPermissions();
     }
   });
-  setLoginUSerAndPermissions();
+  setLoginUserAndPermissions();
 });
 
 const startSearch = (search: string, operator: string = "and") => {

@@ -82,8 +82,8 @@ const register = async () => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       savedToken: userInfo.value?.token,
-      fullName: fullName,
-      username: username,
+      fullName: fullName.value,
+      username: username.value,
       profilePictureUrl: userInfo.value?.user?.profilePictureUrl,
     }),
   }).then(async (it) => {
