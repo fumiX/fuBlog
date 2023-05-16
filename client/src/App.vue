@@ -150,9 +150,9 @@ watch(route, async (value) => {
   }
 });
 
-onMounted(async () => {
+onMounted(() => {
   // listen for token-changed event to gracefully handle login/logout
-  window.addEventListener("token-changed", async (event) => {
+  window.addEventListener("token-changed", (event) => {
     if (!loggedInUser.value) {
       setLoginUserAndPermissions();
     }

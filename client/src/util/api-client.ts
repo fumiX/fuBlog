@@ -1,4 +1,4 @@
-import { loadIdToken } from "@client/util/storage.js";
+import { loadIdToken, updateIdToken } from "@client/util/storage.js";
 import type {
   AiSummaryData,
   DataUrl,
@@ -9,7 +9,7 @@ import type {
   OAuthAccount,
   SupportedImageMimeType,
 } from "@fumix/fu-blog-common";
-import { imageBytesToDataUrl } from "@fumix/fu-blog-common";
+import { HttpHeader, imageBytesToDataUrl } from "@fumix/fu-blog-common";
 
 export type ApiUrl = `/api/${string}`;
 
@@ -28,9 +28,9 @@ async function callServer<
   const token = authenticated ? loadIdToken() : undefined;
   const headers: HeadersInit = { Accept: responseType };
   if (token) {
-    headers["X-OAuth-Type"] = token.type;
-    headers["X-OAuth-Issuer"] = token.issuer;
-    headers["Authorization"] = `Bearer ${token.id_token}`;
+    headers[HttpHeader.Request.OAUTH_TYPE] = token.type;
+    headers[HttpHeader.Request.OAUTH_ISSUER] = token.issuer;
+    headers[HttpHeader.Request.AUTHORIZATION] = `Bearer ${token.id_token}`;
   }
   if (!(payload instanceof ApiRequestJsonPayloadWithFiles)) {
     headers["Content-Type"] = contentType;
@@ -39,10 +39,14 @@ async function callServer<
   return fetch(url, {
     method,
     headers,
-    body: payload === null || payload instanceof ApiRequestJsonPayloadWithFiles ? toFormData(payload) : JSON.stringify(payload),
+    body: payload === null || payload instanceof ApiRequestJsonPayloadWithFiles ? toFormData(payload) : JSON.stringify(payload.json),
   }).then(async (response) => {
     if (!response.ok) {
       throw new Error("Error response: " + response.status + " " + response.statusText);
+    }
+    const refreshedIdToken = response.headers.get(HttpHeader.Response.OAUTH_REFRESHED_ID_TOKEN);
+    if (refreshedIdToken) {
+      updateIdToken(refreshedIdToken);
     }
     if (responseType === "application/json") {
       return response

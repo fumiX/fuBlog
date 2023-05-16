@@ -14,12 +14,12 @@ export function bytesToBase64URL(bytes: Uint8Array): string {
   return bytesToBase64(bytes).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
 
-export function base64ToBytes(base64: string): Uint8Array {
-  return new Uint8Array(Buffer.from(base64, "base64"));
+export function base64ToBuffer(base64: string): Buffer {
+  return Buffer.from(base64, "base64");
 }
 
-export function base64UrlToBytes(base64: string): Uint8Array {
-  return new Uint8Array(Buffer.from(base64, "base64url"));
+export function base64UrlToBuffer(base64: string): Buffer {
+  return Buffer.from(base64.replace(/-/g, "+").replace(/_/g, "/"), "base64");
 }
 
 export function bytesToDataUrl(mimeType: string, bytes: Uint8Array): DataUrl {

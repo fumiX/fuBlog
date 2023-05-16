@@ -1,4 +1,4 @@
-import { AiSummaryData, base64ToBytes, determineMimeType, SupportedImageMimeType } from "@fumix/fu-blog-common";
+import { AiSummaryData, base64ToBuffer, determineMimeType, SupportedImageMimeType } from "@fumix/fu-blog-common";
 import console from "console";
 import { Configuration, OpenAIApi } from "openai";
 import logger from "../logger.js";
@@ -10,7 +10,7 @@ const openai = new OpenAIApi(
   }),
 );
 
-export async function dallEGenerateImage(prompt: string): Promise<[SupportedImageMimeType, Uint8Array]> {
+export async function dallEGenerateImage(prompt: string): Promise<[SupportedImageMimeType, Buffer]> {
   console.log("Create image");
   return openai
     .createImage({
@@ -22,10 +22,10 @@ export async function dallEGenerateImage(prompt: string): Promise<[SupportedImag
     .then(({ data, status }) => {
       const base64 = data.data[0]?.b64_json;
       if (base64) {
-        const bytes = base64ToBytes(base64);
-        const mimeType = determineMimeType(bytes);
+        const buffer = base64ToBuffer(base64);
+        const mimeType = determineMimeType(buffer);
         if (mimeType) {
-          return [mimeType, bytes];
+          return [mimeType, buffer];
         }
         throw new Error("Invalid image MIME type!");
       }
