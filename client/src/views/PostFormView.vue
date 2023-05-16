@@ -11,7 +11,7 @@
               </div>
 
               <div class="form-floating mb-3">
-                <div contenteditable="true" style="overflow-y: scroll; height: 6rem" class="form-control">
+                <div contenteditable="true" @input="onInput($event)" style="overflow-y: scroll; height: 6rem" class="form-control">
                   {{ form.description }}
                 </div>
                 <label for="description">{{ t("posts.form.description") }}</label>
@@ -337,6 +337,11 @@ onMounted(async () => {
   }, 1000);
 });
 
+const onInput = (e: Event): void => {
+  const t = e.target as HTMLInputElement;
+  form.description = t.innerText;
+};
+
 const pasteImageFileToMarkdown = (markdown: string) => {
   form.markdown = insertIntoTextarea(markdown, markdownArea.value as unknown as HTMLTextAreaElement);
 };
@@ -356,16 +361,16 @@ const dropMarkdown = (evt: DragEvent) => {
   }
 };
 
-const openFileDialog = () => {
+const openFileDialog = (): void => {
   document.getElementById("file")?.click();
 };
 
-const highlightDropzone = (event: DragEvent, value: boolean = false) => {
+const highlightDropzone = (event: DragEvent, value: boolean = false): void => {
   event.preventDefault();
   dropzoneHighlight.value = value && [...(event.dataTransfer?.items ?? [])].some((it) => it.kind === "file");
 };
 
-const handleFileChange = (e: Event) => {
+const handleFileChange = (e: Event): void => {
   if (e instanceof DragEvent) {
     e.preventDefault();
     const items: DataTransferItemList | undefined = e.dataTransfer?.items as DataTransferItemList;
