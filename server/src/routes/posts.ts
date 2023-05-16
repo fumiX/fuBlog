@@ -311,15 +311,13 @@ router.get("/delete/:id(\\d+$)", async (req: Request, res: Response, next) => {
 
     const post = await manager.findOne(PostEntity, { where: { id: +req.params.id }, relations: { tags: true } });
 
+    // TODO: find a better way than detach-save-delete, maybe with cascade migration ?
+    // Don't know why orphanedRowAction: "delete" is not working here ... orphaned rows still remain in tag table
     if (post) {
-      post.tags = post?.tags.filter((tag) => {
-        return !post.tags.includes(tag);
-      });
+      post.tags = []; // detach constraint
       await manager.save(post);
-      await manager.getRepository(PostEntity).delete(+req.params.id);
-    } else {
-      await manager.getRepository(PostEntity).delete(+req.params.id);
     }
+    await manager.getRepository(PostEntity).delete(+req.params.id);
     res.status(200).send(post);
   });
 });
