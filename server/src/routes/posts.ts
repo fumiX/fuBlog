@@ -33,7 +33,6 @@ router.get("/page/:page([0-9]+)/count/:count([0-9]+)/search/:search/operator/:op
       .join(operator);
   }
 
-  // TODO : add createdBy and tags to search results
   await AppDataSource.manager
     .createQueryBuilder(PostEntity, "post")
     .select(["post.id as post_id", "ts_rank_cd(sp.post_tsv, to_tsquery(:searchTerm)) as rank", "count(*) over() as count"])
@@ -50,7 +49,10 @@ router.get("/page/:page([0-9]+)/count/:count([0-9]+)/search/:search/operator/:op
 
       await AppDataSource.manager
         .getRepository(PostEntity)
-        .findBy({ id: In(idArray) })
+        .find({
+          where: { id: In(idArray) },
+          relations: ["createdBy", "updatedBy", "tags"],
+        })
         .then((result) => res.status(200).json({ data: [result, count[0]] }));
     })
     .catch((err) => next(err));
@@ -178,12 +180,6 @@ router.post(
       .catch((err) => next(err));
   },
 );
-
-function saveTags(savedPost: PostEntity, tags: string[]) {
-  const tagsToRemove = savedPost.tags.filter((tag) => !tags.includes(tag.name));
-  const tagsToAdd = tags.filter((tag) => !savedPost.tags.some((savedTag) => savedTag.name === tag));
-  return AppDataSource.createQueryBuilder().relation(PostEntity, "tags").addAndRemove(tagsToAdd, tagsToRemove);
-}
 
 async function getPersistedTagsForPost(post: PostEntity, bodyJson: PostRequestDto): Promise<TagEntity[]> {
   if (!bodyJson.stringTags || bodyJson.stringTags.length <= 0) {

@@ -144,6 +144,8 @@ watch(route, async (value) => {
   // prefill search input from queryParam
   if (value.query.search) {
     searchQuery.value = value.query.search as string;
+  } else {
+    searchQuery.value = "";
   }
 });
 
@@ -158,7 +160,14 @@ onMounted(async () => {
 });
 
 const startSearch = (search: string, operator: string = "and") => {
-  router.push(`/posts/?search=${search}&operator=${operator}`);
+  if (search) {
+    router.push(`/posts/?search=${search}&operator=${operator}`);
+  } else {
+    if (route.path === "/posts/") {
+      // rest btn (x) on search input
+      router.push(`/posts`);
+    }
+  }
 };
 
 const isAdmin = () => {
