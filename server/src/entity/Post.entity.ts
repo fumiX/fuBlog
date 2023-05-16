@@ -49,6 +49,7 @@ export class PostEntity implements Post {
     onUpdate: "NO ACTION",
     eager: true,
     orphanedRowAction: "delete",
+    onDelete: "CASCADE",
   })
   @JoinTable({ name: "post_tag", joinColumn: { name: "post_id" }, inverseJoinColumn: { name: "tag_id" } })
   tags: TagEntity[];

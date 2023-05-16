@@ -302,18 +302,25 @@ router.post("/:id(\\d+$)", authMiddleware, multipleFilesUpload, async (req: Requ
 router.get("/delete/:id(\\d+$)", async (req: Request, res: Response, next) => {
   await AppDataSource.manager.transaction(async (manager) => {
     // find all attachments of post and delete them
-    manager
-      .getRepository(AttachmentEntity)
-      .delete({ post: { id: +req.params.id } })
-      .then((r) => {
-        // find post in DB and delete it
-        manager
-          .getRepository(PostEntity)
-          .delete(+req.params.id)
-          .then((it) => res.status(200).send(it))
-          .catch(next);
-      })
-      .catch(next);
+    await manager.getRepository(AttachmentEntity).delete({ post: { id: +req.params.id } });
+
+    // cannot simply delete a post cause of the fk_constraint to tags (many_to_many)
+    // hence we have to find the post, detach the tags
+    // then again save it without tags
+    // then delete it.
+
+    const post = await manager.findOne(PostEntity, { where: { id: +req.params.id }, relations: { tags: true } });
+
+    if (post) {
+      post.tags = post?.tags.filter((tag) => {
+        return !post.tags.includes(tag);
+      });
+      await manager.save(post);
+      await manager.getRepository(PostEntity).delete(+req.params.id);
+    } else {
+      await manager.getRepository(PostEntity).delete(+req.params.id);
+    }
+    res.status(200).send(post);
   });
 });
 
