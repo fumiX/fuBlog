@@ -15,6 +15,7 @@
     @acceptDescription="props.onSetDescription"
     @addTag="props.onAddTag"
     @remove-ai-summary="removeAiSummary"
+    @setKeyvisual="props.onSetKeyvisual"
   ></ai-summary-dialog>
 </template>
 
@@ -55,6 +56,7 @@ const props = defineProps({
   fullText: { type: String, required: true },
   onSetDescription: { type: Function as PropType<(description: string) => void> },
   onAddTag: { type: Function as PropType<(tag: string) => void> },
+  onSetKeyvisual: { type: Function as PropType<(keyvisual: string) => void> },
 });
 
 const data = ref<AiSummaryData[]>([]);

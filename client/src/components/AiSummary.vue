@@ -8,7 +8,7 @@
           {{ t("ai.summary.accept") }}
         </button>
       </div>
-      <div>
+      <div class="summary-text-container">
         <div class="small text-muted">{{ t("ai.summary.tags.hint") }}</div>
         <button
           type="button"
@@ -22,11 +22,25 @@
         </button>
       </div>
       <div class="row">
-        <div class="col-md-4" v-for="prompt in summaryData.imagePrompts" v-bind:key="prompt">
-          <button class="btn btn-sm btn-outline-success" @click="acceptImagePrompt($event, prompt)">
-            <fa-icon :icon="faImage"></fa-icon><fa-icon :icon="faWandMagicSparkles"></fa-icon>
+        <div class="col-md-4 my-4" v-for="(prompt, idx) in summaryData.imagePrompts" :key="prompt">
+          <button class="btn btn-sm btn-outline-success" @click="acceptImagePrompt($event, prompt, idx)">
+            <fa-icon :icon="faImage"></fa-icon> <fa-icon :icon="faWandMagicSparkles"></fa-icon>
             {{ prompt }}
           </button>
+        </div>
+      </div>
+
+      <div class="row h-100">
+        <div class="col-md-4 my-auto text-center" v-for="(prompt, idx) in summaryData.imagePrompts" :key="prompt">
+          <loading-spinner v-if="promptLoading[idx] && !imageError[idx]" />
+          <img
+            v-if="!imageError[idx] && !promptLoading[idx] && generatedImageSrc[idx]"
+            :src="generatedImageSrc[idx]"
+            :alt="prompt"
+            class="keyvisual-preview"
+            @click="setKeyvisual($event, prompt, idx)"
+          />
+          <div class="text-muted small" v-if="imageError[idx]">{{ imageError[idx] }}</div>
         </div>
       </div>
     </div>
@@ -42,6 +56,15 @@
   margin-bottom: 0.5rem;
   border-bottom: 1px solid rgba(50, 50, 50, 0.1);
 }
+
+.keyvisual-preview {
+  border-radius: 5px;
+  cursor: pointer;
+  opacity: 0.75;
+  &:hover {
+    opacity: 1;
+  }
+}
 </style>
 
 <script setup lang="ts">
@@ -50,35 +73,38 @@ import { OpenAiEndpoints } from "@client/util/api-client.js";
 import { faImage, faWandMagicSparkles } from "@fortawesome/free-solid-svg-icons";
 import type { AiSummaryData } from "@fumix/fu-blog-common";
 import { isSuccessfulAiSummaryData } from "@fumix/fu-blog-common";
-import type { PropType } from "vue";
+import { ref, type PropType } from "vue";
 import { onMounted } from "vue";
+import LoadingSpinner from "@client/components/LoadingSpinner.vue";
+
+const generatedImageSrc = ref<string[]>([]);
+const promptLoading = ref<boolean[]>([]);
+const imageError = ref<string[]>([]);
 
 const props = defineProps({
   summaryData: { type: Object as PropType<AiSummaryData>, required: true },
 });
 
-function acceptDescription(e: MouseEvent, description: string) {
-  e.preventDefault();
-  emit("updateDescription", description);
-}
-
-async function acceptImagePrompt(e: MouseEvent, prompt: string) {
+async function acceptImagePrompt(e: MouseEvent, prompt: string, idx: number) {
+  promptLoading.value[idx] = true;
   e.preventDefault();
   await OpenAiEndpoints.dallEGenerateImage(prompt)
     .then((it) => {
-      alert(JSON.stringify(it));
+      generatedImageSrc.value[idx] = it;
+      promptLoading.value[idx] = false;
     })
     .catch((reason) => {
-      alert(reason);
+      imageError.value[idx] = reason;
+      promptLoading.value[idx] = false;
     });
 }
 
-function acceptTag(e: MouseEvent, tag: string) {
+const setKeyvisual = (e: MouseEvent, prompt: string, idx: number) => {
   e.preventDefault();
-  emit("addTag", tag);
-}
+  emit("setKeyvisual", generatedImageSrc.value[idx]);
+};
 
-const emit = defineEmits(["updateDescription", "addTag", "removeAiSummary"]);
+const emit = defineEmits(["updateDescription", "addTag", "removeAiSummary", "setKeyvisual"]);
 
 onMounted(() => {
   // auto remove if error
@@ -86,6 +112,11 @@ onMounted(() => {
     setTimeout(() => {
       emit("removeAiSummary");
     }, 5000);
+  } else {
+    // prepare imageArray otherwise
+    promptLoading.value = new Array(props.summaryData.imagePrompts.length).fill(false);
+    generatedImageSrc.value = new Array(props.summaryData.imagePrompts.length).fill(null);
+    imageError.value = new Array(props.summaryData.imagePrompts.length).fill(null);
   }
 });
 </script>
