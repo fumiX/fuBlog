@@ -190,11 +190,11 @@ async function getPersistedTagsForPost(post: PostEntity, bodyJson: PostRequestDt
   const alreadySavedTags =
     bodyJson.stringTags?.length > 0
       ? await AppDataSource.manager
-        .getRepository(TagEntity)
-        .createQueryBuilder("tagEntity")
-        .select()
-        .where("tagEntity.name IN(:...names)", { names: bodyJson.stringTags })
-        .getMany()
+          .getRepository(TagEntity)
+          .createQueryBuilder("tagEntity")
+          .select()
+          .where("tagEntity.name IN(:...names)", { names: bodyJson.stringTags })
+          .getMany()
       : await Promise.all([]);
   tagsToUseInPost.push(...alreadySavedTags);
 
