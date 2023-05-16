@@ -34,14 +34,7 @@
     src: local("Roboto-Bold"), url("@client/assets/fonts/Roboto/Roboto-Bold.ttf") format("truetype");
 }
 
-@font-face {
-    font-family: "NerkoOne";
-    font-weight: 100;
-    font-style: normal;
-    font-display: auto;
-    unicode-range: U+000-5FF;
-    src: local("NerkoOne"), url("@client/assets/fonts/Nerko/NerkoOne-Regular.ttf") format("truetype");
-}
+// NerkoOne Font for WordCloud is pre-loaded in vite.config.ts !
 
 $white: #fff !default;
 $gray-100: #f8f9fa !default;

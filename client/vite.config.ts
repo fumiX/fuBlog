@@ -3,6 +3,7 @@ import vue from "@vitejs/plugin-vue";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, URL } from "node:url";
 import { defineConfig } from "vite";
+import Unfonts from "unplugin-fonts/vite";
 
 export default defineConfig({
   plugins: [
@@ -19,6 +20,27 @@ export default defineConfig({
     VueI18nPlugin({
       runtimeOnly: false,
       include: resolve(dirname(fileURLToPath(import.meta.url)), "./src/i18n/**"),
+    }),
+    // See: https://github.com/cssninjaStudio/unplugin-fonts/tree/main
+    // Needed to preload fonts in the build process, otherwise it could happen that fonts are not loaded when the component is rendered.
+    Unfonts({
+      custom: {
+        display: "swap",
+        families: [
+          {
+            name: "NerkoOne",
+            local: "NerkoOne",
+            src: "./src/assets/fonts/Nerko/*.ttf",
+            transform(font) {
+              if (font.basename === "NerkoOne-Regular") {
+                font.weight = 100;
+              }
+              return font;
+            },
+          },
+        ],
+        preload: true,
+      },
     }),
   ],
   resolve: {
