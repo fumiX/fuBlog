@@ -22,12 +22,14 @@
 
               <div class="form-floating mb-3">
                 <label for="stringTags">{{ t("posts.form.tags.tags") }}</label>
-                <vue3-tags-input
-                  :tags="form.stringTags"
+                <vue-tags-input
+                  v-model="tag"
+                  :tags="tags"
+                  :autocomplete-items="tagList"
                   :placeholder="t('posts.form.tags.enter')"
-                  @on-tags-changed="handleTagsChanged"
-                  :add-tag-on-keys="[13, 188]"
+                  @tags-changed="handleTagsChanged"
                   @input="handleAutocompletion"
+                  @before-adding-tag="checkTag"
                 />
               </div>
 
@@ -130,10 +132,6 @@
 .w-50 {
   width: 50%;
 }
-.v3ti-tag {
-  background: $badge-background-color !important;
-  color: $badge-text-color !important;
-}
 
 #dropzone {
   color: #555;
@@ -166,21 +164,31 @@
   }
 }
 
-.v3ti {
-  transition: 0.3s;
+.card-body .vue-tags-input {
+  max-width: none !important;
+  width: 100%;
   background-color: #dee2e6 !important;
-  border: 1px solid #404040 !important;
-  outline: none !important;
-  box-shadow: none !important;
+  border-radius: 0.375rem;
 
-  &:focus,
-  &--focus {
+  .ti-input {
+    transition: 0.3s;
+    border: 1px solid #404040 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    border-radius: 0.375rem;
+  }
+
+  .ti-new-tag-input {
+    background-color: transparent !important;
+  }
+
+  &.ti-focus .ti-input {
     border: 1px solid #ffce80 !important;
   }
 
-  .v3ti-tag {
-    background: #75d6fd !important;
-    color: #333 !important;
+  .ti-tag {
+    background: #75d6fd;
+    color: #333;
     border: 1px solid #ccc;
     font-family: "Courier New", Courier, monospace;
     font-size: 0.75rem;
@@ -188,18 +196,69 @@
     /*border-radius: 0;*/
   }
 
-  .v3ti-remove-tag {
-    // color: #000000;
-    transition: color 0.3s;
+  .ti-deletion-mark {
+    background: #aa0000 !important;
+    border-radius: 0.25rem;
+
+    span,
+    .ti-actions i {
+      color: #ffffff !important;
+    }
   }
 
-  .v3ti-remove-tag {
-    color: #333 !important;
-    text-decoration: none;
+  .ti-autocomplete {
+    transition: 0.3s;
+    border: 1px solid #404040 !important;
+    border-top: none;
+    outline: none !important;
+    border-radius: 0.375rem;
+    background-color: #dee2e6 !important;
+    box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.35);
+    font-size: 0.95rem;
+
+    .ti-item.ti-selected-item {
+      background: #ffce80;
+      color: #333;
+    }
+
+    .ti-item:first-child {
+      border-top-left-radius: 0.375rem;
+      border-top-right-radius: 0.375rem;
+    }
+
+    .ti-item:last-child {
+      border-bottom-left-radius: 0.375rem;
+      border-bottom-right-radius: 0.375rem;
+    }
   }
 
-  .v3ti-tag .v3ti-remove-tag:hover {
-    color: #cc0000 !important;
+  @keyframes shake {
+    10%,
+    90% {
+      transform: scale(0.9) translate3d(-1px, 0, 0);
+    }
+
+    20%,
+    80% {
+      transform: scale(0.9) translate3d(2px, 0, 0);
+    }
+
+    30%,
+    50%,
+    70% {
+      transform: scale(0.9) translate3d(-4px, 0, 0);
+    }
+
+    40%,
+    60% {
+      transform: scale(0.9) translate3d(4px, 0, 0);
+    }
+  }
+
+  .ti-exists {
+    transition-duration: 0.5s;
+    background-color: #ffce80;
+    animation: shake 0.5s;
   }
 }
 </style>
@@ -214,12 +273,14 @@ import { debounce } from "@client/debounce.js";
 import { PostEndpoints } from "@client/util/api-client.js";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import { t, tc } from "@fumix/fu-blog-client/src/plugins/i18n.js";
-import type { DraftResponseDto, NewPostRequestDto, Post } from "@fumix/fu-blog-common";
+import type { DraftResponseDto, NewPostRequestDto, Post, Tag } from "@fumix/fu-blog-common";
 import { bytesToBase64URL, convertToHumanReadableFileSize } from "@fumix/fu-blog-common";
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import Vue3TagsInput from "vue3-tags-input";
+import VueTagsInput from "@sipec/vue3-tags-input";
 
+const tag = ref<string>("");
+const tags = ref<{ text: string; tiClasses?: string[] }[]>([]); // vue-tags-input internal format
 const md = ref<string | null>(null);
 const loading = ref<boolean>(false);
 const files = reactive<{ [sha256: string]: File }>({});
@@ -227,6 +288,7 @@ const dropzoneHighlight = ref<boolean>(false);
 const router = useRouter();
 const markdownArea = ref(null);
 const postHasError = ref<boolean>(false);
+const tagList = ref<Tag[]>([]);
 
 const form = reactive<NewPostRequestDto>({
   title: "",
@@ -249,6 +311,11 @@ const totalBytesInFiles = computed(() =>
     .reduce((acc, x) => acc + x, 0),
 );
 
+watch(tags, (value) => {
+  // keep tag array in sync with form.stringTags
+  form.stringTags = value ? value.map((tag) => tag.text) : [];
+});
+
 onMounted(async () => {
   const route = useRoute();
   // prefill form with values fom loaded post
@@ -260,11 +327,10 @@ onMounted(async () => {
       form.description = resJson.description;
       form.markdown = resJson.markdown;
       form.draft = resJson.draft;
-      form.stringTags = resJson.tags?.map((tag) => tag.name) || [];
+      tags.value = resJson.tags ? resJson.tags?.map((tag) => ({ text: tag.name })) : [];
       postHasError.value = false;
     } catch (e) {
       postHasError.value = true;
-      console.log("ERROR: ", e);
     }
   }
 
@@ -293,16 +359,16 @@ const dropMarkdown = (evt: DragEvent) => {
   }
 };
 
-const openFileDialog = () => {
+const openFileDialog = (): void => {
   document.getElementById("file")?.click();
 };
 
-const highlightDropzone = (event: DragEvent, value: boolean = false) => {
+const highlightDropzone = (event: DragEvent, value: boolean = false): void => {
   event.preventDefault();
   dropzoneHighlight.value = value && [...(event.dataTransfer?.items ?? [])].some((it) => it.kind === "file");
 };
 
-const handleFileChange = (e: Event) => {
+const handleFileChange = (e: Event): void => {
   if (e instanceof DragEvent) {
     e.preventDefault();
     const items: DataTransferItemList | undefined = e.dataTransfer?.items as DataTransferItemList;
@@ -327,21 +393,45 @@ const handleFileChange = (e: Event) => {
   }
 };
 
-const handleTagsChanged = (tags: any) => {
-  form.stringTags = tags;
+const handleTagsChanged = (newTags: any[]) => {
+  tags.value = newTags;
 };
 
 const handleAutocompletion = async (event: any) => {
-  let response = await fetch(`/api/posts/tags/` + event.target.value).then((response) =>
-    response.json().then((json) => {
-      console.log(JSON.stringify(json.data[0]));
-    }),
-  );
+  if (event.target.value) {
+    let response = await fetch(`/api/posts/tags/` + event.target.value).then((response) =>
+      response.json().then((json) => {
+        tagList.value = json.data ? json.data.map((it: Tag) => ({ text: it.name })) : [];
+      }),
+    );
+  }
 };
 
-const addTag = (tag: string) => {
-  form.stringTags.push(tag);
-  form.stringTags = [...new Set(form.stringTags)].sort((a, b) => a.localeCompare(b));
+const addTag = (currentTag: string) => {
+  const objTag = { text: currentTag };
+  tags.value = !tags.value.map((it) => it.text).includes(currentTag) ? [...tags.value, objTag] : [...tags.value];
+};
+
+const checkTag = (obj: any) => {
+  if (tags.value.map((it) => it.text).includes(obj.tag.text)) {
+    const foundTag = tags.value.find((it) => it.text === obj.tag.text);
+    if (foundTag) {
+      tag.value = "";
+      const span = querySelectorIncludesText(".ti-tags li .ti-tag-center span", obj.tag.text);
+      const parent = span?.parentElement?.parentElement?.parentElement?.classList.add("ti-exists");
+      const to = setTimeout((parent) => {
+        document.querySelector(".ti-exists")?.classList.remove("ti-exists");
+        clearTimeout(to);
+      }, 600);
+    }
+    return;
+  } else {
+    obj.addTag();
+  }
+};
+
+const querySelectorIncludesText = (selector: string, text: string) => {
+  return Array.from(document.querySelectorAll(selector)).find((el) => el.textContent?.includes(text));
 };
 
 const setDescription = (description: string) => {

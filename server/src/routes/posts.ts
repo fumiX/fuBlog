@@ -128,7 +128,7 @@ router.post(
     AppDataSource.manager
       .transaction(async (manager) => {
         await manager.query("SET CONSTRAINTS ALL DEFERRED");
-        const tags = body.stringTags.map((name) => ({ name: name.toLowerCase() }));
+        const tags = body.stringTags.map((name) => ({ name: name.trim() }));
         return manager
           .createQueryBuilder(TagEntity, "tag")
           .insert()
