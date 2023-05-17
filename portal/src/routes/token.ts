@@ -12,11 +12,14 @@ router.post("/", (req, res) => {
   if (req.body.client_id !== "ID" || req.body.client_secret !== "secret") {
     throw new Error("Authentication failed!"); // TODO: Do a proper check of client ID and secret
   }
-  const [userId, userInfo]: [string, UserInfo] | undefined = Object.entries(userInfosById)?.find(([, acc]) => acc.code === req.body.code);
-  if (userInfo) {
+  const u: { userId: string; userInfo: UserInfo } | undefined = Object.entries(userInfosById)
+    ?.map(([userId, userInfo]) => ({ userId, userInfo }))
+    .find((it) => it.userInfo.code === req.body.code);
+  if (u) {
+    const { userId, userInfo } = u;
     const issuedAt = Math.floor(Date.now() / 1000);
     userInfosById[userId].tokens = {
-      access_token: faker.random.alphaNumeric(20),
+      access_token: faker.string.alphanumeric(20),
       id_token: createJwtToken(OAUTH_SECRET, {
         sub: userId,
         name: `${userInfo.profile.fullName}`,

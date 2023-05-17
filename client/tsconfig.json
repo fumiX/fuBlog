@@ -1,5 +1,5 @@
 {
-  "extends": "@vue/tsconfig/tsconfig.web.json",
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
   "include": ["env.d.ts", "src/**/*", "*.vue"],
   "compilerOptions": {
     "baseUrl": ".",
@@ -8,8 +8,6 @@
     },
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
-    "module": "esnext", // needed to make env variables work in vue with import.meta.env
-    "moduleResolution": "Node16",
     "resolveJsonModule": true,
     "types": ["node"]
   },

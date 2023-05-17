@@ -9,7 +9,7 @@
         <div class="card flex-md-row mb-4 box-shadow h-md-250">
           <div class="card-body">
             <div class="clearfix mb-4">
-              <button class="btn btn-sm btn-outline-primary" @click="$router.push('/posts')">
+              <button class="btn btn-sm btn-outline-primary" @click="router.push('/posts')">
                 <fa-icon :icon="faArrowLeft" />
                 {{ t("app.base.back") }}
               </button>
@@ -20,7 +20,7 @@
               <button
                 v-if="props.userPermissions?.canEditPost"
                 class="btn btn-sm btn-secondary float-end mx-2"
-                @click="$router.push(`/posts/post/${post?.id}/edit`)"
+                @click="router.push(`/posts/post/${post?.id}/edit`)"
               >
                 <fa-icon :icon="faEdit" />
                 {{ t("app.base.edit") }}

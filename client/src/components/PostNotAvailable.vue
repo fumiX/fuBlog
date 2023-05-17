@@ -9,7 +9,7 @@
 
               <p class="card-text my-4 fst-italic text-muted">{{ t("posts.post.not-available.message") }}.</p>
 
-              <button class="btn btn-sm btn-outline-primary" @click="$router.push('/')">
+              <button class="btn btn-sm btn-outline-primary" @click="router.push('/')">
                 <fa-icon :icon="faArrowLeft" />
                 {{ t("app.base.startpage") }}
               </button>
@@ -24,6 +24,8 @@
 <script setup lang="ts">
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 
 const { t } = useI18n();
+const router = useRouter();
 </script>

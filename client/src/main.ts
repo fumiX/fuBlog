@@ -4,7 +4,7 @@ import { createHead } from "@unhead/vue";
 import "bootstrap";
 import { DateTime } from "luxon";
 import { createApp } from "vue";
-import App from "./App.vue";
+import App from "@client/App.vue";
 import "unfonts.css"; // needed for pre-loaded custom fonts !
 import "./assets/scss/custom.scss";
 import "./assets/scss/style.scss";

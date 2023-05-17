@@ -63,7 +63,7 @@
               </div>
 
               <button type="submit" class="btn btn-sm btn-primary float-end">{{ t("app.base.save") }}</button>
-              <button type="button" class="btn btn-sm btn-secondary float-end mx-3" @click="$router.go(-1)">
+              <button type="button" class="btn btn-sm btn-secondary float-end mx-3" @click="router.go(-1)">
                 {{ t("app.base.cancel") }}
               </button>
             </form>
@@ -283,7 +283,7 @@ import PostNotAvailable from "@client/components/PostNotAvailable.vue";
 import { debounce } from "@client/debounce.js";
 import { PostEndpoints } from "@client/util/api-client.js";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
-import { t, tc } from "@fumix/fu-blog-client/src/plugins/i18n.js";
+import { t, tc } from "@client/plugins/i18n.js";
 import type { DraftResponseDto, NewPostRequestDto, Post, Tag, SupportedInsertPositionType } from "@fumix/fu-blog-common";
 import { bytesToBase64URL, convertToHumanReadableFileSize } from "@fumix/fu-blog-common";
 import { computed, onMounted, reactive, ref, watch } from "vue";
