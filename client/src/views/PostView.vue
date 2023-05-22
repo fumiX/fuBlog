@@ -113,6 +113,10 @@ onMounted(async () => {
     const id = route.params.id;
     useSeoMeta({
       ogImage: `${window.location.protocol}//${window.location.hostname}/api/posts/${route.params.id}/og-image`,
+      ogImageAlt: "Ein anschauliches Bild für den Blogpost",
+      ogImageWidth: 1280,
+      ogImageHeight: 640,
+      ogSiteName: "fuBlog",
       ogType: "article",
       ogUrl: `${window.location.protocol}//${window.location.hostname}/posts/post/${route.params.id}`,
     });
