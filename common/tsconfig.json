@@ -26,9 +26,12 @@
     "baseUrl": ".",
     "paths": {
       "@common/*": ["./src/*"]
-    }
+    },
   },
   "include": [
     "./src/**/*.ts",
-  ]
+  ],
+  "ts-node": {
+    "files": true
+  }
 }
