@@ -35,6 +35,22 @@ export async function initDatabase(): Promise<void> {
   logger.info("Database initialized");
 }
 
+export async function createRandomAutosave(post: PostEntity): Promise<PostEntity> {
+  try {
+    // save some autosaves
+    if (faker.datatype.boolean({ probability: 0.25 })) {
+      const clone = structuredClone(post) as PostEntity;
+      clone.autosaveRefPost = post;
+      clone.id = undefined;
+      clone.title = "Autosave";
+      return await AppDataSource.manager.getRepository(PostEntity).save(clone);
+    }
+  } catch (e) {
+    logger.error("Error creating autosave", e);
+  }
+  return new Promise(() => null);
+}
+
 /**
  * Generate some test data for the blog.
  */
@@ -50,6 +66,7 @@ async function generate(): Promise<void> {
         createRandomFakeOauthAccount(user, faker.datatype.number());
         Array.from({ length: postsPerUser }).forEach(() => {
           createRandomPost(user, faker.datatype.number()).then((post: PostEntity) => {
+            createRandomAutosave(post);
             Array.from({ length: attachmentsPerPost }).forEach(() => {
               createRandomAttachment(post, faker.datatype.number());
             });

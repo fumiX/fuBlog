@@ -1,6 +1,6 @@
 import { Attachment } from "./Attachment.js";
 
-export type DraftResponseDto = {
+export type SavePostResponseDto = {
   postId?: number;
   attachments: Attachment[];
 };

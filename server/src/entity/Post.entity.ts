@@ -53,4 +53,12 @@ export class PostEntity implements Post {
   })
   @JoinTable({ name: "post_tag", joinColumn: { name: "post_id" }, inverseJoinColumn: { name: "tag_id" } })
   tags: TagEntity[];
+
+  @JoinColumn({ name: "autosave_ref_post", referencedColumnName: "id", foreignKeyConstraintName: "post_autosave_ref_post_fk" })
+  @ManyToOne(() => PostEntity, (post) => post.id, { nullable: true })
+  autosaveRefPost?: PostEntity;
+
+  @JoinColumn({ name: "autosave_ref_user", referencedColumnName: "id", foreignKeyConstraintName: "post_autosave_ref_user_fk" })
+  @ManyToOne(() => UserEntity, (user) => user.id, { nullable: true })
+  autosaveRefUser?: UserEntity;
 }

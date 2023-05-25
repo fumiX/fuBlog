@@ -1,4 +1,4 @@
-import { DraftResponseDto, EditPostRequestDto, NewPostRequestDto, permissionsForUser, PostRequestDto } from "@fumix/fu-blog-common";
+import { EditPostRequestDto, NewPostRequestDto, permissionsForUser, PostRequestDto, SavePostResponseDto } from "@fumix/fu-blog-common";
 import { GoneError } from "../errors/GoneError.js";
 import express, { NextFunction, Request, Response, Router } from "express";
 import { In } from "typeorm";
@@ -16,6 +16,7 @@ import { MarkdownConverterServer } from "../markdown-converter-server.js";
 import { authMiddleware } from "../service/middleware/auth.js";
 import { extractJsonBody, extractUploadFiles, multipleFilesUpload } from "../service/middleware/files-upload.js";
 import { generateShareImage } from "../service/opengraph.js";
+import logger from "../logger.js";
 
 const router: Router = express.Router();
 
@@ -116,7 +117,7 @@ router.post(
   "/new",
   authMiddleware,
   multipleFilesUpload,
-  async (req: Request, res: Response<DraftResponseDto>, next: NextFunction): Promise<void> => {
+  async (req: Request, res: Response<SavePostResponseDto>, next: NextFunction): Promise<void> => {
     const body: NewPostRequestDto | undefined = JSON.parse(req.body?.json) as NewPostRequestDto;
     const loggedInUser = await req.loggedInUser?.();
 
@@ -137,7 +138,7 @@ router.post(
           .values(tags)
           .onConflict('("name") DO UPDATE SET "name" = EXCLUDED."name"')
           .execute()
-          .then(async (it): Promise<DraftResponseDto> => {
+          .then(async (it): Promise<SavePostResponseDto> => {
             const post: PostEntity = {
               title: body.title,
               description: body.description,
@@ -232,6 +233,16 @@ router.get("/tags/:search", async (req: Request, res: Response, next) => {
     .catch(next);
 });
 
+// deletes autosaves referencing a post, if any
+async function deleteAnyAutosaveForPost(postId: number) {
+  return await AppDataSource.manager.getRepository("post").delete({ autosaveRefPost: postId });
+}
+
+// deletes autosaves referencing a user, if any
+async function deleteAnyAutosaveForUser(userId: number) {
+  return await AppDataSource.manager.getRepository("post").delete({ autosaveRefUser: userId });
+}
+
 // EDIT EXISTING POST
 router.post("/:id(\\d+$)", authMiddleware, multipleFilesUpload, async (req: Request, res: Response, next) => {
   const postId = +req.params.id;
@@ -251,6 +262,11 @@ router.post("/:id(\\d+$)", authMiddleware, multipleFilesUpload, async (req: Requ
     return next(new UnauthorizedError());
   } else if (!permissionsForUser(account.user).canEditPost && (account.user.id === null || account.user.id !== post.createdBy?.id)) {
     return next(new ForbiddenError());
+  }
+
+  if (body.autosave) {
+    // TODO
+    logger.info("autosaving");
   }
 
   const tagsToUseInPost: TagEntity[] = await getPersistedTagsForPost(post, body).catch((err) => {
@@ -291,7 +307,12 @@ router.post("/:id(\\d+$)", authMiddleware, multipleFilesUpload, async (req: Requ
         .then((updatedPost) => manager.getRepository(PostEntity).save(updatedPost))
         .catch(next);
     })
-    .then((it) => res.status(200).json({ postId: post.id } as DraftResponseDto))
+    .then((it) => {
+      if (post.id) {
+        deleteAnyAutosaveForPost(post.id);
+      }
+      return res.status(200).json({ postId: post.id } as SavePostResponseDto);
+    })
     .catch(next);
 });
 

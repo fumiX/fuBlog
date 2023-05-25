@@ -12,7 +12,7 @@ export * from "./dto/oauth/OAuthUserInfoDto.js";
 export * from "./dto/oauth/SavedOAuthToken.js";
 export * from "./dto/word.js";
 export * from "./entity/Attachment.js";
-export * from "./entity/DraftResponseDto.js";
+export * from "./entity/SavePostResponseDto.js";
 export * from "./entity/File.js";
 export * from "./entity/OAuthAccount.js";
 export * from "./entity/OAuthProvider.js";

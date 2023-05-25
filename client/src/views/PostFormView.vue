@@ -4,7 +4,7 @@
       <div class="col w-50">
         <div class="card flex-md-row mb-4 box-shadow h-md-250">
           <div class="card-body">
-            <form @submit="submitForm($event)">
+            <form @submit.prevent="submitForm" @input="handleAutoSave">
               <div class="form-floating mb-3">
                 <input v-model="form.title" type="text" class="form-control" id="title" placeholder="Titel" required />
                 <label for="title">{{ t("posts.form.title") }}</label>
@@ -284,7 +284,14 @@ import { debounce } from "@client/debounce.js";
 import { PostEndpoints } from "@client/util/api-client.js";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import { t, tc } from "@client/plugins/i18n.js";
-import type { DraftResponseDto, NewPostRequestDto, Post, Tag, SupportedInsertPositionType } from "@fumix/fu-blog-common";
+import type {
+  SavePostResponseDto,
+  NewPostRequestDto,
+  Post,
+  Tag,
+  SupportedInsertPositionType,
+  EditPostRequestDto,
+} from "@fumix/fu-blog-common";
 import { bytesToBase64URL, convertToHumanReadableFileSize } from "@fumix/fu-blog-common";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -307,6 +314,7 @@ const form = reactive<NewPostRequestDto>({
   markdown: "",
   draft: false,
   stringTags: [],
+  autosave: false,
 });
 
 const props = defineProps({
@@ -449,6 +457,11 @@ const setDescription = (description: string) => {
   form.description = description;
 };
 
+const handleAutoSave = () =>
+  debounce(() => {
+    send(props.postId, true);
+  }, 1000);
+
 const setKeyvisual = (base64Str: string) => {
   fetch(base64Str)
     .then((res) => res.blob())
@@ -472,9 +485,8 @@ const addFile = (file: File) => {
     .catch((it) => console.error("Failed to calculate SHA-256 hash!"));
 };
 
-const submitForm = (e: Event) => {
-  e.preventDefault();
-  send(props.postId);
+const submitForm = () => {
+  send(props.postId, false);
 };
 
 const insertIntoTextarea = (
@@ -491,16 +503,19 @@ const insertIntoTextarea = (
   return before + insertedText + after;
 };
 
-const send = async (id: number | undefined) => {
-  const successAction = (r: DraftResponseDto) => {
+const send = async (id: number | undefined, shouldAutosave: boolean) => {
+  const successAction = (r: SavePostResponseDto) => {
     router.push(`/posts/post/${r.postId}`);
   };
   if (!id) {
+    form.autosave = shouldAutosave;
     await PostEndpoints.createPost(form, Object.values(files))
       .then(successAction)
       .catch((reason) => console.log("Create post request failed", reason));
   } else {
-    await PostEndpoints.editPost(Object.assign(form, { id }), Object.values(files))
+    let editRequest = Object.assign(form, { id }) as EditPostRequestDto;
+    editRequest.autosave = shouldAutosave;
+    await PostEndpoints.editPost(editRequest, Object.values(files))
       .then(successAction)
       .catch((reason) => console.log("Edit post request failed", reason));
   }

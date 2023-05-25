@@ -2,7 +2,7 @@ import { loadIdToken, updateIdToken } from "@client/util/storage.js";
 import type {
   AiSummaryData,
   DataUrl,
-  DraftResponseDto,
+  SavePostResponseDto,
   EditPostRequestDto,
   JsonMimeType,
   NewPostRequestDto,
@@ -113,19 +113,19 @@ export class OpenAiEndpoints {
 }
 
 export class PostEndpoints {
-  static async createPostWithoutFiles(json: NewPostRequestDto): Promise<DraftResponseDto> {
-    return callServer<NewPostRequestDto, JsonMimeType, DraftResponseDto>("/api/posts/new", "POST", "application/json", { json: json });
+  static async createPostWithoutFiles(json: NewPostRequestDto): Promise<SavePostResponseDto> {
+    return callServer<NewPostRequestDto, JsonMimeType, SavePostResponseDto>("/api/posts/new", "POST", "application/json", { json: json });
   }
-  static async createPost(json: NewPostRequestDto, files: File[]): Promise<DraftResponseDto> {
-    return callServer<NewPostRequestDto, JsonMimeType, DraftResponseDto>(
+  static async createPost(json: NewPostRequestDto, files: File[]): Promise<SavePostResponseDto> {
+    return callServer<NewPostRequestDto, JsonMimeType, SavePostResponseDto>(
       "/api/posts/new",
       "POST",
       "application/json",
       new ApiRequestJsonPayloadWithFiles(json, files),
     );
   }
-  static async editPost(json: EditPostRequestDto, files: File[]): Promise<DraftResponseDto> {
-    return callServer<EditPostRequestDto, JsonMimeType, DraftResponseDto>(
+  static async editPost(json: EditPostRequestDto, files: File[]): Promise<SavePostResponseDto> {
+    return callServer<EditPostRequestDto, JsonMimeType, SavePostResponseDto>(
       `/api/posts/${json.id}`,
       "POST",
       "application/json",
