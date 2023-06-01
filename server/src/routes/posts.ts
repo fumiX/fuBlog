@@ -1,7 +1,7 @@
 import { EditPostRequestDto, NewPostRequestDto, permissionsForUser, PostRequestDto, SavePostResponseDto } from "@fumix/fu-blog-common";
 import { GoneError } from "../errors/GoneError.js";
 import express, { NextFunction, Request, Response, Router } from "express";
-import { In } from "typeorm";
+import { In, IsNull } from "typeorm";
 import { AppDataSource } from "../data-source.js";
 import { AttachmentEntity } from "../entity/Attachment.entity.js";
 import { FileEntity } from "../entity/File.entity.js";
@@ -69,12 +69,16 @@ router.get("/page/:page([0-9]+)/count/:count([0-9]+)/", async (req: Request, res
   await AppDataSource.manager
     .getRepository(PostEntity)
     .findAndCount({
+      where: {
+        autosaveRefPost: IsNull(),
+        autosaveRefUser: IsNull(),
+      },
       order: {
         createdAt: "DESC",
       },
       skip: skipEntries,
       take: itemsPerPage,
-      relations: ["createdBy", "updatedBy", "tags"],
+      relations: ["createdBy", "updatedBy", "tags", "autosaveRefPost", "autosaveRefUser"],
     })
     .then((result) => res.status(200).json({ data: result }))
     .catch((error) => {
@@ -234,14 +238,17 @@ router.get("/tags/:search", async (req: Request, res: Response, next) => {
 });
 
 // delete autosave
-router.delete("/autosave/:id(\\d+$)", async (req: Request, res: Response, next) => {
+router.delete("/autosave/:id(\\d+$)", authMiddleware, async (req: Request, res: Response, next) => {
   const account = await req.loggedInUser?.();
   if (!account) {
     return next(new UnauthorizedError());
   } else if (!permissionsForUser(account.user).canEditPost && account.user.id === null) {
     return next(new ForbiddenError());
   }
-  return await AppDataSource.manager.getRepository("post").delete({ id: +req.params.id, createdBy: account.user });
+  logger.info("Deleting autosave");
+  await deletePostEntity(+req.params.id)
+    .then((it) => res.sendStatus(200))
+    .catch(next);
 });
 
 // find any relevant autosaves for the user
@@ -359,7 +366,7 @@ router.post("/:id(\\d+$)", authMiddleware, multipleFilesUpload, async (req: Requ
 });
 
 // DELETE POST
-router.delete("/:id(\\d+$)", async (req: Request, res: Response, next) => {
+router.delete("/:id(\\d+$)", authMiddleware, async (req: Request, res: Response, next) => {
   // first delete possible autosave referencing the post
   findAnyAutosaveForPost(+req.params.id)
     .then((found) => {

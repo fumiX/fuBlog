@@ -1,6 +1,6 @@
 <template>
   <div v-if="!postHasError" class="container">
-    <div class="row mb-2 collapse show" id="collapseTarget">
+    <div v-if="hasAutosave" class="row mb-2 collapse show" id="collapseTarget">
       <div class="col w-50">
         <div class="alert alert-warning">
           {{ t("posts.form.restore") }}
@@ -13,7 +13,12 @@
                   @click="restore">
             {{ t("app.base.restore") }}
           </button>
-          <button type="button" class="btn btn-sm btn-danger" @click="discard">
+          <button type="button" class="btn btn-sm btn-danger"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapseTarget"
+                  aria-expanded="true"
+                  aria-controls="collapseTarget"
+                  @click="discard">
             {{ t("app.base.discard") }}
           </button>
         </div>
@@ -325,6 +330,7 @@ const markdownArea = ref(null);
 const postHasError = ref<boolean>(false);
 const tagList = ref<Tag[]>([]);
 const foundAutosave = ref<Post | null>(null);
+const hasAutosave = ref<boolean>(false);
 
 const form = reactive<NewPostRequestDto>({
   title: "",
@@ -368,6 +374,7 @@ onMounted(async () => {
       postHasError.value = false;
       let findAutosaveResponse = await fetch(`/api/posts/autosave/${props.postId}`);
       foundAutosave.value = (await findAutosaveResponse.json())?.data as Post;
+      hasAutosave.value = foundAutosave.value !== null;
     } catch (e) {
       postHasError.value = true;
     }
