@@ -233,6 +233,48 @@ router.get("/tags/:search", async (req: Request, res: Response, next) => {
     .catch(next);
 });
 
+// delete autosave
+router.delete("/autosave/:id(\\d+$)", async (req: Request, res: Response, next) => {
+  const account = await req.loggedInUser?.();
+  if (!account) {
+    return next(new UnauthorizedError());
+  } else if (!permissionsForUser(account.user).canEditPost && account.user.id === null) {
+    return next(new ForbiddenError());
+  }
+  return await AppDataSource.manager.getRepository("post").delete({ id: +req.params.id, createdBy: account.user });
+});
+
+// find any relevant autosaves for the user
+router.get("/autosave", authMiddleware, async (req, res, next) => {
+  logger.info("Looking for user related autosaves...");
+  const account = await req.loggedInUser?.();
+  if (!account) {
+    return next(new UnauthorizedError());
+  } else if (!permissionsForUser(account.user).canEditPost && account.user.id === null) {
+    return next(new ForbiddenError());
+  }
+  await AppDataSource.manager
+    .getRepository("post")
+    .find({ where: { autosaveRefUser: account.user } })
+    .then((autosave) => res.status(200).send({ data: autosave }))
+    .catch(next);
+});
+
+// find any relevant autosaves for the post
+router.get("/autosave/:id(\\d+$)", async (req, res, next) => {
+  if (+req.params.id) {
+    logger.info("Looking for post related autosaves..." + req.params.id);
+    await AppDataSource.manager
+      .getRepository("post")
+      .findOne({ where: { autosaveRefPost: { id: +req.params.id } } })
+      .then((autosave) => {
+        logger.info("found " + JSON.stringify(autosave));
+        return res.status(200).send({ data: autosave });
+      })
+      .catch(next);
+  }
+});
+
 // deletes autosaves referencing a post, if any
 async function deleteAnyAutosaveForPost(postId: number) {
   return await AppDataSource.manager.getRepository("post").delete({ autosaveRefPost: postId });
@@ -317,17 +359,42 @@ router.post("/:id(\\d+$)", authMiddleware, multipleFilesUpload, async (req: Requ
 });
 
 // DELETE POST
-router.get("/delete/:id(\\d+$)", async (req: Request, res: Response, next) => {
+router.delete("/:id(\\d+$)", async (req: Request, res: Response, next) => {
+  // first delete possible autosave referencing the post
+  findAnyAutosaveForPost(+req.params.id)
+    .then((found) => {
+      if (found?.id) {
+        logger.info("deleting found autosave");
+        deletePostEntity(found.id);
+      }
+    })
+    .then(() => {
+      // then the actual post
+      logger.info("deleting found post");
+      deletePostEntity(+req.params.id)
+        .then((post) => res.sendStatus(200))
+        .catch(next);
+    })
+    .catch(next);
+});
+
+// returns any autosave referencing the post with the given postId
+const findAnyAutosaveForPost = async (postId: number) => {
+  return await AppDataSource.manager.findOne(PostEntity, { where: { autosaveRefPost: { id: postId } } }).catch(() => Promise.resolve());
+};
+
+// deletes a PostEntity. Autosaves referencing must be deleted prior.
+const deletePostEntity = async (postId: number) => {
   await AppDataSource.manager.transaction(async (manager) => {
     // find all attachments of post and delete them
-    await manager.getRepository(AttachmentEntity).delete({ post: { id: +req.params.id } });
+    await manager.getRepository(AttachmentEntity).delete({ post: { id: postId } });
 
     // cannot simply delete a post cause of the fk_constraint to tags (many_to_many)
     // hence we have to find the post, detach the tags
     // then again save it without tags
     // then delete it.
 
-    const post = await manager.findOne(PostEntity, { where: { id: +req.params.id }, relations: { tags: true } });
+    const post = await manager.findOne(PostEntity, { where: { id: postId }, relations: { tags: true } });
 
     // TODO: find a better way than detach-save-delete, maybe with cascade migration ?
     // Don't know why orphanedRowAction: "delete" is not working here ... orphaned rows still remain in tag table
@@ -335,10 +402,9 @@ router.get("/delete/:id(\\d+$)", async (req: Request, res: Response, next) => {
       post.tags = []; // detach constraint
       await manager.save(post);
     }
-    await manager.getRepository(PostEntity).delete(+req.params.id);
-    res.status(200).send(post);
+    await manager.getRepository(PostEntity).delete(postId);
   });
-});
+};
 
 router.get("/:id(\\d+)/og-image", async (req: Request, res: Response, next) => {
   AppDataSource.getRepository(PostEntity)

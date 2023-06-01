@@ -14,12 +14,13 @@
       <div class="col-lg-8 col-lg-border">
         <div v-if="props.userPermissions?.canCreatePost" class="clearfix mb-4">
           <button type="button" class="btn btn-sm btn-secondary float-end" @click="goTo('/posts/post/new')">
-            <fa-icon :icon="faAdd" /> {{ t("app.base.create_post") }}
+            <fa-icon :icon="faAdd"/>
+            {{ t("app.base.create_post") }}
           </button>
         </div>
 
         <div v-if="loading" class="loader text-secondary">
-          <loading-spinner />
+          <loading-spinner/>
         </div>
 
         <div v-else>
@@ -33,7 +34,8 @@
           ></post-preview>
 
           <div v-if="!totalPages && route.query.search" class="alert alert-light text-center">
-            <fa-icon :icon="faSadTear" class="mx-3" />{{ t("search.noResults", { query: route.query.search }) }}
+            <fa-icon :icon="faSadTear" class="mx-3"/>
+            {{ t("search.noResults", {query: route.query.search}) }}
           </div>
 
           <paginate
@@ -82,6 +84,7 @@ import { onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import Paginate from "vuejs-paginate-next";
+import { PostEndpoints } from "@client/util/api-client";
 
 const route = useRoute();
 const router = useRouter();
@@ -92,7 +95,7 @@ const showDialog = ref<boolean>(false);
 const dialogData = ref<ConfirmDialogData | null>(null);
 const currentPost = ref<Post | null>(null);
 const totalPages = ref<number>(1);
-const { t } = useI18n();
+const {t} = useI18n();
 
 const blogTitle = ref<string>("");
 const blogShortDescription = ref<string>("");
@@ -146,15 +149,15 @@ onMounted(() => {
 });
 
 const deletePost = async (post: Post) => {
-  try {
-    const res = await fetch(`/api/posts/delete/${post.id}`);
-    await res.json();
-    const searchValue = (route.query?.search || "") as string;
-    const operator = (route.query?.operator || "and") as string;
-    await loadPostsWithPagination(1, searchValue, operator);
-  } catch (e) {
-    console.log("ERROR: ", e);
+  if (post.id) {
+    const res = await PostEndpoints.deletePost(post.id)
+      .catch((reason) => console.log("failed to delete autosave", reason));
   }
+  const searchValue = (route.query?.search || "") as string;
+  const operator = (route.query?.operator || "and") as string;
+  await loadPostsWithPagination(1, searchValue, operator)
+    .catch((reason) => console.log("failed to load posts", reason));
+  ;
 };
 
 const goTo = (path: string) => {
@@ -169,7 +172,7 @@ const showConfirm = (post: Post) => {
   currentPost.value = post as Post;
   dialogData.value = {
     title: t("posts.confirm.title"),
-    message: t("posts.confirm.message", { post: currentPost.value.title }),
+    message: t("posts.confirm.message", {post: currentPost.value.title}),
   };
   showDialog.value = true;
 };

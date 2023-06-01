@@ -92,6 +92,7 @@ import { useSeoMeta } from "@unhead/vue";
 import { onMounted, type PropType, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
+import { PostEndpoints } from "@client/util/api-client";
 
 const { t } = useI18n();
 const loading = ref(true);
@@ -131,13 +132,11 @@ onMounted(async () => {
 });
 
 const deletePost = async (post: Post) => {
-  try {
-    const res = await fetch(`/api/posts/delete/${post.id}`);
-    await res.json();
-    router.push("/posts");
-  } catch (e) {
-    console.log("ERROR: ", e);
+  if (post.id) {
+    const res = await PostEndpoints.deletePost(post.id)
+      .catch((reason) => console.log("failed to delete autosave", reason));
   }
+  router.push("/posts");
 };
 
 const showConfirm = (post: Post | null) => {

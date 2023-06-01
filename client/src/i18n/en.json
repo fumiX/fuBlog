@@ -21,6 +21,8 @@
       "back": "Back",
       "close": "Close",
       "save": "Save",
+      "publish": "Publish",
+      "savedraft": "Save draft",
       "cancel": "Cancel",
       "edit": "Edit",
       "delete": "Delete",
@@ -29,7 +31,9 @@
       "roles": "Roles",
       "login": "Login",
       "githubLinkText": "The blog software on GitHub",
-      "startpage": "Startpage"
+      "startpage": "Startpage",
+      "restore": "Restore",
+      "discard": "Discard"
     }
   },
   "nav": {
@@ -56,7 +60,8 @@
         "title": "Preview"
       },
       "imageupload": "Upload image",
-      "tags": "Tags"
+      "tags": "Tags",
+      "restore": "Unpublished version found"
     },
     "confirm": {
       "title": "Confirm deletion",
@@ -66,7 +71,7 @@
       "not-available": {
         "title": "Post not available",
         "message": "This post is not available or has been deleted. You can find all posts in the overview, or use the search function to find a specific post."
-      } 
+      }
     }
   },
   "admin": {

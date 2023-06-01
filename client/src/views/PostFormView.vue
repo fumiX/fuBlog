@@ -1,5 +1,24 @@
 <template>
   <div v-if="!postHasError" class="container">
+    <div class="row mb-2 collapse show" id="collapseTarget">
+      <div class="col w-50">
+        <div class="alert alert-warning">
+          {{ t("posts.form.restore") }}
+          <button type="button"
+                  class="btn btn-sm btn-primary mx-3"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapseTarget"
+                  aria-expanded="true"
+                  aria-controls="collapseTarget"
+                  @click="restore">
+            {{ t("app.base.restore") }}
+          </button>
+          <button type="button" class="btn btn-sm btn-danger" @click="discard">
+            {{ t("app.base.discard") }}
+          </button>
+        </div>
+      </div>
+    </div>
     <div class="row mb-2">
       <div class="col w-50">
         <div class="card flex-md-row mb-4 box-shadow h-md-250">
@@ -57,13 +76,11 @@
                 <div id="markdownHelp" class="form-text">{{ t("posts.form.message.hint") }}</div>
               </div>
 
-              <div class="form-check form-switch">
-                <input v-model="form.draft" class="form-check-input" type="checkbox" id="draft" />
-                <label class="form-check-label" for="draft">{{ t("posts.form.draft") }}</label>
-              </div>
-
-              <button type="submit" class="btn btn-sm btn-primary float-end">{{ t("app.base.save") }}</button>
-              <button type="button" class="btn btn-sm btn-secondary float-end mx-3" @click="router.go(-1)">
+              <button type="submit" class="btn btn-sm btn-primary float-end">{{ t("app.base.publish") }}</button>
+              <button type="button" class="btn btn-sm btn-info float-end mx-3" @click="saveDraft">
+                {{ t("app.base.savedraft") }}
+              </button>
+              <button type="button" class="btn btn-sm btn-secondary float-end" @click="router.go(-1)">
                 {{ t("app.base.cancel") }}
               </button>
             </form>
@@ -292,7 +309,7 @@ import type {
   SupportedInsertPositionType,
   EditPostRequestDto,
 } from "@fumix/fu-blog-common";
-import { bytesToBase64URL, convertToHumanReadableFileSize } from "@fumix/fu-blog-common";
+import { bytesToBase64URL, convertToHumanReadableFileSize, isNeitherNullNorUndefined } from "@fumix/fu-blog-common";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import VueTagsInput from "@sipec/vue3-tags-input";
@@ -307,6 +324,7 @@ const router = useRouter();
 const markdownArea = ref(null);
 const postHasError = ref<boolean>(false);
 const tagList = ref<Tag[]>([]);
+const foundAutosave = ref<Post | null>(null);
 
 const form = reactive<NewPostRequestDto>({
   title: "",
@@ -348,9 +366,14 @@ onMounted(async () => {
       form.draft = resJson.draft;
       tags.value = resJson.tags ? resJson.tags?.map((tag) => ({ text: tag.name })) : [];
       postHasError.value = false;
+      let findAutosaveResponse = await fetch(`/api/posts/autosave/${props.postId}`);
+      foundAutosave.value = (await findAutosaveResponse.json())?.data as Post;
     } catch (e) {
       postHasError.value = true;
     }
+  } else {
+    // foundAutosave.value = ref<Post>((await (await fetch(`/api/posts/autosave`)).json())?.data as Post);
+    // console.log("found autosave " + JSON.stringify(foundAutosave.value));
   }
 
   debounce(() => {
@@ -409,6 +432,27 @@ const handleFileChange = (e: Event): void => {
     highlightDropzone(e, false);
   } else if (e.target instanceof HTMLInputElement && e.target.files) {
     Array.from(e.target.files).forEach((it) => addFile(it));
+  }
+};
+
+const discard = async () => {
+  const postToDiscard = foundAutosave.value as Post;
+  if (postToDiscard?.id) {
+    await PostEndpoints.deleteAutosave(postToDiscard.id)
+      .catch((reason) => console.log("failed to delete autosave", reason));
+  }
+};
+
+const restore = () => {
+  if (foundAutosave.value) {
+    // restore autosaved post to the form
+    const toRestore = foundAutosave.value as Post;
+    form.draft = toRestore.draft;
+    form.title = toRestore.title;
+    form.stringTags = toRestore.tags ? toRestore.tags?.map((tag) => tag.name).filter(isNeitherNullNorUndefined) : [];
+    tags.value = toRestore.tags ? toRestore.tags?.map((tag) => ({text: tag.name})) : [];
+    form.markdown = toRestore.markdown;
+    form.description = toRestore.description;
   }
 };
 
@@ -489,6 +533,11 @@ const submitForm = () => {
   send(props.postId, false);
 };
 
+const saveDraft = () => {
+  form.draft = true;
+  send(props.postId, false);
+};
+
 const insertIntoTextarea = (
   insertedText: string,
   area: HTMLTextAreaElement,
@@ -505,7 +554,12 @@ const insertIntoTextarea = (
 
 const send = async (id: number | undefined, shouldAutosave: boolean) => {
   const successAction = (r: SavePostResponseDto) => {
-    router.push(`/posts/post/${r.postId}`);
+    if (shouldAutosave) {
+      // TODO: display draft saved banner
+      console.log("auto-saving...");
+    } else {
+      router.push(`/posts/post/${r.postId}`);
+    }
   };
   if (!id) {
     form.autosave = shouldAutosave;

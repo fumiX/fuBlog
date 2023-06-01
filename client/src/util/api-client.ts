@@ -19,7 +19,7 @@ async function callServer<
   ResponseType = ResponseMimeType extends JsonMimeType ? any : ResponseMimeType extends SupportedImageMimeType ? ArrayBuffer : any,
 >(
   url: ApiUrl,
-  method: "GET" | "POST",
+  method: "GET" | "POST" | "DELETE" | "PUT",
   responseType: ResponseMimeType,
   payload: ApiRequestJsonPayload<RequestType> | null = null,
   authenticated = true,
@@ -133,6 +133,9 @@ export class PostEndpoints {
     );
   }
   static async deletePost(id: number): Promise<{ affected: number }> {
-    return callServer<void, JsonMimeType, { affected: number }>(`/api/posts/delete/${id}`, "POST", "application/json");
+    return callServer<void, JsonMimeType, { affected: number }>(`/api/posts/${id}`, "DELETE", "application/json");
+  }
+  static async deleteAutosave(id: number): Promise<{ affected: number }> {
+    return callServer<void, JsonMimeType, { affected: number }>(`/api/posts/autosave/${id}`, "DELETE", "application/json");
   }
 }

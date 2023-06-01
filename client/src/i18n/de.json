@@ -21,6 +21,8 @@
       "back": "Zurück",
       "close": "Schließen",
       "save": "Speichern",
+      "publish": "Veröffentlichen",
+      "savedraft": "Als Entwurf speichern",
       "cancel": "Abbrechen",
       "edit": "Bearbeiten",
       "delete": "Löschen",
@@ -29,7 +31,9 @@
       "roles": "Rollen",
       "login": "Anmelden",
       "githubLinkText": "Die Blog-Software auf GitHub",
-      "startpage": "Startseite"
+      "startpage": "Startseite",
+      "restore": "Wiederherstellen",
+      "discard": "Verwerfen"
     }
   },
   "nav": {
@@ -59,7 +63,8 @@
         "tags": "Schlagworte",
         "enter": "Geben Sie Schlagworte ein..."
       },
-      "imageupload": "keine angehängten Bilder | ein angehängtes Bild | {count} angehängte Bilder"
+      "imageupload": "keine angehängten Bilder | ein angehängtes Bild | {count} angehängte Bilder",
+      "restore": "Unveröffentlichte Version gefunden"
     },
     "confirm": {
       "title": "Löschen bestätigen",
@@ -69,7 +74,7 @@
       "not-available": {
         "title": "Post nicht vorhanden",
         "message": "Der Post ist nicht verfügbar oder wurde gelöscht. Sie können mit dem Button zur Startseite zurück, oder nutzen sie die Suchfunktion um einen bestimmten Post zu finden."
-      } 
+      }
     }
   },
   "admin": {
