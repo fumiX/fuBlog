@@ -133,8 +133,7 @@ onMounted(async () => {
 
 const deletePost = async (post: Post) => {
   if (post.id) {
-    const res = await PostEndpoints.deletePost(post.id)
-      .catch((reason) => console.log("failed to delete autosave", reason));
+    const res = await PostEndpoints.deletePost(post.id).catch((reason) => console.log("failed to delete autosave", reason));
   }
   router.push("/posts");
 };

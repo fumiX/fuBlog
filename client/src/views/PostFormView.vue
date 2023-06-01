@@ -4,21 +4,26 @@
       <div class="col w-50">
         <div class="alert alert-warning">
           {{ t("posts.form.restore") }}
-          <button type="button"
-                  class="btn btn-sm btn-primary mx-3"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#collapseTarget"
-                  aria-expanded="true"
-                  aria-controls="collapseTarget"
-                  @click="restore">
+          <button
+            type="button"
+            class="btn btn-sm btn-primary mx-3"
+            data-bs-toggle="collapse"
+            data-bs-target="#collapseTarget"
+            aria-expanded="true"
+            aria-controls="collapseTarget"
+            @click="restore"
+          >
             {{ t("app.base.restore") }}
           </button>
-          <button type="button" class="btn btn-sm btn-danger"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#collapseTarget"
-                  aria-expanded="true"
-                  aria-controls="collapseTarget"
-                  @click="discard">
+          <button
+            type="button"
+            class="btn btn-sm btn-danger"
+            data-bs-toggle="collapse"
+            data-bs-target="#collapseTarget"
+            aria-expanded="true"
+            aria-controls="collapseTarget"
+            @click="discard"
+          >
             {{ t("app.base.discard") }}
           </button>
         </div>
@@ -445,8 +450,7 @@ const handleFileChange = (e: Event): void => {
 const discard = async () => {
   const postToDiscard = foundAutosave.value as Post;
   if (postToDiscard?.id) {
-    await PostEndpoints.deleteAutosave(postToDiscard.id)
-      .catch((reason) => console.log("failed to delete autosave", reason));
+    await PostEndpoints.deleteAutosave(postToDiscard.id).catch((reason) => console.log("failed to delete autosave", reason));
   }
 };
 
@@ -457,7 +461,7 @@ const restore = () => {
     form.draft = toRestore.draft;
     form.title = toRestore.title;
     form.stringTags = toRestore.tags ? toRestore.tags?.map((tag) => tag.name).filter(isNeitherNullNorUndefined) : [];
-    tags.value = toRestore.tags ? toRestore.tags?.map((tag) => ({text: tag.name})) : [];
+    tags.value = toRestore.tags ? toRestore.tags?.map((tag) => ({ text: tag.name })) : [];
     form.markdown = toRestore.markdown;
     form.description = toRestore.description;
   }
