@@ -33,7 +33,7 @@
       <div class="col w-50">
         <div class="card flex-md-row mb-4 box-shadow h-md-250">
           <div class="card-body">
-            <form @submit.prevent="submitForm" @input="handleAutoSave">
+            <form @submit.prevent="submitForm" @change="handleAutoSave">
               <div class="form-floating mb-3">
                 <input v-model="form.title" type="text" class="form-control" id="title" placeholder="Titel" required />
                 <label for="title">{{ t("posts.form.title") }}</label>
