@@ -39,7 +39,7 @@ async function callServer<
   return fetch(url, {
     method,
     headers,
-    body: payload === null || payload instanceof ApiRequestJsonPayloadWithFiles ? toFormData(payload) : JSON.stringify(payload.json),
+    body: payload === null || payload instanceof ApiRequestJsonPayloadWithFiles ? toFormData(payload) : JSON.stringify(payload),
   }).then(async (response) => {
     if (!response.ok) {
       throw new Error("Error response: " + response.status + " " + response.statusText);
