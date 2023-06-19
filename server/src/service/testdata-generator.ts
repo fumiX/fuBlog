@@ -84,7 +84,7 @@ export async function createRandomFakeOauthAccount(user: UserEntity, seed?: numb
     throw new Error("No domain for fake OAuth found!");
   }
   const account: OAuthAccountEntity = {
-    oauthId: faker.random.alphaNumeric(15),
+    oauthId: faker.string.alphanumeric(15),
     type: "FAKE",
     user,
     domain,
@@ -99,9 +99,9 @@ export async function createRandomUser(seed?: number): Promise<UserEntity> {
   faker.seed(seed);
   try {
     const sex = faker.helpers.arrayElement([Sex.Male, Sex.Female]);
-    const firstName = faker.name.firstName(sex);
-    const lastName = faker.name.lastName();
-    const fullName = [firstName, faker.helpers.maybe(() => faker.name.middleName(), { probability: 0.7 }), lastName]
+    const firstName = faker.person.firstName(sex);
+    const lastName = faker.person.lastName();
+    const fullName = [firstName, faker.helpers.maybe(() => faker.person.middleName(), { probability: 0.7 }), lastName]
       .filter(isNeitherNullNorUndefined)
       .join(" ");
     console.debug(`Generating 🧑 ${fullName}`);
@@ -115,8 +115,8 @@ export async function createRandomUser(seed?: number): Promise<UserEntity> {
         ?.then((ab) => new Uint8Array(ab)),
     );
     const user: UserEntity = {
-      username: faker.internet.userName(firstName, lastName),
-      email: faker.internet.email(firstName, lastName),
+      username: faker.internet.userName({ firstName, lastName }),
+      email: faker.internet.email({ firstName, lastName }),
       fullName,
       roles: faker.helpers.arrayElement([["ADMIN"], ["WRITER"], ["EDITOR", "WRITER"], ["EDITOR"], []]),
       profilePictureUrl,

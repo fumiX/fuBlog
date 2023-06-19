@@ -18,7 +18,7 @@ router.get("/", async (req, res) => {
   // Put all the existing accounts from the DB into the userInfosById array
   dbUserAccounts.forEach((acc) => {
     const prev: Omit<UserInfo, "profile"> = userInfosById[acc.oauthId] ?? {
-      code: faker.random.alphaNumeric(20),
+      code: faker.string.alphanumeric(20),
     };
 
     userInfosById[acc.oauthId] = Object.assign(prev, { profile: acc.user });
@@ -90,10 +90,10 @@ router.get("/", async (req, res) => {
   if (!redirectUri || !redirectUri.match(/^https?:\/\//)) {
     res.status(400).json({ error: "Query parameter redirect_uri missing!" });
   } else {
-    const sex = faker.name.sexType();
-    const firstName = faker.name.firstName(sex);
-    const middleName = faker.helpers.maybe(() => faker.name.middleName(), { probability: 0.7 });
-    const lastName = faker.name.lastName();
+    const sex = faker.person.sexType();
+    const firstName = faker.person.firstName(sex);
+    const middleName = faker.helpers.maybe(() => faker.person.middleName(), { probability: 0.7 });
+    const lastName = faker.person.lastName();
     const fullName = [firstName, middleName, lastName].filter(isNeitherNullNorUndefined).join(" ");
     const email = faker.internet.email(firstName, lastName);
     res
