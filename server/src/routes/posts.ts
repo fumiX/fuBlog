@@ -17,6 +17,7 @@ import { authMiddleware } from "../service/middleware/auth.js";
 import { extractJsonBody, extractUploadFiles, multipleFilesUpload } from "../service/middleware/files-upload.js";
 import { generateShareImage } from "../service/opengraph.js";
 import logger from "../logger.js";
+import { OAuthAccountEntity } from "@server/entity/OAuthAccount.entity.js";
 
 const router: Router = express.Router();
 
@@ -72,6 +73,7 @@ router.get("/page/:page([0-9]+)/count/:count([0-9]+)/", async (req: Request, res
       where: {
         autosaveRefPost: IsNull(),
         autosaveRefUser: IsNull(),
+        draft: false,
       },
       order: {
         createdAt: "DESC",
@@ -187,6 +189,61 @@ router.post(
   },
 );
 
+async function saveAutosave(
+  body: PostRequestDto,
+  postRef: PostEntity | undefined,
+  user: OAuthAccountEntity,
+  attachmentEntities: AttachmentEntity[],
+): Promise<SavePostResponseDto> {
+  return AppDataSource.manager.transaction(async (manager) => {
+    await manager.query("SET CONSTRAINTS ALL DEFERRED");
+    const tags = body.stringTags.map((name) => ({ name: name.trim() }));
+    return manager
+      .createQueryBuilder(TagEntity, "tag")
+      .insert()
+      .values(tags)
+      .onConflict('("name") DO UPDATE SET "name" = EXCLUDED."name"')
+      .execute()
+      .then(async (it): Promise<SavePostResponseDto> => {
+        const post: PostEntity = {
+          title: body.title,
+          description: body.description,
+          markdown: body.markdown,
+          createdBy: user.user,
+          createdAt: new Date(),
+          sanitizedHtml: await MarkdownConverterServer.Instance.convert(body.markdown),
+          draft: true,
+          attachments: [],
+          tags,
+          autosaveRefPost: postRef,
+        };
+
+        const insertResult = await manager.getRepository(PostEntity).insert(post);
+        await manager.createQueryBuilder(PostEntity, "tags").relation("tags").of(post).add(tags);
+        if (attachmentEntities.length > 0) {
+          await manager
+            .createQueryBuilder()
+            .insert()
+            .into(FileEntity)
+            .values(attachmentEntities.map((it) => it.file))
+            .onConflict('("sha256") DO NOTHING')
+            .execute();
+          return await manager
+            .getRepository(AttachmentEntity)
+            .insert(attachmentEntities)
+            .then((it) => {
+              return { postId: post.id, attachments: attachmentEntities };
+            });
+        } else {
+          return { postId: post.id, attachments: [] };
+        }
+      })
+      .catch((err) => {
+        throw new InternalServerError(true, "Could not create autosave " + err);
+      });
+  });
+}
+
 async function getPersistedTagsForPost(post: PostEntity, bodyJson: PostRequestDto): Promise<TagEntity[]> {
   if (!bodyJson.stringTags || bodyJson.stringTags.length <= 0) {
     return Promise.resolve([]);
@@ -251,7 +308,7 @@ router.delete("/autosave/:id(\\d+$)", authMiddleware, async (req: Request, res: 
     .catch(next);
 });
 
-// find any relevant autosaves for the user
+// find any relevant autosave for the user
 router.get("/autosave", authMiddleware, async (req, res, next) => {
   logger.info("Looking for user related autosaves...");
   const account = await req.loggedInUser?.();
@@ -267,7 +324,7 @@ router.get("/autosave", authMiddleware, async (req, res, next) => {
     .catch(next);
 });
 
-// find any relevant autosaves for the post
+// find any relevant autosave for the post
 router.get("/autosave/:id(\\d+$)", async (req, res, next) => {
   if (+req.params.id) {
     logger.info("Looking for post related autosaves..." + req.params.id);
@@ -294,8 +351,10 @@ async function deleteAnyAutosaveForUser(userId: number) {
 
 // EDIT EXISTING POST
 router.post("/:id(\\d+$)", authMiddleware, multipleFilesUpload, async (req: Request, res: Response, next) => {
-  const postId = +req.params.id;
-  const post = await AppDataSource.manager.getRepository(PostEntity).findOneBy({
+  let shouldUpdate = true;
+  // first assume to edit the post
+  let postId: number = +req.params.id;
+  let post: PostEntity = await AppDataSource.manager.getRepository(PostEntity).findOneByOrFail({
     id: postId,
   });
 
@@ -313,56 +372,86 @@ router.post("/:id(\\d+$)", authMiddleware, multipleFilesUpload, async (req: Requ
     return next(new ForbiddenError());
   }
 
-  if (body.autosave) {
-    // TODO
-    logger.info("autosaving");
-  }
+  const postPartial = {
+    title: body.title,
+    description: body.description,
+    markdown: body.markdown,
+    updatedAt: new Date(),
+    sanitizedHtml: await MarkdownConverterServer.Instance.convert(body.markdown),
+    updatedBy: account.user,
+    draft: body.draft,
+  };
 
   const tagsToUseInPost: TagEntity[] = await getPersistedTagsForPost(post, body).catch((err) => {
     throw new InternalServerError(true, "Error getting tags" + err);
   });
 
-  AppDataSource.manager
-    .transaction(async (manager) => {
-      manager
-        .getRepository(PostEntity)
-        .update(postId, {
-          title: body.title,
-          description: body.description,
-          markdown: body.markdown,
-          updatedAt: new Date(),
-          sanitizedHtml: await MarkdownConverterServer.Instance.convert(body.markdown),
-          updatedBy: account.user,
-          draft: body.draft,
-          // tags: tagsToUseInPost,
+  // TODO: do this correctly
+  let entityToUpdate: Promise<PostEntity>;
+
+  if (body.autosave) {
+    const attachmentEntities: AttachmentEntity[] = await Promise.all(extractUploadFiles(req).map((it) => convertAttachment(post, it)));
+
+    findAnyAutosaveForPost(postId)
+      .then((foundAutosave) => {
+        if (foundAutosave) {
+          // so that later we update the autosave entity instead of the post itself
+          post = foundAutosave;
+          postId = Number(foundAutosave.id);
+          // TODO : avoid saving before this is set -> async
+          entityToUpdate = new Promise((resolve) => post);
+        } else {
+          // no autosave found for post -> create a new autosave
+          shouldUpdate = false;
+          saveAutosave(body, post, account, attachmentEntities)
+            .then((response) => res.status(201).json(response))
+            .catch(next);
+          entityToUpdate = Promise.reject();
+        }
+      })
+      .catch(next);
+  } else {
+    entityToUpdate = new Promise<PostEntity>((resolve) => post);
+  }
+
+  Promise.resolve(entityToUpdate).then(() => {
+    // only relevant if post or autosave entity should be updated
+    if (shouldUpdate && post) {
+      // update post or autosave
+      AppDataSource.manager
+        .transaction(async (manager) => {
+          manager
+            .getRepository(PostEntity)
+            .update(postId, postPartial)
+            .then((updateResult) => {
+              // TODO: Optimize, so unchanged attachments are not deleted and re-added
+              manager.getRepository(AttachmentEntity).delete({ post: { id: post.id } });
+              // manager.getRepository(AttachmentEntity).insert(extractUploadFiles(req).map((it) => convertAttachment(post, it)));
+              // tagsToUseInPost.forEach((tag) => {
+              //   manager.getRepository(PostEntity).createQueryBuilder().relation(PostEntity, "tags").add(tag);
+              // });
+            })
+            .catch(next);
+          // many to many cant be updated so we have to save again
+          return manager
+            .getRepository(PostEntity)
+            .findOneByOrFail({ id: postId })
+            .then((post) => {
+              post.tags = tagsToUseInPost;
+              return post;
+            })
+            .then((updatedPost) => manager.getRepository(PostEntity).save(updatedPost))
+            .catch(next);
         })
-        .then((updateResult) => {
-          // TODO: Optimize, so unchanged attachments are not deleted and re-added
-          manager.getRepository(AttachmentEntity).delete({ post: { id: post.id } });
-          // manager.getRepository(AttachmentEntity).insert(extractUploadFiles(req).map((it) => convertAttachment(post, it)));
-          // tagsToUseInPost.forEach((tag) => {
-          //   manager.getRepository(PostEntity).createQueryBuilder().relation(PostEntity, "tags").add(tag);
-          // });
+        .then((it) => {
+          if (post.id && !body.autosave) {
+            deleteAnyAutosaveForPost(post.id);
+          }
+          return res.status(200).json({ postId: post.id } as SavePostResponseDto);
         })
         .catch(next);
-      // many to many cant be updated so we have to save again
-      return manager
-        .getRepository(PostEntity)
-        .findOneByOrFail({ id: postId })
-        .then((post) => {
-          post.tags = tagsToUseInPost;
-          return post;
-        })
-        .then((updatedPost) => manager.getRepository(PostEntity).save(updatedPost))
-        .catch(next);
-    })
-    .then((it) => {
-      if (post.id) {
-        deleteAnyAutosaveForPost(post.id);
-      }
-      return res.status(200).json({ postId: post.id } as SavePostResponseDto);
-    })
-    .catch(next);
+    }
+  });
 });
 
 // DELETE POST
