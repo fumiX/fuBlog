@@ -46,12 +46,12 @@ async function generate(): Promise<void> {
 
   await Promise.all(
     Array.from({ length: usersCount }).map(() =>
-      createRandomUser(faker.datatype.number()).then((user: UserEntity) => {
-        createRandomFakeOauthAccount(user, faker.datatype.number());
+      createRandomUser(faker.number.int()).then((user: UserEntity) => {
+        createRandomFakeOauthAccount(user, faker.number.int());
         Array.from({ length: postsPerUser }).forEach(() => {
-          createRandomPost(user, faker.datatype.number()).then((post: PostEntity) => {
+          createRandomPost(user, faker.number.int()).then((post: PostEntity) => {
             Array.from({ length: attachmentsPerPost }).forEach(() => {
-              createRandomAttachment(post, faker.datatype.number());
+              createRandomAttachment(post, faker.number.int());
             });
           });
         });
@@ -90,7 +90,7 @@ export async function createRandomUser(seed?: number): Promise<UserEntity> {
     console.debug(`Generating 🧑 ${fullName}`);
     const profilePictureUrl: DataUrl | undefined = imageBytesToDataUrl(
       await (
-        await faker.helpers.maybe(() => generateProfilePicture(faker.datatype.number(), sex), {
+        await faker.helpers.maybe(() => generateProfilePicture(faker.number.int(), sex), {
           probability: 0.8,
         })
       )
@@ -146,10 +146,10 @@ export async function createRandomPost(createdBy: UserEntity, seed?: number): Pr
 export async function createRandomAttachment(post: PostEntity, seed?: number): Promise<AttachmentEntity> {
   faker.seed(seed);
   try {
-    const data = await generateRandomPng(faker.datatype.number());
+    const data = await generateRandomPng(faker.number.int());
     const file: FileEntity = await FileEntity.fromData(await data.arrayBuffer());
     await AppDataSource.manager.createQueryBuilder().insert().into(FileEntity).values(file).onConflict('("sha256") DO NOTHING').execute();
-    const attachment: AttachmentEntity = { post, file, filename: faker.random.word() + ".png" };
+    const attachment: AttachmentEntity = { post, file, filename: faker.lorem.word() + ".png" };
     await AppDataSource.manager.getRepository(AttachmentEntity).insert(attachment);
     return attachment;
   } catch (e) {
