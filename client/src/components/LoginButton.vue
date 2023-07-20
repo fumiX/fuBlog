@@ -1,11 +1,11 @@
 <template>
-  <span class="mx-2 text-muted" v-if="!providers || providers.providers.length <= 0"><fa-icon :icon="faUserSlash" /></span>
+  <span class="mx-2 text-white" v-if="!providers || providers.providers.length <= 0"><fa-icon :icon="faUserSlash" /></span>
   <a class="btn btn-link mx-1 no-underline" v-else-if="providers && providers.providers.length === 1" :href="providers.providers[0].url">
     <fa-icon :icon="faUser" />
     <span class="mx-2">{{ providers.providers[0].label ?? "Login" }}</span>
   </a>
   <div class="dropdown" v-else>
-    <button class="btn dropdown-toggle mx-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <button class="btn dropdown-toggle mx-1 text-white" type="button" data-bs-toggle="dropdown" aria-expanded="false">
       <fa-icon :icon="faUser" /> Login
     </button>
     <ul class="dropdown-menu">

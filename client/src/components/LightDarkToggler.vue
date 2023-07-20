@@ -81,6 +81,11 @@ const emit = defineEmits(["themeChanged"]);
 const setTheme = (theme: UserTheme) => {
   saveCssPreference(theme);
   userTheme.value = theme;
+  if (theme === "darkTheme") {
+    document.body.dataset.bsTheme = "dark";
+  } else {
+    document.body.dataset.bsTheme = "light";
+  }
   emit("themeChanged", userTheme.value);
 };
 
