@@ -11,8 +11,18 @@
 
 <style lang="scss">
 .emoji {
-  font-family: Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, Android Emoji, EmojiSymbols, EmojiOne Mozilla, Twemoji Mozilla,
-    Segoe UI Symbol, Noto Color Emoji Compat, emoji, noto-emojipedia-fallback;
+  font-family:
+    Apple Color Emoji,
+    Segoe UI Emoji,
+    Noto Color Emoji,
+    Android Emoji,
+    EmojiSymbols,
+    EmojiOne Mozilla,
+    Twemoji Mozilla,
+    Segoe UI Symbol,
+    Noto Color Emoji Compat,
+    emoji,
+    noto-emojipedia-fallback;
   font-weight: 400;
 }
 
@@ -62,7 +72,9 @@
     height: calc(var(--element-size) * 0.4);
     width: calc(var(--element-size) * 0.4);
     transform: translateX(0);
-    transition: transform 0.3s ease, background-color 0.5s ease;
+    transition:
+      transform 0.3s ease,
+      background-color 0.5s ease;
   }
 
   .modeswitch-toggle-checked {

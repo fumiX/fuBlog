@@ -47,8 +47,8 @@ router.get("/", async (req, res) => {
               <span>Code <code>${userInfosById[it.oauthId].code}</code></span><br>
               ${it.user.roles.map((r) => '<span class="badge rounded-pill text-bg-info m-1">' + r + "</span>").join("")}<br>
               <a class="btn btn-outline-primary" href="${req.query.redirect_uri}?state=${req.query.state ?? ""}&code=${
-          userInfosById[it.oauthId].code
-        }">Login</a>
+                userInfosById[it.oauthId].code
+              }">Login</a>
             </form>
           </div>
         </li>`;

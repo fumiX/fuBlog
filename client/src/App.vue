@@ -86,12 +86,18 @@ footer.page-footer {
       max-width: 16rem;
       opacity: 0.6;
       clip-path: polygon(0 5%, 100% 5%, 100% 55%, 0 55%);
-      transition: 15s ease-in opacity, 20s ease-in clip-path, 5s ease-in max-width;
+      transition:
+        15s ease-in opacity,
+        20s ease-in clip-path,
+        5s ease-in max-width;
     }
 
     &:hover img {
       opacity: 1;
-      transition: 1s ease-out opacity, 1s ease-out clip-path, 1s ease-out max-width;
+      transition:
+        1s ease-out opacity,
+        1s ease-out clip-path,
+        1s ease-out max-width;
       clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
       max-width: 25rem;
     }

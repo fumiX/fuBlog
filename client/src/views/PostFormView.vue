@@ -156,7 +156,9 @@
   text-align: center;
   border: 2px solid #ddd;
   box-shadow: inset 0 0 0 0 #ffc377;
-  transition: 0.5s ease-out box-shadow, 3s ease border-color;
+  transition:
+    0.5s ease-out box-shadow,
+    3s ease border-color;
 
   .plus {
     font-size: 5rem;
@@ -171,7 +173,9 @@
   &:active {
     border: 2px dashed #aaa;
     box-shadow: inset 0 -15rem 0 0 #ffc377;
-    transition: 0.5s ease-in box-shadow, 3s ease border-color;
+    transition:
+      0.5s ease-in box-shadow,
+      3s ease border-color;
   }
 }
 

@@ -69,7 +69,10 @@ interface ApiRequestJsonPayload<T> {
   json: NonNullable<T>;
 }
 class ApiRequestJsonPayloadWithFiles<T> implements ApiRequestJsonPayload<T> {
-  constructor(public json: NonNullable<T>, public files: File[]) {}
+  constructor(
+    public json: NonNullable<T>,
+    public files: File[],
+  ) {}
 }
 
 function toFormData<T>(payload: ApiRequestJsonPayloadWithFiles<T> | null): FormData | null {
