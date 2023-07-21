@@ -2,18 +2,54 @@
 
 // @import "./themes/default.scss";
 @import "./themes/fumix.scss";
-
-$theme-map: null;
-@import "./themes/light-dark-mode.scss";
-
-
 @import "./../../../../node_modules/bootstrap/scss/bootstrap.scss";
 
+$color-mode-type: data;
+@include color-mode(dark) {
+    --bs-body-bg: $body-bg-dark;
+    --bs-text-color: $body-color-light;
 
-.lightTheme{
-    @import "./../../../../node_modules/highlight.js/scss/gradient-light.scss";
+    .jumbotron {
+        filter: invert(100%);
+    }
+
+    @import "./../../../../node_modules/highlight.js/scss/gradient-dark.scss";
 }
 
-.darkTheme{
-    @import "./../../../../node_modules/highlight.js/scss/gradient-dark.scss";
+@include color-mode(light) {
+    --bs-body-bg: $body-bg-light;
+    --bs-text-color: $body-color-dark;
+
+    .card {
+        background-color: $card-bg-light;
+        .card-body {
+            svg {
+                g > * :not(text) {
+                    stroke: $body-color-light !important;
+                }
+            }
+        }
+    }
+    .modal-content {
+        background-color: $modal-content-bg-light;
+        border-color: $modal-content-border-color-light;
+    }
+    .modal-header,
+    .modal-footer {
+        border-color: $modal-header-border-color-light;
+    }
+    table {
+        &.table-bordered {
+            border-color: $table-border-color-light !important;
+        }
+        th,
+        td {
+            color: $body-color-light;
+        }
+    }
+    .jumbotron {
+        filter: invert(0);
+    }
+
+    @import "./../../../../node_modules/highlight.js/scss/gradient-light.scss";
 }
