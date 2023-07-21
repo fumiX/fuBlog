@@ -28,4 +28,4 @@ export type UserWithOAuthProviders = User & {
   oauthProviders: OAuthProviderId[];
 };
 
-export type UserTheme = "lightTheme" | "darkTheme";
+export type UserTheme = "light" | "dark";
