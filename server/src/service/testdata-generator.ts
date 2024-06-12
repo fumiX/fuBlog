@@ -149,7 +149,7 @@ export async function createRandomAttachment(post: PostEntity, seed?: number): P
     const data = await generateRandomPng(faker.datatype.number());
     const file: FileEntity = await FileEntity.fromData(await data.arrayBuffer());
     await AppDataSource.manager.createQueryBuilder().insert().into(FileEntity).values(file).onConflict('("sha256") DO NOTHING').execute();
-    const attachment: AttachmentEntity = { post, file, filename: faker.random.word() + ".png" };
+    const attachment: AttachmentEntity = { post, file, filename: faker.lorem.word() + ".png" };
     await AppDataSource.manager.getRepository(AttachmentEntity).insert(attachment);
     return attachment;
   } catch (e) {
