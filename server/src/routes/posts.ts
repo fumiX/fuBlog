@@ -174,8 +174,6 @@ router.post(
             } else {
               return { postId: post.id, attachments: [] };
             }
-
-
           })
           .catch((err) => {
             throw new InternalServerError(true, "Could not create post " + err);
@@ -185,7 +183,6 @@ router.post(
       .catch((err) => next(err));
   },
 );
-
 
 // EDIT EXISTING POST
 router.post("/:id(\\d+$)", authMiddleware, multipleFilesUpload, async (req: Request, res: Response, next) => {
@@ -227,7 +224,6 @@ router.post("/:id(\\d+$)", authMiddleware, multipleFilesUpload, async (req: Requ
           // tags: tagsToUseInPost,
         })
         .then(async (updateResult) => {
-
           manager.getRepository(AttachmentEntity).delete({ post: { id: post.id } });
 
           const attachmentEntities: AttachmentEntity[] = await Promise.all(
@@ -277,11 +273,11 @@ async function getPersistedTagsForPost(post: PostEntity, bodyJson: PostRequestDt
   const alreadySavedTags =
     bodyJson.stringTags?.length > 0
       ? await AppDataSource.manager
-        .getRepository(TagEntity)
-        .createQueryBuilder("tagEntity")
-        .select()
-        .where("tagEntity.name IN(:...names)", { names: bodyJson.stringTags })
-        .getMany()
+          .getRepository(TagEntity)
+          .createQueryBuilder("tagEntity")
+          .select()
+          .where("tagEntity.name IN(:...names)", { names: bodyJson.stringTags })
+          .getMany()
       : await Promise.all([]);
   tagsToUseInPost.push(...alreadySavedTags);
 
@@ -317,8 +313,6 @@ router.get("/tags/:search", async (req: Request, res: Response, next) => {
     .then((result) => res.status(200).json({ data: result }))
     .catch(next);
 });
-
-
 
 // DELETE POST
 router.get("/delete/:id(\\d+$)", async (req: Request, res: Response, next) => {
