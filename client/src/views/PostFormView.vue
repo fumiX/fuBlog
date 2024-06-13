@@ -11,48 +11,27 @@
               </div>
 
               <div class="form-floating mb-3">
-                <textarea
-                  v-model="form.description"
-                  style="overflow-y: scroll; height: 6rem"
-                  class="form-control"
-                  id="description"
-                ></textarea>
+                <textarea v-model="form.description" style="overflow-y: scroll; height: 6rem" class="form-control"
+                  id="description"></textarea>
                 <label for="description">{{ t("posts.form.description") }}</label>
               </div>
 
               <div class="form-floating mb-3">
                 <label for="stringTags">{{ t("posts.form.tags.tags") }}</label>
-                <vue-tags-input
-                  v-model="tag"
-                  :tags="tags"
-                  :autocomplete-items="tagList"
-                  :placeholder="t('posts.form.tags.enter')"
-                  @tags-changed="handleTagsChanged"
-                  @input="handleAutocompletion"
-                  @before-adding-tag="checkTag"
-                />
+                <vue-tags-input v-model="tag" :tags="tags" :autocomplete-items="tagList"
+                  :placeholder="t('posts.form.tags.enter')" @tags-changed="handleTagsChanged"
+                  @input="handleAutocompletion" @before-adding-tag="checkTag" />
               </div>
 
               <div class="mb-3">
-                <ai-summaries
-                  :full-text="form.markdown"
-                  :onSetDescription="setDescription"
-                  :onAddTag="addTag"
-                  :onSetKeyvisual="setKeyvisual"
-                ></ai-summaries>
+                <ai-summaries :full-text="form.markdown" :onSetDescription="setDescription" :onAddTag="addTag"
+                  :onSetKeyvisual="setKeyvisual"></ai-summaries>
               </div>
 
               <div class="form-floating mb-3">
-                <textarea
-                  v-model="form.markdown"
-                  class="form-control"
-                  placeholder="Blogpost"
-                  ref="markdownArea"
-                  style="height: 40vh; min-height: 200px"
-                  aria-describedby="markdownHelp"
-                  v-on:drop="dropMarkdown($event)"
-                  required
-                ></textarea>
+                <textarea v-model="form.markdown" class="form-control" placeholder="Blogpost" ref="markdownArea"
+                  style="height: 40vh; min-height: 200px" aria-describedby="markdownHelp"
+                  v-on:drop="dropMarkdown($event)" required></textarea>
                 <label for="markdown">{{ t("posts.form.message.label") }}</label>
                 <div id="markdownHelp" class="form-text">{{ t("posts.form.message.hint") }}</div>
               </div>
@@ -75,15 +54,12 @@
         <h2 class="display-6">{{ (form?.title?.length ?? 0) > 0 ? form?.title : t("posts.form.preview.title") }}</h2>
         <div class="card flex-md-row mb-4 box-shadow h-md-250">
           <div class="card-body" style="max-width: 100%">
-            <div v-if="loading" style="position: absolute; width: 100%; margin-top: 10vh; text-align: center" class="text-primary">
+            <div v-if="loading" style="position: absolute; width: 100%; margin-top: 10vh; text-align: center"
+              class="text-primary">
               <loading-spinner />
             </div>
-            <mark-down
-              :markdown="md"
-              v-bind:custom-image-urls="files"
-              @loading="loading = $event"
-              :style="loading ? 'opacity:0.2' : 'opacity:1'"
-            ></mark-down>
+            <mark-down :markdown="md" v-bind:custom-image-urls="files" @loading="loading = $event"
+              :style="loading ? 'opacity:0.2' : 'opacity:1'"></mark-down>
           </div>
         </div>
       </div>
@@ -92,40 +68,35 @@
       <div class="card-body">
         <h3>
           {{ tc("posts.form.imageupload", Object.keys(files).length) }}
-          <small class="text-body-secondary f-4" v-if="Object.keys(files).length > 0"
-            >({{ convertToHumanReadableFileSize(totalBytesInFiles) }})</small
-          >
+          <small class="text-body-secondary f-4" v-if="Object.keys(files).length > 0">({{
+    convertToHumanReadableFileSize(totalBytesInFiles) }})</small>
         </h3>
         <!-- Hidden file input, used to open the file dialog, when the dropzone is clicked -->
-        <input
-          style="display: none"
-          type="file"
-          id="file"
-          multiple
-          v-on:change="handleFileChange($event)"
-          accept=".png, .gif, .jpg, .jpeg, image/png, image/jpeg, image/gif"
-        />
-        <div
-          id="dropzone"
-          v-on:click="openFileDialog()"
-          v-on:drop="handleFileChange($event)"
-          v-on:dragover="highlightDropzone($event, true)"
-          v-on:dragleave="highlightDropzone($event, false)"
-          :class="{ active: dropzoneHighlight }"
-        >
+        <input style="display: none" type="file" id="file" multiple v-on:change="handleFileChange($event)"
+          accept=".png, .gif, .jpg, .jpeg, image/png, image/jpeg, image/gif" />
+        <div id="dropzone" v-on:click="openFileDialog()" v-on:drop="handleFileChange($event)"
+          v-on:dragover="highlightDropzone($event, true)" v-on:dragleave="highlightDropzone($event, false)"
+          :class="{ active: dropzoneHighlight }">
           <div class="plus"><fa-icon :icon="faUpload"></fa-icon></div>
           <span class="label" v-if="dropzoneHighlight">Dateien fallen lassen</span>
           <span class="label" v-else>Neue Dateien hierher ziehen oder hier klicken um Dateien auszuwählen</span>
         </div>
         <Suspense v-for="hash in Object.keys(files)" v-bind:key="hash">
-          <ImagePreview
-            :value="files[hash]"
-            :hash="hash"
-            @paste="pasteImageFileToMarkdown($event, 'afterCursor')"
-            @delete="delete files[hash]"
-          >
+          <ImagePreview :value="files[hash]" :hash="hash" @paste="pasteImageFileToMarkdown($event, 'afterCursor')"
+            @delete="delete files[hash]">
           </ImagePreview>
         </Suspense>
+
+
+        <!-- <Suspense v-for="att in attachments" v-bind:key="att.id">
+          <ImagePreview
+             :value="(att.file.binaryData as any)"
+            :hash="(att.file.sha256 as string)"
+            @paste="pasteImageFileToMarkdown($event, 'afterCursor')"
+            
+          >
+          </ImagePreview>
+        </Suspense> -->
       </div>
     </div>
   </div>
@@ -244,6 +215,7 @@
   }
 
   @keyframes shake {
+
     10%,
     90% {
       transform: scale(0.9) translate3d(-1px, 0, 0);
@@ -284,11 +256,13 @@ import { debounce } from "@client/debounce.js";
 import { PostEndpoints } from "@client/util/api-client.js";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import { t, tc } from "@client/plugins/i18n.js";
-import type { DraftResponseDto, NewPostRequestDto, Post, Tag, SupportedInsertPositionType } from "@fumix/fu-blog-common";
+import type { DraftResponseDto, NewPostRequestDto, Post, Tag, SupportedInsertPositionType, Attachment } from "@fumix/fu-blog-common";
 import { bytesToBase64URL, convertToHumanReadableFileSize } from "@fumix/fu-blog-common";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import VueTagsInput from "@sipec/vue3-tags-input";
+
+
 
 const tag = ref<string>("");
 const tags = ref<{ text: string; tiClasses?: string[] }[]>([]); // vue-tags-input internal format
@@ -316,6 +290,7 @@ const props = defineProps({
   },
 });
 
+
 const totalBytesInFiles = computed(() =>
   Object.values(files)
     .map((it) => it.size)
@@ -340,6 +315,12 @@ onMounted(async () => {
       form.draft = resJson.draft;
       tags.value = resJson.tags ? resJson.tags?.map((tag) => ({ text: tag.name })) : [];
       postHasError.value = false;
+
+      if (resJson.attachments) {
+        // ADD already existing attachments to files
+        processAttachments(resJson.attachments);
+      }
+
     } catch (e) {
       postHasError.value = true;
     }
@@ -349,6 +330,24 @@ onMounted(async () => {
     loading.value = true;
     md.value = form.markdown;
   }, 1000);
+});
+
+
+// Function to process attachments and populate the files object
+const processAttachments = (attachments: Attachment[]) => {
+  attachments.forEach((attachment) => {
+    const blob = new Uint8Array((attachment.file.binaryData as any).data);
+    const file = new File([blob], attachment.filename, { type: attachment.file.mimeType });
+    files[attachment.file.sha256] = file;
+  });
+}
+
+// Create a computed property to generate URLs for the files
+const filesWithUrls = computed(() => {
+  return Object.entries(files).reduce((acc, [sha256, file]) => {
+    acc[sha256] = file;
+    return acc;
+  }, {} as { [sha256: string]: File });
 });
 
 const pasteImageFileToMarkdown = (markdown: string, insertPosition: SupportedInsertPositionType = "afterCursor") => {

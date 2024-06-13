@@ -89,7 +89,7 @@ router.get("/:id(\\d+$)", async (req: Request, res: Response, next) => {
       where: {
         id: +req.params.id,
       },
-      relations: ["createdBy", "updatedBy", "tags"],
+      relations: ["createdBy", "updatedBy", "tags", "attachments"],
     })
     .then((result) => {
       if (result === null) {
@@ -151,10 +151,12 @@ router.post(
             };
 
             const insertResult = await manager.getRepository(PostEntity).insert(post);
+
             await manager.createQueryBuilder(PostEntity, "tags").relation("tags").of(post).add(tags);
             const attachmentEntities: AttachmentEntity[] = await Promise.all(
               extractUploadFiles(req).map((it) => convertAttachment(post, it)),
             );
+
             if (attachmentEntities.length > 0) {
               await manager
                 .createQueryBuilder()
@@ -172,6 +174,8 @@ router.post(
             } else {
               return { postId: post.id, attachments: [] };
             }
+
+
           })
           .catch((err) => {
             throw new InternalServerError(true, "Could not create post " + err);
@@ -182,55 +186,6 @@ router.post(
   },
 );
 
-async function getPersistedTagsForPost(post: PostEntity, bodyJson: PostRequestDto): Promise<TagEntity[]> {
-  if (!bodyJson.stringTags || bodyJson.stringTags.length <= 0) {
-    return Promise.resolve([]);
-  }
-
-  const tagsToUseInPost: TagEntity[] = [];
-  const alreadySavedTags =
-    bodyJson.stringTags?.length > 0
-      ? await AppDataSource.manager
-          .getRepository(TagEntity)
-          .createQueryBuilder("tagEntity")
-          .select()
-          .where("tagEntity.name IN(:...names)", { names: bodyJson.stringTags })
-          .getMany()
-      : await Promise.all([]);
-  tagsToUseInPost.push(...alreadySavedTags);
-
-  const unsavedTags = bodyJson.stringTags
-    ?.filter((tag: string) => {
-      return !alreadySavedTags.some((tagEntity: TagEntity) => {
-        return tagEntity.name === tag;
-      });
-    })
-    .map(
-      (tagToSave: string) =>
-        <TagEntity>{
-          name: tagToSave,
-        },
-    );
-
-  const newlySavedTags = await AppDataSource.manager.getRepository(TagEntity).save(unsavedTags);
-  tagsToUseInPost.push(...newlySavedTags);
-
-  return tagsToUseInPost.filter((value) => value !== null && value !== undefined);
-}
-
-// autocompletion suggestions (fuzzy search) for tags
-router.get("/tags/:search", async (req: Request, res: Response, next) => {
-  await AppDataSource.manager
-    .getRepository(TagEntity)
-    .createQueryBuilder()
-    .select()
-    .where("SIMILARITY(name, :search) > 0.3", { search: req.params.search })
-    .orderBy("SIMILARITY(name, '" + req.params.id + "')", "DESC")
-    .limit(5)
-    .getMany()
-    .then((result) => res.status(200).json({ data: result }))
-    .catch(next);
-});
 
 // EDIT EXISTING POST
 router.post("/:id(\\d+$)", authMiddleware, multipleFilesUpload, async (req: Request, res: Response, next) => {
@@ -271,13 +226,31 @@ router.post("/:id(\\d+$)", authMiddleware, multipleFilesUpload, async (req: Requ
           draft: body.draft,
           // tags: tagsToUseInPost,
         })
-        .then((updateResult) => {
-          // TODO: Optimize, so unchanged attachments are not deleted and re-added
+        .then(async (updateResult) => {
+
           manager.getRepository(AttachmentEntity).delete({ post: { id: post.id } });
-          // manager.getRepository(AttachmentEntity).insert(extractUploadFiles(req).map((it) => convertAttachment(post, it)));
-          // tagsToUseInPost.forEach((tag) => {
-          //   manager.getRepository(PostEntity).createQueryBuilder().relation(PostEntity, "tags").add(tag);
-          // });
+
+          const attachmentEntities: AttachmentEntity[] = await Promise.all(
+            extractUploadFiles(req).map((it) => convertAttachment(post, it)),
+          );
+
+          if (attachmentEntities.length > 0) {
+            await manager
+              .createQueryBuilder()
+              .insert()
+              .into(FileEntity)
+              .values(attachmentEntities.map((it) => it.file))
+              .onConflict('("sha256") DO NOTHING')
+              .execute();
+            return await manager
+              .getRepository(AttachmentEntity)
+              .insert(attachmentEntities)
+              .then((it) => {
+                return { postId: post.id, attachments: attachmentEntities };
+              });
+          } else {
+            return { postId: post.id, attachments: [] };
+          }
         })
         .catch(next);
       // many to many cant be updated so we have to save again
@@ -294,6 +267,58 @@ router.post("/:id(\\d+$)", authMiddleware, multipleFilesUpload, async (req: Requ
     .then((it) => res.status(200).json({ postId: post.id } as DraftResponseDto))
     .catch(next);
 });
+
+async function getPersistedTagsForPost(post: PostEntity, bodyJson: PostRequestDto): Promise<TagEntity[]> {
+  if (!bodyJson.stringTags || bodyJson.stringTags.length <= 0) {
+    return Promise.resolve([]);
+  }
+
+  const tagsToUseInPost: TagEntity[] = [];
+  const alreadySavedTags =
+    bodyJson.stringTags?.length > 0
+      ? await AppDataSource.manager
+        .getRepository(TagEntity)
+        .createQueryBuilder("tagEntity")
+        .select()
+        .where("tagEntity.name IN(:...names)", { names: bodyJson.stringTags })
+        .getMany()
+      : await Promise.all([]);
+  tagsToUseInPost.push(...alreadySavedTags);
+
+  const unsavedTags = bodyJson.stringTags
+    ?.filter((tag: string) => {
+      return !alreadySavedTags.some((tagEntity: TagEntity) => {
+        return tagEntity.name === tag;
+      });
+    })
+    .map(
+      (tagToSave: string) =>
+        <TagEntity>{
+          name: tagToSave,
+        },
+    );
+
+  const newlySavedTags = await AppDataSource.manager.getRepository(TagEntity).save(unsavedTags);
+  tagsToUseInPost.push(...newlySavedTags);
+
+  return tagsToUseInPost.filter((value) => value !== null && value !== undefined);
+}
+
+// autocompletion suggestions (fuzzy search) for tags
+router.get("/tags/:search", async (req: Request, res: Response, next) => {
+  await AppDataSource.manager
+    .getRepository(TagEntity)
+    .createQueryBuilder()
+    .select()
+    .where("SIMILARITY(name, :search) > 0.3", { search: req.params.search })
+    .orderBy("SIMILARITY(name, '" + req.params.id + "')", "DESC")
+    .limit(5)
+    .getMany()
+    .then((result) => res.status(200).json({ data: result }))
+    .catch(next);
+});
+
+
 
 // DELETE POST
 router.get("/delete/:id(\\d+$)", async (req: Request, res: Response, next) => {
@@ -324,6 +349,7 @@ router.get("/:id(\\d+)/og-image", async (req: Request, res: Response, next) => {
     .findOne({ where: { id: +req.params.id } })
     .then((post) => {
       if (post && post.id) {
+        console.log("Generating share image for post", post.id);
         res.status(200).write(generateShareImage(post.title, post.createdAt));
         res.end();
       } else {
