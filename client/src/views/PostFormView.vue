@@ -62,6 +62,54 @@
                 <label class="form-check-label" for="draft">{{ t("posts.form.draft") }}</label>
               </div>
 
+              <div class="form-floating mb-3 uploadCard">
+                <h4>
+                  {{ tc("posts.form.imageupload", Object.keys(files).length) }}
+                  <small class="text-body-secondary f-4" v-if="Object.keys(files).length > 0">
+                    ({{ convertToHumanReadableFileSize(totalBytesInFiles) }})
+                  </small>
+                </h4>
+                <!-- Hidden file input, used to open the file dialog, when the dropzone is clicked -->
+                <input
+                  style="display: none"
+                  type="file"
+                  id="file"
+                  multiple
+                  v-on:change="handleFileChange($event)"
+                  accept=".png, .gif, .jpg, .jpeg, image/png, image/jpeg, image/gif"
+                />
+
+                <div class="imagesPreviewContaier" v-if="Object.keys(files).length">
+                  <div class="inner">
+                    <Suspense v-for="hash in Object.keys(files).reverse()" v-bind:key="hash">
+                      <ImagePreview
+                        :value="files[hash]"
+                        :hash="hash"
+                        @paste="pasteImageFileToMarkdown($event, 'afterCursor')"
+                        @delete="
+                          removeImageFileFromMarkdown(files[hash]);
+                          delete files[hash];
+                        "
+                      >
+                      </ImagePreview>
+                    </Suspense>
+                  </div>
+                </div>
+
+                <div
+                  id="dropzone"
+                  v-on:click="openFileDialog()"
+                  v-on:drop="handleFileChange($event)"
+                  v-on:dragover="highlightDropzone($event, true)"
+                  v-on:dragleave="highlightDropzone($event, false)"
+                  :class="{ active: dropzoneHighlight }"
+                >
+                  <div class="plus"><fa-icon :icon="faUpload"></fa-icon></div>
+                  <span class="label" v-if="dropzoneHighlight">Dateien fallen lassen</span>
+                  <span class="label" v-else>Neue Dateien hierher ziehen oder hier klicken um Dateien auszuwählen</span>
+                </div>
+              </div>
+
               <button type="submit" class="btn btn-sm btn-primary float-end">{{ t("app.base.save") }}</button>
               <button type="button" class="btn btn-sm btn-secondary float-end mx-3" @click="router.go(-1)">
                 {{ t("app.base.cancel") }}
@@ -88,49 +136,6 @@
         </div>
       </div>
     </div>
-    <div class="card mb-4 box-shadow h-md-250">
-      <div class="card-body">
-        <h3>
-          {{ tc("posts.form.imageupload", Object.keys(files).length) }}
-          <small class="text-body-secondary f-4" v-if="Object.keys(files).length > 0"
-            >({{ convertToHumanReadableFileSize(totalBytesInFiles) }})</small
-          >
-        </h3>
-        <!-- Hidden file input, used to open the file dialog, when the dropzone is clicked -->
-        <input
-          style="display: none"
-          type="file"
-          id="file"
-          multiple
-          v-on:change="handleFileChange($event)"
-          accept=".png, .gif, .jpg, .jpeg, image/png, image/jpeg, image/gif"
-        />
-        <div
-          id="dropzone"
-          v-on:click="openFileDialog()"
-          v-on:drop="handleFileChange($event)"
-          v-on:dragover="highlightDropzone($event, true)"
-          v-on:dragleave="highlightDropzone($event, false)"
-          :class="{ active: dropzoneHighlight }"
-        >
-          <div class="plus"><fa-icon :icon="faUpload"></fa-icon></div>
-          <span class="label" v-if="dropzoneHighlight">Dateien fallen lassen</span>
-          <span class="label" v-else>Neue Dateien hierher ziehen oder hier klicken um Dateien auszuwählen</span>
-        </div>
-        <Suspense v-for="hash in Object.keys(files)" v-bind:key="hash">
-          <ImagePreview
-            :value="files[hash]"
-            :hash="hash"
-            @paste="pasteImageFileToMarkdown($event, 'afterCursor')"
-            @delete="
-              removeImageFileFromMarkdown(files[hash]);
-              delete files[hash];
-            "
-          >
-          </ImagePreview>
-        </Suspense>
-      </div>
-    </div>
   </div>
   <post-not-available v-else></post-not-available>
 </template>
@@ -147,19 +152,54 @@
   width: 50%;
 }
 
+.uploadCard {
+  border: 1px solid #404040;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  margin-top: 1rem;
+  background-color: #dee2e6;
+}
+
+.imagesPreviewContaier {
+  width: 100%;
+  max-width: 100%;
+  min-width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 10px 0;
+  padding: 0;
+  overflow-x: auto;
+  height: auto;
+  min-height: 290px;
+  // border: 1px solid #222;
+  // border-radius: 0.375rem;
+}
+
+.inner {
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  max-width: 100%;
+  min-width: 100%;
+}
+
 #dropzone {
-  color: #555;
+  background-color: #f8f9fa55;
+  border: 1px solid #ccc;
+  color: #222;
   cursor: pointer;
   vertical-align: top;
   display: inline-block;
-  width: 12rem;
   min-height: 15rem;
   padding: 1rem 0.25rem;
-  margin: 0.25rem;
+  margin: 0;
   text-align: center;
-  border: 2px solid #ddd;
+  border-radius: 0.375rem;
   box-shadow: inset 0 0 0 0 #ffc377;
   transition: 0.5s ease-out box-shadow, 3s ease border-color;
+  width: 100%;
 
   .plus {
     font-size: 5rem;

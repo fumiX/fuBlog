@@ -1,40 +1,88 @@
 <template>
-  <div class="img-container">
-    <img :src="dataUrl" class="img-thumbnail" v-on:dragstart="onDragStart($event)" :draggable="showPaste" />
-    <div>
-      <code>{{ hash.substring(0, Math.min(10, hash.length)) }}</code>
-      <strong :title="value.name">{{ value.name }}</strong
-      ><span>{{ convertToHumanReadableFileSize(value.size) }}</span
-      ><br class="mb-1" />
-      <button class="btn btn-primary mx-1" v-if="showPaste" @click="$emit('paste', getMarkdownString())">
+  <div class="preview-container">
+    <div class="img-container">
+      <img :src="dataUrl" v-on:dragstart="onDragStart($event)" :draggable="showPaste" />
+    </div>
+    <div class="info-container">
+      <div class="code">{{ hash.substring(0, Math.min(7, hash.length)) }} / {{ convertToHumanReadableFileSize(value.size) }}</div>
+      <strong :title="value.name">{{ value.name }}</strong>
+      <button class="btn btn-paste mx-1" v-if="showPaste" @click="$emit('paste', getMarkdownString())">
         <fa-icon :icon="faPaste"></fa-icon>
       </button>
-      <button class="btn btn-outline-danger mx-1" v-if="showDelete" @click="$emit('delete')"><fa-icon :icon="faTrash"></fa-icon></button>
+      <button class="btn btn-delete mx-1" v-if="showDelete" @click="$emit('delete')"><fa-icon :icon="faTrash"></fa-icon></button>
     </div>
   </div>
 </template>
 <style scoped lang="scss">
-div.img-container {
-  width: 12rem;
-  margin: 0.25rem;
+.preview-container {
+  width: 150px;
+  margin: 0;
   position: relative;
   display: inline-block;
   text-align: center;
-  vertical-align: bottom;
+  background-color: #f8f9fa55;
+  border-radius: 0.375rem;
+  border: 1px solid #ccc;
+
+  .btn-paste {
+    color: #222;
+    &:hover {
+      color: #22222255;
+    }
+  }
+
+  .btn-delete {
+    color: #a00;
+    &:hover {
+      color: #e00;
+    }
+  }
+
+  &:hover {
+    img {
+      transition-duration: 0.3s;
+      opacity: 1;
+    }
+  }
+
+  &:not(:last-child) {
+    margin-right: 10px;
+  }
+
+  .img-container {
+    display: flex;
+    width: 148px;
+    height: auto;
+    aspect-ratio: 1/1;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    // border:1px solid red;
+  }
 
   img {
+    transition-duration: 0.3s;
+    display: flex;
+    border: 1px solid #999;
+
     &[draggable="true"] {
       cursor: move;
     }
 
-    min-width: 2rem;
-    min-height: 2rem;
-    max-width: 12rem;
-    max-height: 12rem;
+    // margin-left:-4px;
+
+    max-width: 134px;
+    max-height: 134px;
+    opacity: 0.75;
+    margin: 0;
+    padding: 0;
   }
 
-  div {
+  .info-container {
     font-size: 0.75em;
+    margin-bottom: 7px;
+    padding-top: 5px;
 
     strong {
       font-weight: bold;
@@ -42,11 +90,14 @@ div.img-container {
       white-space: nowrap;
       overflow: clip;
       display: block;
+      padding: 0 5px 7px 5px;
     }
 
-    display: block;
-    padding-bottom: 0.5rem;
-    margin-bottom: 0.5rem;
+    .code {
+      font-family: monospace;
+      font-size: 10px;
+      margin-bottom: 5px;
+    }
   }
 }
 </style>
