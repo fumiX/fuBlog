@@ -83,7 +83,7 @@
         </div>
         <Suspense v-for="hash in Object.keys(files)" v-bind:key="hash">
           <ImagePreview :value="files[hash]" :hash="hash" @paste="pasteImageFileToMarkdown($event, 'afterCursor')"
-            @delete="delete files[hash]">
+            @delete="removeImageFileFromMarkdown(files[hash]); delete files[hash]">
           </ImagePreview>
         </Suspense>
       </div>
@@ -342,6 +342,15 @@ const filesWithUrls = computed(() => {
 const pasteImageFileToMarkdown = (markdown: string, insertPosition: SupportedInsertPositionType = "afterCursor") => {
   form.markdown = insertIntoTextarea(markdown, markdownArea.value as unknown as HTMLTextAreaElement, insertPosition);
 };
+
+const removeImageFileFromMarkdown = (file: File) => {
+  const markDownBeforeRemove = form.markdown;
+  const strToRemove = `![${file.name}](${Object.keys(files).find((key) => files[key] === file)})`;
+  // Giving the textarea time to update the value, otherwise the last image deletion will not update the preview!
+  setTimeout(() => {
+    form.markdown = markDownBeforeRemove.replace(strToRemove, "");
+  }, 0);
+}
 
 const dropMarkdown = (evt: DragEvent) => {
   const items = evt.dataTransfer?.items;
