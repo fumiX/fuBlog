@@ -86,17 +86,6 @@
             @delete="delete files[hash]">
           </ImagePreview>
         </Suspense>
-
-
-        <!-- <Suspense v-for="att in attachments" v-bind:key="att.id">
-          <ImagePreview
-             :value="(att.file.binaryData as any)"
-            :hash="(att.file.sha256 as string)"
-            @paste="pasteImageFileToMarkdown($event, 'afterCursor')"
-            
-          >
-          </ImagePreview>
-        </Suspense> -->
       </div>
     </div>
   </div>
