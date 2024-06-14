@@ -245,7 +245,6 @@
     font-family: "Courier New", Courier, monospace;
     font-size: 0.75rem;
     padding: 3px 0px 0 5px !important;
-    /*border-radius: 0;*/
   }
 
   .ti-deletion-mark {
@@ -405,14 +404,6 @@ const processAttachments = (attachments: Attachment[]) => {
     files[attachment.file.sha256] = file;
   });
 };
-
-// Create a computed property to generate URLs for the files
-const filesWithUrls = computed(() => {
-  return Object.entries(files).reduce((acc, [sha256, file]) => {
-    acc[sha256] = file;
-    return acc;
-  }, {} as { [sha256: string]: File });
-});
 
 const pasteImageFileToMarkdown = (markdown: string, insertPosition: SupportedInsertPositionType = "afterCursor") => {
   form.markdown = insertIntoTextarea(markdown, markdownArea.value as unknown as HTMLTextAreaElement, insertPosition);
