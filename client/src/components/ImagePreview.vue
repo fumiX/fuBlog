@@ -1,5 +1,6 @@
 <template>
   <div class="preview-container">
+    <div class="erase" @click="$emit('delete')" :title="t('app.base.delete_image')"></div>
     <div class="img-container">
       <img :src="dataUrl" v-on:dragstart="onDragStart($event)" :draggable="showPaste" />
     </div>
@@ -12,21 +13,58 @@
           type="button"
           v-if="showPaste"
           @click="$emit('paste', getMarkdownString())"
-          :title="t('app.base.insert')"
+          :title="t('app.base.insert_image')"
         >
           <fa-icon :icon="faFileImport"></fa-icon>
         </button>
         <button class="btn btn-softdelete mx-1" type="button" v-if="showDelete" @click="$emit('softdelete')" :title="t('app.base.remove')">
           <fa-icon :icon="faEraser"></fa-icon>
         </button>
-        <button class="btn btn-delete mx-1" type="button" v-if="showDelete" @click="$emit('delete')" :title="t('app.base.delete_image')">
+        <!-- <button class="btn btn-delete mx-1" type="button" v-if="showDelete" @click="$emit('delete')"
+          :title="t('app.base.delete_image')">
           <fa-icon :icon="faTrash"></fa-icon>
-        </button>
+        </button> -->
       </div>
     </div>
   </div>
 </template>
 <style scoped lang="scss">
+.erase {
+  width: 16px;
+  height: 16px;
+  right: -7px;
+  top: -7px;
+
+  display: block;
+  position: absolute;
+  z-index: 999;
+  background-color: #333;
+  border: 1px solid #555;
+  border-radius: 50%;
+  cursor: pointer;
+  transition-duration: 0.4s;
+
+  &:hover {
+    transition-duration: 0.4s;
+    background-color: #a00;
+  }
+
+  &:before {
+    position: absolute;
+    top: 0;
+    left: calc(50% - 3px);
+    z-index: 1000;
+    content: "\d7";
+    line-height: 12px;
+    font-size: 12px;
+    padding: 0;
+    margin: 0;
+    transform: scale(1.25);
+    color: #fff;
+    text-align: center;
+  }
+}
+
 .preview-container {
   width: 150px;
   margin: 0;
@@ -69,7 +107,7 @@
   }
 
   &:not(:last-child) {
-    margin-right: 10px;
+    margin-right: 15px;
   }
 
   .img-container {

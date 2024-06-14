@@ -23,7 +23,7 @@
       "save": "Save",
       "cancel": "Cancel",
       "edit": "Edit",
-      "insert": "Insert",
+      "insert_image": "Insert image",
       "delete_image": "Delete image",
       "remove": "Remove image reference from text",
       "read": "Read",
@@ -58,6 +58,7 @@
         "title": "Preview"
       },
       "imageupload": "Upload image",
+      "imageupload_hint": "(drag onto textarea to insert)",
       "tags": "Tags"
     },
     "confirm": {

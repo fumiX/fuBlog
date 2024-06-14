@@ -67,6 +67,8 @@
                   <small class="text-body-secondary f-4" v-if="Object.keys(files).length > 0">
                     ({{ convertToHumanReadableFileSize(totalBytesInFiles) }})
                   </small>
+
+                  <span class="tiny">{{ t("posts.form.imageupload_hint") }}</span>
                 </h4>
                 <!-- Hidden file input, used to open the file dialog, when the dropzone is clicked -->
                 <input
@@ -141,6 +143,10 @@
 </template>
 
 <style lang="scss">
+.tiny {
+  font-size: 0.75rem;
+  color: #6c757d;
+}
 .post-bg {
   background-image: url("@client/assets/images/post-bg.jpg");
   background-repeat: no-repeat;
@@ -171,7 +177,8 @@
   padding: 0;
   overflow-x: auto;
   height: auto;
-  min-height: 270px;
+  min-height: 280px;
+  padding-top: 10px;
 }
 
 .inner {
