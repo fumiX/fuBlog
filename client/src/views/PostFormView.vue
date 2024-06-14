@@ -50,7 +50,6 @@
                   ref="markdownArea"
                   style="height: 40vh; min-height: 200px"
                   aria-describedby="markdownHelp"
-                  v-on:drop="dropMarkdown($event)"
                   required
                 ></textarea>
                 <label for="markdown">{{ t("posts.form.message.label") }}</label>
@@ -90,6 +89,7 @@
                           removeImageFileFromMarkdown(files[hash]);
                           delete files[hash];
                         "
+                        @softdelete="removeImageFileFromMarkdown(files[hash])"
                       >
                       </ImagePreview>
                     </Suspense>
@@ -415,32 +415,6 @@ const removeImageFileFromMarkdown = (file: File) => {
     // give the preview time to update
     form.markdown = form.markdown.split(strToRemove).join("");
   }, 0);
-};
-
-const dropMarkdown = (evt: DragEvent) => {
-  const items = evt.dataTransfer?.items;
-  const textArea = evt.target as HTMLTextAreaElement;
-  if (items && textArea) {
-    for (const item of items) {
-      // evt.preventDefault();
-      // We cannot use preventDefault(), because we will be unable to get the cursor position to drop to.
-      // instead we have to pase everything and remove the base64 string afterwards
-      if (item.kind === "string") {
-        if (item.type === "text/markdown") {
-          item.getAsString((markdown_img_link) => {
-            form.markdown = insertIntoTextarea(markdown_img_link, textArea, "beforeCursor");
-          });
-        } else {
-          // Remove base64 string from drop events default behaviour
-          item.getAsString((str) => {
-            setTimeout(() => {
-              form.markdown = form.markdown.replace(str, "");
-            }, 0);
-          });
-        }
-      }
-    }
-  }
 };
 
 const openFileDialog = (): void => {

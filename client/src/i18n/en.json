@@ -23,7 +23,9 @@
       "save": "Save",
       "cancel": "Cancel",
       "edit": "Edit",
-      "delete": "Delete",
+      "insert": "Insert",
+      "delete_image": "Delete image",
+      "remove": "Remove image reference from text",
       "read": "Read",
       "create_post": "Create Post",
       "roles": "Roles",
@@ -66,7 +68,7 @@
       "not-available": {
         "title": "Post not available",
         "message": "This post is not available or has been deleted. You can find all posts in the overview, or use the search function to find a specific post."
-      } 
+      }
     }
   },
   "admin": {

@@ -6,10 +6,23 @@
     <div class="info-container">
       <div class="code">{{ hash.substring(0, Math.min(7, hash.length)) }} / {{ convertToHumanReadableFileSize(value.size) }}</div>
       <strong :title="value.name">{{ value.name }}</strong>
-      <button class="btn btn-paste mx-1" type="button" v-if="showPaste" @click="$emit('paste', getMarkdownString())">
-        <fa-icon :icon="faFileImport"></fa-icon>
-      </button>
-      <button class="btn btn-delete mx-1" v-if="showDelete" @click="$emit('delete')"><fa-icon :icon="faTrash"></fa-icon></button>
+      <div class="button-container">
+        <button
+          class="btn btn-paste mx-1"
+          type="button"
+          v-if="showPaste"
+          @click="$emit('paste', getMarkdownString())"
+          :title="t('app.base.insert')"
+        >
+          <fa-icon :icon="faFileImport"></fa-icon>
+        </button>
+        <button class="btn btn-softdelete mx-1" type="button" v-if="showDelete" @click="$emit('softdelete')" :title="t('app.base.remove')">
+          <fa-icon :icon="faEraser"></fa-icon>
+        </button>
+        <button class="btn btn-delete mx-1" type="button" v-if="showDelete" @click="$emit('delete')" :title="t('app.base.delete_image')">
+          <fa-icon :icon="faTrash"></fa-icon>
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -29,6 +42,14 @@
 
     &:hover {
       color: #22222255;
+    }
+  }
+
+  .btn-softdelete {
+    color: #f18901;
+
+    &:hover {
+      color: #ffa836;
     }
   }
 
@@ -60,7 +81,6 @@
     justify-content: center;
     padding: 0;
     margin: 0;
-    // border:1px solid red;
   }
 
   img {
@@ -70,9 +90,17 @@
 
     &[draggable="true"] {
       cursor: move;
-    }
+      /* fallback if grab cursor is unsupported */
+      cursor: grab;
+      cursor: -moz-grab;
+      cursor: -webkit-grab;
 
-    // margin-left:-4px;
+      &:active {
+        cursor: grabbing;
+        cursor: -moz-grabbing;
+        cursor: -webkit-grabbing;
+      }
+    }
 
     max-width: 134px;
     max-height: 134px;
@@ -100,12 +128,19 @@
       font-size: 10px;
       margin-bottom: 5px;
     }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      align-items: space-between;
+    }
   }
 }
 </style>
 
 <script setup lang="ts">
-import { faFileImport, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { t } from "@client/plugins/i18n.js";
+import { faFileImport, faTrash, faEraser } from "@fortawesome/free-solid-svg-icons";
 import { blobToArray, bytesToDataUrl, convertToHumanReadableFileSize, escapeMarkdownAltText } from "@fumix/fu-blog-common";
 import type { PropType } from "vue";
 
@@ -116,10 +151,9 @@ const getMarkdownString = () => {
 const onDragStart = (event: DragEvent) => {
   if (props.showPaste) {
     const ghostImage = event.target as HTMLImageElement;
-    const horizPos = ghostImage.width / 2;
-    const vertPos = ghostImage.height / 2;
-    event.dataTransfer?.setDragImage(ghostImage, horizPos, vertPos);
-    event.dataTransfer?.setData("text/markdown", getMarkdownString());
+    ghostImage.style.zIndex = "9999";
+    event.dataTransfer?.setDragImage(ghostImage, -10, -10);
+    event.dataTransfer?.setData("text/plain", getMarkdownString());
   }
 };
 
@@ -142,6 +176,6 @@ const props = defineProps({
   },
 });
 
-const emits = defineEmits(["paste", "delete"]);
+const emits = defineEmits(["paste", "delete", "softdelete"]);
 const dataUrl = await blobToArray(props.value).then((it) => bytesToDataUrl(props.value.type, it));
 </script>
