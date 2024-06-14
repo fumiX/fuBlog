@@ -171,9 +171,7 @@
   padding: 0;
   overflow-x: auto;
   height: auto;
-  min-height: 290px;
-  // border: 1px solid #222;
-  // border-radius: 0.375rem;
+  min-height: 270px;
 }
 
 .inner {
@@ -421,11 +419,10 @@ const pasteImageFileToMarkdown = (markdown: string, insertPosition: SupportedIns
 };
 
 const removeImageFileFromMarkdown = (file: File) => {
-  const markDownBeforeRemove = form.markdown;
-  const strToRemove = `![${file.name}](${Object.keys(files).find((key) => files[key] === file)})`;
-  // Giving the textarea time to update the value, otherwise the last image deletion will not update the preview!
+  const strToRemove = `![${file.name}](${Object.keys(files).find((key) => files[key] === file)})`.trim();
   setTimeout(() => {
-    form.markdown = markDownBeforeRemove.replace(strToRemove, "");
+    // give the preview time to update
+    form.markdown = form.markdown.split(strToRemove).join("");
   }, 0);
 };
 

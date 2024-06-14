@@ -6,8 +6,8 @@
     <div class="info-container">
       <div class="code">{{ hash.substring(0, Math.min(7, hash.length)) }} / {{ convertToHumanReadableFileSize(value.size) }}</div>
       <strong :title="value.name">{{ value.name }}</strong>
-      <button class="btn btn-paste mx-1" v-if="showPaste" @click="$emit('paste', getMarkdownString())">
-        <fa-icon :icon="faPaste"></fa-icon>
+      <button class="btn btn-paste mx-1" type="button" v-if="showPaste" @click="$emit('paste', getMarkdownString())">
+        <fa-icon :icon="faFileImport"></fa-icon>
       </button>
       <button class="btn btn-delete mx-1" v-if="showDelete" @click="$emit('delete')"><fa-icon :icon="faTrash"></fa-icon></button>
     </div>
@@ -103,7 +103,7 @@
 </style>
 
 <script setup lang="ts">
-import { faPaste, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faFileImport, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { blobToArray, bytesToDataUrl, convertToHumanReadableFileSize, escapeMarkdownAltText } from "@fumix/fu-blog-common";
 import type { PropType } from "vue";
 
