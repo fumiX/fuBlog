@@ -26,6 +26,7 @@
 
   .btn-paste {
     color: #222;
+
     &:hover {
       color: #22222255;
     }
@@ -33,6 +34,7 @@
 
   .btn-delete {
     color: #a00;
+
     &:hover {
       color: #e00;
     }
@@ -113,6 +115,10 @@ const getMarkdownString = () => {
 
 const onDragStart = (event: DragEvent) => {
   if (props.showPaste) {
+    const ghostImage = event.target as HTMLImageElement;
+    const horizPos = ghostImage.width / 2;
+    const vertPos = ghostImage.height / 2;
+    event.dataTransfer?.setDragImage(ghostImage, horizPos, vertPos);
     event.dataTransfer?.setData("text/markdown", getMarkdownString());
   }
 };

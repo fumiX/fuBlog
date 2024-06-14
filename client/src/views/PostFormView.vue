@@ -45,7 +45,7 @@
               <div class="form-floating mb-3">
                 <textarea
                   v-model="form.markdown"
-                  class="form-control"
+                  class="form-control md-area"
                   placeholder="Blogpost"
                   ref="markdownArea"
                   style="height: 40vh; min-height: 200px"
@@ -422,11 +422,22 @@ const dropMarkdown = (evt: DragEvent) => {
   const textArea = evt.target as HTMLTextAreaElement;
   if (items && textArea) {
     for (const item of items) {
-      if (item.kind === "string" && item.type === "text/markdown") {
-        evt.preventDefault();
-        item.getAsString((markdown) => {
-          form.markdown = insertIntoTextarea(markdown, textArea, "beforeCursor");
-        });
+      // evt.preventDefault();
+      // We cannot use preventDefault(), because we will be unable to get the cursor position to drop to.
+      // instead we have to pase everything and remove the base64 string afterwards
+      if (item.kind === "string") {
+        if (item.type === "text/markdown") {
+          item.getAsString((markdown_img_link) => {
+            form.markdown = insertIntoTextarea(markdown_img_link, textArea, "beforeCursor");
+          });
+        } else {
+          // Remove base64 string from drop events default behaviour
+          item.getAsString((str) => {
+            setTimeout(() => {
+              form.markdown = form.markdown.replace(str, "");
+            }, 0);
+          });
+        }
       }
     }
   }
@@ -549,7 +560,6 @@ const insertIntoTextarea = (
   const text = area.value;
   const before = text.substring(0, insertPosition === "afterCursor" ? end : start);
   const after = text.substring(insertPosition === "beforeCursor" ? start : end);
-
   return before + insertedText + after;
 };
 
