@@ -1,3 +1,4 @@
+import console from "console";
 import cors from "cors";
 import express, { Application, NextFunction, Request, Response } from "express";
 import { readFile, writeFileSync } from "fs";
@@ -70,6 +71,9 @@ async function handleUncaught(error: Error) {
   process.exit(1);
 }
 
+console.log("IS_PRODUCTION:", AppSettings.IS_PRODUCTION);
+console.log("Run mode:", AppSettings.RUN_MODE);
+console.log("DTO:", AppSettings.DTO);
 // in production serve the built vue-app from static public folder:
 if (AppSettings.IS_PRODUCTION) {
   const indexResponse = (req: Request, res: Response) => {
@@ -77,6 +81,7 @@ if (AppSettings.IS_PRODUCTION) {
       path.join(__dirname, "public/index.html"), //
       { encoding: "utf-8" },
       (err, data) => {
+        console.log("Data callback", data);
         if (err) {
           res.status(404).send(null);
         } else {
