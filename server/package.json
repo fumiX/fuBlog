@@ -6,7 +6,7 @@
   "scripts": {
     "start": "NODE_ENV='development' NODE_EXTRA_CA_CERTS=../certs/ca.crt nodemon -r dotenv/config ./src/server.ts",
     "write-app-version": "git describe --always --dirty > dist/app_version.txt",
-    "build": "npm run write-app-version && tsc",
+    "build": "tsc && npm run write-app-version",
     "run-prod": "node ./dist/server.js",
     "lint": "prettier --check 'src/**/*.(ts|vue)' && eslint src/**/*.ts",
     "lintfix": "prettier 'src/**/*.(ts|vue)' --write && eslint src/**/*.ts --fix",
