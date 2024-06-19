@@ -127,6 +127,17 @@ const appData: AppSettingsDto = (JSON.parse(document.getElementById("app-data")?
   runMode: "production",
 };
 
+console.log(
+  `%c  ███████
+  █ ███ █
+  ██ █ ██  fuBlog
+  ███████
+  ██ █ ██  ${(appData.isProduction ? appData.appVersion ?? "‹unknown›" : "development version") + "   "}
+  █ ███ █
+  ███████`,
+  `color:#ff9c00;background:rgb(48, 48, 48);display:inline-block;padding:.5em 0`,
+);
+
 const setOperator = (operator: string) => {
   router.replace({ query: { ...route.query, operator: operator } });
 };
