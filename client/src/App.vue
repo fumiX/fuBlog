@@ -135,7 +135,7 @@ console.log(
   ██ █ ██  ${(appData.isProduction ? appData.appVersion ?? "‹unknown›" : "development version") + "   "}
   █ ███ █
   ███████`,
-  `color:#ff9c00;background:rgb(48, 48, 48);display:inline-block;padding:.5em 0`,
+  `color:#ff9c00;background:rgb(48, 48, 48);display:inline-block`,
 );
 
 const setOperator = (operator: string) => {
