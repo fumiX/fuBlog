@@ -81,7 +81,7 @@ const emit = defineEmits(["themeChanged"]);
 const setTheme = (theme: UserTheme) => {
   saveCssPreference(theme);
   userTheme.value = theme;
-  document.querySelector("html").dataset.bsTheme = theme;
+  document.documentElement.dataset.bsTheme = theme;
   emit("themeChanged", userTheme.value);
 };
 
