@@ -4,7 +4,7 @@
   "description": "Backend Server for Blog in Node/Express",
   "main": "server.js",
   "scripts": {
-    "start": "NODE_ENV='development' NODE_EXTRA_CA_CERTS=../certs/ca.crt nodemon -r dotenv/config ./src/server.ts",
+    "start": "NODE_ENV='development' NODE_EXTRA_CA_CERTS=../certs/ca.crt tsx watch -r dotenv/config ./src/server.ts",
     "write-app-version": "git describe --always --dirty > dist/app_version.txt",
     "build": "tsc && npm run write-app-version",
     "run-prod": "node ./dist/server.js",
@@ -43,10 +43,9 @@
     "@typescript-eslint/eslint-plugin": "^8.0.0-alpha.30",
     "@typescript-eslint/parser": "^8.0.0-alpha.30",
     "node-fetch": "^3.3.1",
-    "nodemon": "^2.0.20",
     "openid-client": "^5.4.0",
     "prettier": "^3.3.2",
-    "ts-node": "^10.9.1",
+    "tsx": "^4.15.6",
     "typescript": "^5.0.4"
   }
 }

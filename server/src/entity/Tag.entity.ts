@@ -10,7 +10,7 @@ export class TagEntity implements Tag {
   @PrimaryGeneratedColumn()
   id?: number;
 
-  @Column({ nullable: false, unique: true })
+  @Column({ nullable: false, unique: true, type: "varchar" })
   name: string;
 
   @ManyToMany(() => PostEntity, (post) => post.tags)

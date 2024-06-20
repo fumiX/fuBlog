@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon ./src/index.ts",
+    "start": "tsx watch ./src/index.ts",
     "build": "tsc",
     "lint": "prettier --check 'src/**/*.(ts|vue)' && eslint src/**/*.ts",
     "lintfix": "prettier 'src/**/*.(ts|vue)' --write && eslint src/**/*.ts --fix"

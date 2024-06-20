@@ -7,7 +7,7 @@ import { UserEntity } from "./User.entity.js";
 export class OAuthAccountEntity implements OAuthAccount {
   @PrimaryGeneratedColumn()
   id?: number;
-  @Column({ nullable: false, name: "oauth_id" })
+  @Column({ nullable: false, name: "oauth_id", type: "varchar" })
   oauthId: string;
 
   @ManyToOne(() => UserEntity, (user: UserEntity) => user.id)
@@ -15,6 +15,6 @@ export class OAuthAccountEntity implements OAuthAccount {
   user: UserEntity;
   @Column({ type: "enum", enum: OAUTH_TYPES, nullable: false })
   type: OAuthType;
-  @Column({ nullable: false })
+  @Column({ nullable: false, type: "text" })
   domain: string;
 }
