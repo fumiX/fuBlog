@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@fumix/fu-blog-server": "*",
-    "ts-node": "^10.9.1",
+    "ts-node": "^10.9.2",
     "typeorm": "^0.3.15"
   },
   "devDependencies": {

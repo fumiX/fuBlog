@@ -3,9 +3,9 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./dist",
-    "module": "NodeNext",
+    "module": "Node16",
     "target": "es2016",
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "Node16",
     "esModuleInterop": true,
     "incremental": true,
     "composite": true,

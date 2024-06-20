@@ -30,12 +30,12 @@
     "wordcloud": "^1.2.2"
   },
   "devDependencies": {
-    "@intlify/unplugin-vue-i18n": "^0.10.0",
+    "@intlify/unplugin-vue-i18n": "^4.0.0",
     "@rushstack/eslint-patch": "^1.1.4",
-    "@tsconfig/node18": "^2.0.1",
-    "@types/bootstrap": "^5.2.6",
-    "@types/luxon": "^3.2.0",
-    "@types/node": "^18.16.10",
+    "@tsconfig/node20": "^20.1.4",
+    "@types/bootstrap": "^5.2.10",
+    "@types/luxon": "^3.4.2",
+    "@types/node": "^20.14.6",
     "@unhead/vue": "^1.1.26",
     "@vitejs/plugin-vue": "^4.1.0",
     "@vue/eslint-config-prettier": "^9.0.0",

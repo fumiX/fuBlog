@@ -24,7 +24,7 @@
     "@types/dompurify": "^3.0.0",
     "@types/jsdom": "^21.1.1",
     "@types/marked": "^5.0.0",
-    "@types/node": "^18.16.10",
+    "@types/node": "^20.14.6",
     "@types/node-fetch": "^2.6.2",
     "@types/pako": "^2.0.0",
     "@types/sha.js": "^2.4.0"
