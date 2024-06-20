@@ -203,7 +203,9 @@
   text-align: center;
   border-radius: 0.375rem;
   box-shadow: inset 0 0 0 0 #ffc377;
-  transition: 0.5s ease-out box-shadow, 3s ease border-color;
+  transition:
+    0.5s ease-out box-shadow,
+    3s ease border-color;
   width: 100%;
 
   .plus {
@@ -219,7 +221,9 @@
   &:active {
     border: 2px dashed #aaa;
     box-shadow: inset 0 -15rem 0 0 #ffc377;
-    transition: 0.5s ease-in box-shadow, 3s ease border-color;
+    transition:
+      0.5s ease-in box-shadow,
+      3s ease border-color;
   }
 }
 
