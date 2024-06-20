@@ -5,7 +5,7 @@
   >
     {{ appData.runMode }}
   </div>
-  <div :class="cssTheme">
+  <div>
     <div class="content">
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
         <div class="container">
@@ -126,6 +126,17 @@ const appData: AppSettingsDto = (JSON.parse(document.getElementById("app-data")?
   isProduction: true,
   runMode: "production",
 };
+
+console.log(
+  `%c  ███████
+  █ ███ █
+  ██ █ ██  fuBlog
+  ███████
+  ██ █ ██  ${(appData.isProduction ? appData.appVersion ?? "‹unknown›" : "development version") + "   "}
+  █ ███ █
+  ███████`,
+  `color:#ff9c00;background:rgb(48, 48, 48);display:inline-block`,
+);
 
 const setOperator = (operator: string) => {
   router.replace({ query: { ...route.query, operator: operator } });

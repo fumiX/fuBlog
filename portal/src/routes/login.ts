@@ -68,11 +68,11 @@ router.get("/", async (req, res) => {
           ${pfpHtml}
           <form method="post" action="?" class="card-body">
             <div class="form-floating mb-2">
-              <input id="userId" name="userId" class="form-control" placeholder required value="${faker.random.alphaNumeric(20)}">
+              <input id="userId" name="userId" class="form-control" placeholder required value="${faker.string.alphanumeric(20)}">
               <label for="userId">User-ID</label>
             </div>
             <div class="form-floating mb-2">
-              <input id="code" name="code" class="form-control" placeholder required value="${faker.random.alphaNumeric(20)}">
+              <input id="code" name="code" class="form-control" placeholder required value="${faker.string.alphanumeric(20)}">
               <label for="userId">Code</label>
             </div>
             <input name="fullName" value="${acc.fullName ?? ""}" readonly class="form-control-plaintext">
@@ -114,7 +114,7 @@ router.get("/", async (req, res) => {
   <h2>Create custom login</h2>
   <form method="post">
     <div class="form-floating mb-2">
-      <input id="userId" name="userId" class="form-control" type="text" required value="${faker.random.alphaNumeric(20)}">
+      <input id="userId" name="userId" class="form-control" type="text" required value="${faker.string.alphanumeric(20)}">
       <label for="userId">User-ID</label>
     </div>
     <div class="form-floating mb-2">
@@ -140,7 +140,7 @@ router.get("/", async (req, res) => {
         </div>
       </div>
       <div class="form-floating mb-4">
-        <input id="code" name="code" class="form-control" type="text" value="${faker.random.alphaNumeric(20)}" pattern="[a-zA-Z0-9_-]+">
+        <input id="code" name="code" class="form-control" type="text" value="${faker.string.alphanumeric(20)}" pattern="[a-zA-Z0-9_-]+">
         <label for="code">Code</label>
         <div class="form-text">
           Arbitrary string, under which the user info is saved. It is generated randomly.

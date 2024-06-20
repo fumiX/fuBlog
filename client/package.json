@@ -19,7 +19,7 @@
     "@fortawesome/vue-fontawesome": "^3.0.3",
     "@fumix/fu-blog-common": "*",
     "@sipec/vue3-tags-input": "^3.0.4",
-    "bootstrap": "^5.2.3",
+    "bootstrap": "5.3.3",
     "buffer": "^6.0.3",
     "luxon": "^3.3.0",
     "stream-browserify": "^3.0.0",
