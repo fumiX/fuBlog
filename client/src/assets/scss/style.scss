@@ -8,6 +8,12 @@
   }
 }
 
+.content, 
+.card,
+.jumbotron {
+  transition: .75s ease-out all;
+}
+
 .loader {
   position: fixed;
   z-index: 1031;
@@ -76,6 +82,10 @@ pre {
   &:focus {
     outline: 0;
     box-shadow: none !important;
+  }
+
+  &::placeholder {
+    color: #888;
   }
 }
 

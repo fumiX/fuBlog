@@ -1,6 +1,11 @@
 <template>
   <div class="badge-container">
-    <div v-for="tag in tags" :key="tag.id" class="badge me-1" @click="searchWord(tag.name)">
+    <div
+      v-for="tag in [...tags].sort((a, b) => a.name.localeCompare(b.name))"
+      :key="tag.id"
+      class="badge me-1"
+      @click="searchWord(tag.name)"
+    >
       {{ tag.name }}
     </div>
   </div>

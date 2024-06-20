@@ -4,7 +4,7 @@
     <label for="checkbox" class="modeswitch-label">
       <span class="emoji">🌙</span>
       <span class="emoji">☀️</span>
-      <div class="modeswitch-toggle" :class="{ 'modeswitch-toggle-checked': userTheme === 'darkTheme' }"></div>
+      <div class="modeswitch-toggle" :class="{ 'modeswitch-toggle-checked': userTheme === 'dark' }"></div>
     </label>
   </div>
 </template>
@@ -93,25 +93,22 @@ const emit = defineEmits(["themeChanged"]);
 const setTheme = (theme: UserTheme) => {
   saveCssPreference(theme);
   userTheme.value = theme;
+  document.documentElement.dataset.bsTheme = theme;
   emit("themeChanged", userTheme.value);
 };
 
 const toggleTheme = (): void => {
   const activeTheme = localStorage.getItem("cssTheme");
-  if (activeTheme === "lightTheme") {
-    setTheme("darkTheme");
+  if (activeTheme === "light") {
+    setTheme("dark");
   } else {
-    setTheme("lightTheme");
+    setTheme("light");
   }
 };
 
 const getMediaPreference = (): UserTheme => {
   const hasDarkPreference = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  if (hasDarkPreference) {
-    return "darkTheme";
-  } else {
-    return "lightTheme";
-  }
+  return hasDarkPreference ? "dark" : "light";
 };
 
 const userTheme = ref<UserTheme>(loadCssPreference() || getMediaPreference());

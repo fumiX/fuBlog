@@ -1,5 +1,9 @@
 import { AppSettingsDto, asHyperlinkDto, isOAuthType, OAUTH_TYPES, OAuthProvider, OAuthType } from "@fumix/fu-blog-common";
+import console from "console";
+import { readFileSync } from "fs";
+import path, { dirname } from "path";
 import * as process from "process";
+import { fileURLToPath } from "url";
 import { loadOAuthProvidersFromEnv } from "./load-oauth-providers-from-env.js";
 
 export class AppSettings {
@@ -11,7 +15,20 @@ export class AppSettings {
   static readonly MAIN_WEBSITE_LABEL: string | undefined = process.env.APP_MAIN_WEBSITE_LABEL;
   static readonly MAIN_WEBSITE_URL: string | undefined = process.env.APP_MAIN_WEBSITE_URL;
 
+  static readonly APP_VERSION = (() => {
+    try {
+      return readFileSync(path.resolve(dirname(fileURLToPath(import.meta.url)), "app_version.txt"), "utf8").trim();
+    } catch (e) {
+      if (AppSettings.IS_PRODUCTION) {
+        // in dev mode this is expected, so log not needed
+        console.debug("Could not read app version!");
+      }
+      return undefined;
+    }
+  })();
+
   static readonly DTO: AppSettingsDto = {
+    appVersion: AppSettings.APP_VERSION,
     isProduction: AppSettings.IS_PRODUCTION,
     runMode: AppSettings.RUN_MODE,
     imprint: asHyperlinkDto(AppSettings.IMPRINT_LABEL, AppSettings.IMPRINT_URL),
