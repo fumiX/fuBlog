@@ -2,7 +2,7 @@ import { DataUrl } from "@common/util/base64.js";
 import { Buffer } from "buffer";
 import { DOMPurifyI } from "dompurify";
 import highlightjs from "highlight.js";
-import { marked } from "marked";
+import { marked, MarkedExtension, Token, Tokens } from "marked";
 import { markedHighlight } from "marked-highlight";
 import { mangle } from "marked-mangle";
 import pako from "pako";
@@ -62,21 +62,21 @@ export abstract class MarkdownConverter {
       : this.KROKI_SVG_DIAGRAM_TYPES.find((it) => it.markdownId === markdownId) ?? undefined;
   }
 
-  private static rendererExtension: marked.MarkedExtension = {
+  private static rendererExtension: MarkedExtension = {
     renderer: {
-      code(code: string, infostring: string) {
-        if (MarkdownConverter.getKrokiDiagramTypeFromMarkdownId(infostring)) {
-          return code;
+      code({ text, lang, escaped }: Tokens.Code) {
+        if (MarkdownConverter.getKrokiDiagramTypeFromMarkdownId(lang)) {
+          return text;
         }
         return false;
       },
     },
   };
-  private static walkTokensExtension: (fetchTextFromUrl: FetchTextFromUrlFunction) => marked.MarkedExtension = //
+  private static walkTokensExtension: (fetchTextFromUrl: FetchTextFromUrlFunction) => MarkedExtension = //
     (fetchTextFromUrl) => {
       return {
         async: true,
-        walkTokens: async (token: marked.Token) => {
+        walkTokens: async (token: Token) => {
           if (token.type === "code") {
             const diagramType = MarkdownConverter.getKrokiDiagramTypeFromMarkdownId(token.lang);
             if (diagramType) {
@@ -110,13 +110,16 @@ export abstract class MarkdownConverter {
     marked.use(MarkdownConverter.rendererExtension);
     marked.use(
       markedHighlight({
-        highlight: function (code: string, lang: string) {
-          return highlightjs.highlightAuto(code).value;
+        highlight: function (code: string, language: string, info: string): string {
+          if (!language || !language.startsWith("diagram-")) {
+            return highlightjs.highlightAuto(code).value;
+          } else {
+            return code;
+          }
         },
       }),
     );
     marked.use(mangle());
-    marked.use({ headerIds: false });
   }
 
   private f: ImageHashToUrlFunction | undefined;
