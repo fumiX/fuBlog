@@ -13,6 +13,8 @@ const excludedDirectories = [
   ["common", "src"],
   ["server", "node_modules"],
   ["server", "src"],
+  ["portal", "node_modules"],
+  ["portal", "src"],
 ].map((it) => path.join(rootDir, ...it));
 
 const versionNumbers: {

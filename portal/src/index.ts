@@ -93,9 +93,11 @@ async function createCertificate(): Promise<Certificate> {
     const caKey = readFileSync(caKeyPath, { encoding: "utf-8" });
     const cert = await createCert({
       domains: ["127.0.0.1", "localhost"],
-      validityDays: 7,
-      caCert,
-      caKey,
+      validity: 7,
+      ca: {
+        cert: caCert,
+        key: caKey,
+      },
     });
     console.log("Created cert valid until", new X509Certificate(cert.cert).validTo);
     return cert;
