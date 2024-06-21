@@ -2,7 +2,7 @@
   <div class="row mb-2">
     <div class="col">
       <div class="card flex-md-row mb-4 box-shadow h-md-250">
-        <div class="card-body">
+        <div v-bind:class="{ 'card-body': true, draft: post.draft }">
           <div class="clearfix mb-4">
             <button v-if="props.userPermissions?.canDeletePost" class="btn btn-sm btn-danger float-end" @click="$emit('deletePost', post)">
               <fa-icon :icon="faTrash" />
