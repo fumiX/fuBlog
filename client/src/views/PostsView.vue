@@ -74,9 +74,10 @@ import ConfirmDialog from "@client/components/ConfirmDialog.vue";
 import LoadingSpinner from "@client/components/LoadingSpinner.vue";
 import PostPreview from "@client/components/PostPreview.vue";
 import WordCloud from "@client/components/WordCloud.vue";
+import { PostEndpoints } from "@client/util/api-client";
 import { faSadTear } from "@fortawesome/free-regular-svg-icons";
 import { faAdd } from "@fortawesome/free-solid-svg-icons";
-import type { ConfirmDialogData, Post, UserRolePermissionsType } from "@fumix/fu-blog-common";
+import { asSearchOperator, type ConfirmDialogData, type Post, type UserRolePermissionsType } from "@fumix/fu-blog-common";
 import type { PropType } from "vue";
 import { onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
@@ -104,15 +105,11 @@ const props = defineProps({
   },
 });
 
-const loadPostsWithPagination = async (pageIndex: number, search: string, operator: string) => {
+const loadPostsWithPagination = async (pageIndex: number, search: string, operator: "and" | "or") => {
   try {
-    let link = !search
-      ? `/api/posts/page/${pageIndex}/count/${itemsPerPage}`
-      : `/api/posts/page/${pageIndex}/count/${itemsPerPage}/search/${encodeURIComponent(search)}/operator/${encodeURIComponent(operator)}`;
-    const res = await fetch(link);
-    const response = await res.json();
-    posts.value = response.data[0];
-    totalPages.value = Math.ceil((await response.data[1]) / itemsPerPage);
+    const [postResult, count] = await PostEndpoints.findPosts(pageIndex, 12, search, operator).then((it) => it.data);
+    posts.value = postResult;
+    totalPages.value = Math.ceil((count ?? 0) / itemsPerPage);
     loading.value = false;
   } catch (e) {
     console.log("ERROR: ", e);
@@ -122,22 +119,22 @@ const loadPostsWithPagination = async (pageIndex: number, search: string, operat
 
 const onPaginate = (page: number) => {
   const searchValue = (route.query?.search || "") as string;
-  const operator = (route.query?.operator || "and") as string;
+  const operator = asSearchOperator(route.query?.operator?.toString());
   loadPostsWithPagination(page, searchValue, operator);
 };
 
 watch(
   () => route.query,
   (query) => {
-    const searchValue = (query?.search || "") as string;
-    const operator = (route.query?.operator || "and") as string;
+    const searchValue = (query?.search ?? "") as string;
+    const operator = asSearchOperator(route.query?.operator?.toString());
     loadPostsWithPagination(1, searchValue, operator);
   },
 );
 
 onMounted(() => {
   const searchValue = (route.query?.search || "") as string;
-  const operator = (route.query?.operator || "and") as string;
+  const operator = asSearchOperator(route.query?.operator?.toString());
 
   blogTitle.value = "fumiX Blog";
   blogShortDescription.value = "Alle Beiträge auf einen Blick";
@@ -150,7 +147,7 @@ const deletePost = async (post: Post) => {
     const res = await fetch(`/api/posts/delete/${post.id}`);
     await res.json();
     const searchValue = (route.query?.search || "") as string;
-    const operator = (route.query?.operator || "and") as string;
+    const operator = asSearchOperator(route.query?.operator?.toString());
     await loadPostsWithPagination(1, searchValue, operator);
   } catch (e) {
     console.log("ERROR: ", e);

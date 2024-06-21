@@ -29,13 +29,13 @@
               <li class="nav-item">
                 <RouterLink to="/posts" class="nav-link">{{ t("nav.posts") }}</RouterLink>
               </li>
-              <li v-if="isAdmin()" class="nav-item">
+              <li v-if="loggedInUserInfo?.permissions?.canEditUserRoles ?? false" class="nav-item">
                 <RouterLink to="/administration" class="nav-link">{{ t("nav.administration") }}</RouterLink>
               </li>
             </ul>
             <div class="username">
-              <login-button v-if="!loggedInUser"></login-button>
-              <user-name v-else :user="loggedInUser" @logout="logoutUser($event)"></user-name>
+              <login-button v-if="!loggedInUserInfo"></login-button>
+              <user-name v-else :user="loggedInUserInfo.user" @logout="logoutUser($event)"></user-name>
             </div>
 
             <light-dark-toggler @theme-changed="cssTheme = $event" style="margin-right: 2.5rem"></light-dark-toggler>
@@ -49,7 +49,7 @@
         </div>
       </nav>
 
-      <RouterView :userPermissions="userPermissions" />
+      <RouterView :userPermissions="loggedInUserInfo?.permissions" />
     </div>
     <footer class="page-footer">
       <div class="container">
@@ -114,8 +114,7 @@ import { AuthEndpoints } from "@client/util/api-client.js";
 import { saveIdToken } from "@client/util/storage.js";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 import { faExternalLink } from "@fortawesome/free-solid-svg-icons";
-import type { AppSettingsDto, User, UserRolePermissionsType } from "@fumix/fu-blog-common";
-import { permissionsForUser } from "@fumix/fu-blog-common";
+import type { AppSettingsDto, LoggedInUserInfo } from "@fumix/fu-blog-common";
 import { onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
@@ -124,8 +123,7 @@ const { t } = useI18n();
 const route = useRoute();
 const searchQuery = ref<string>("");
 const router = useRouter();
-const loggedInUser = ref<User | null>(null);
-const userPermissions = ref<UserRolePermissionsType | null>(null);
+const loggedInUserInfo = ref<LoggedInUserInfo | undefined>(undefined);
 const cssTheme = ref<string | null>(null);
 
 const appData: AppSettingsDto = (JSON.parse(document.getElementById("app-data")?.textContent ?? "{}") as AppSettingsDto) ?? {
@@ -150,13 +148,11 @@ const setOperator = (operator: string) => {
 
 const setLoginUserAndPermissions = async () => {
   AuthEndpoints.getLoggedInUser()
-    .then((oauthAccount) => {
-      loggedInUser.value = oauthAccount.user;
-      userPermissions.value = permissionsForUser(oauthAccount.user);
+    .then((userInfo: LoggedInUserInfo) => {
+      loggedInUserInfo.value = userInfo;
     })
     .catch(() => {
-      loggedInUser.value = null;
-      userPermissions.value = null;
+      loggedInUserInfo.value = undefined;
     });
 };
 
@@ -172,7 +168,7 @@ watch(route, async (value) => {
 onMounted(() => {
   // listen for token-changed event to gracefully handle login/logout
   window.addEventListener("token-changed", (event) => {
-    if (!loggedInUser.value) {
+    if (!loggedInUserInfo.value) {
       setLoginUserAndPermissions();
     }
   });
@@ -190,14 +186,9 @@ const startSearch = (search: string, operator: string = "and") => {
   }
 };
 
-const isAdmin = () => {
-  return loggedInUser.value?.roles.includes("ADMIN");
-};
-
 const logoutUser = (event: Event) => {
   saveIdToken(null); // clear localStorage
-  loggedInUser.value = null;
-  userPermissions.value = null;
+  loggedInUserInfo.value = undefined;
   router.push(`/`);
 };
 </script>
