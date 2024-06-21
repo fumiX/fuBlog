@@ -95,7 +95,7 @@ router.get("/", async (req, res) => {
     const middleName = faker.helpers.maybe(() => faker.person.middleName(), { probability: 0.7 });
     const lastName = faker.person.lastName();
     const fullName = [firstName, middleName, lastName].filter(isNeitherNullNorUndefined).join(" ");
-    const email = faker.internet.email(firstName, lastName);
+    const email = faker.internet.email({ firstName, lastName });
     res
       .status(200)
       .contentType("text/html")

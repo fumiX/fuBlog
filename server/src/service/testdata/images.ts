@@ -4,7 +4,7 @@ import { Canvas, CanvasRenderingContext2D, createCanvas } from "canvas";
 import fetch from "node-fetch";
 
 export async function generateProfilePicture(seed: number, sex: SexType, width = 256, height = 256): Promise<Blob> {
-  const url = faker.image.imageUrl(width, height, sex === Sex.Male ? "boy,man" : "girl,woman", true);
+  const url = faker.image.urlLoremFlickr({ width, height, category: sex === Sex.Male ? "boy,man" : "girl,woman" });
   return fetch(url)
     .then((response) =>
       response
