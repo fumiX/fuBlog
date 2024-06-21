@@ -32,6 +32,9 @@
               <li v-if="isAdmin()" class="nav-item">
                 <RouterLink to="/administration" class="nav-link">{{ t("nav.administration") }}</RouterLink>
               </li>
+              <li v-if="appData.mainWebsite?.label" class="nav-item">
+                <a :href="appData.mainWebsite?.url" class="nav-link">{{ appData.mainWebsite?.label }}</a>
+              </li>
             </ul>
             <div class="username">
               <login-button v-if="!loggedInUser"></login-button>
