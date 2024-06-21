@@ -23,6 +23,7 @@ export * from "./entity/UserRole.js";
 export * from "./entity/permission/UserRolePermissions.js";
 export * from "./markdown-converter-common.js";
 export * from "./types/logged-in-user-info.js";
+export * from "./types/public-post.js";
 export * from "./types/search-operator.js";
 export * from "./util/base64.js";
 export * from "./util/cookie-header-helpers.js";

@@ -1,4 +1,11 @@
-import { DraftResponseDto, EditPostRequestDto, LoggedInUserInfo, NewPostRequestDto, PostRequestDto } from "@fumix/fu-blog-common";
+import {
+  createPublicPostFromPostEntity,
+  DraftResponseDto,
+  EditPostRequestDto,
+  LoggedInUserInfo,
+  NewPostRequestDto,
+  PostRequestDto,
+} from "@fumix/fu-blog-common";
 import logger from "@server/logger.js";
 import express, { NextFunction, Request, Response, Router } from "express";
 import { In } from "typeorm";
@@ -64,7 +71,9 @@ router.get(
             where: { id: In(idArray) },
             relations: ["createdBy", "updatedBy", "tags"],
           })
-          .then((result) => res.status(200).json({ data: [result, count[0]] }));
+          .then((result) =>
+            res.status(200).json({ data: [result.map((it) => createPublicPostFromPostEntity(loggedInUser, it)), count[0]] }),
+          );
       })
       .catch((err) => next(err));
   },
@@ -101,7 +110,7 @@ router.get("/page/:page([0-9]+)/count/:count([0-9]+)/", authMiddleware, async (r
       take: itemsPerPage,
       relations: ["createdBy", "updatedBy", "tags"],
     })
-    .then((result) => res.status(200).json({ data: result }))
+    .then(([posts, count]) => res.status(200).json({ data: [posts.map((it) => createPublicPostFromPostEntity(loggedInUser, it)), count] }))
     .catch((error) => {
       next(error);
     });

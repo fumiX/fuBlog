@@ -46,7 +46,7 @@
               <i>{{ post.updatedBy.fullName }}</i>
             </div>
 
-            <display-tags v-if="post.tags" :tags="post.tags"></display-tags>
+            <display-tags v-if="post?.tags" :tags="post?.tags?.map((it) => it.name) ?? []"></display-tags>
 
             <div v-html="post.sanitizedHtml" class="mt-4"></div>
           </div>

@@ -77,7 +77,8 @@ import WordCloud from "@client/components/WordCloud.vue";
 import { PostEndpoints } from "@client/util/api-client";
 import { faSadTear } from "@fortawesome/free-regular-svg-icons";
 import { faAdd } from "@fortawesome/free-solid-svg-icons";
-import { asSearchOperator, type ConfirmDialogData, type Post, type UserRolePermissionsType } from "@fumix/fu-blog-common";
+import type { ConfirmDialogData, PublicPost, UserRolePermissionsType } from "@fumix/fu-blog-common";
+import { asSearchOperator } from "@fumix/fu-blog-common";
 import type { PropType } from "vue";
 import { onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
@@ -88,10 +89,10 @@ const route = useRoute();
 const router = useRouter();
 const itemsPerPage = 12;
 const loading = ref(true);
-const posts = ref<Post[]>([]);
+const posts = ref<PublicPost[]>([]);
 const showDialog = ref<boolean>(false);
 const dialogData = ref<ConfirmDialogData | null>(null);
-const currentPost = ref<Post | null>(null);
+const currentPost = ref<PublicPost | null>(null);
 const totalPages = ref<number>(1);
 const { t } = useI18n();
 
@@ -142,7 +143,7 @@ onMounted(() => {
   loadPostsWithPagination(1, searchValue, operator);
 });
 
-const deletePost = async (post: Post) => {
+const deletePost = async (post: PublicPost) => {
   try {
     const res = await fetch(`/api/posts/delete/${post.id}`);
     await res.json();
@@ -162,8 +163,8 @@ const searchWord = (event: any) => {
   goTo(`/posts/?search=${event[0]}&operator=and`);
 };
 
-const showConfirm = (post: Post) => {
-  currentPost.value = post as Post;
+const showConfirm = (post: PublicPost) => {
+  currentPost.value = post as PublicPost;
   dialogData.value = {
     title: t("posts.confirm.title"),
     message: t("posts.confirm.message", { post: currentPost.value.title }),
@@ -176,12 +177,12 @@ const canceled = () => {
 };
 
 const confirmed = () => {
-  deletePost(currentPost.value as Post);
+  deletePost(currentPost.value as PublicPost);
   currentPost.value = null;
   showDialog.value = false;
 };
 
-const changePost = (post: Post) => {
+const changePost = (post: PublicPost) => {
   goTo(`/posts/post/${post.id}/edit`);
 };
 </script>

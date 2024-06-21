@@ -7,7 +7,7 @@ import type {
   JsonMimeType,
   LoggedInUserInfo,
   NewPostRequestDto,
-  Post,
+  PublicPost,
   SupportedImageMimeType,
 } from "@fumix/fu-blog-common";
 import { HttpHeader, imageBytesToDataUrl } from "@fumix/fu-blog-common";
@@ -141,7 +141,7 @@ export class PostEndpoints {
   }
 
   static async findPosts(pageIndex: number, itemsPerPage = 12, search: string | undefined = undefined, operator: "and" | "or" = "and") {
-    return callServer<void, JsonMimeType, { data: [Post[], number | null] }>(
+    return callServer<void, JsonMimeType, { data: [PublicPost[], number | null] }>(
       `/api/posts/page/${pageIndex}/count/${itemsPerPage}${search ? `/search/${encodeURIComponent(search)}/operator/${operator}` : ""}###`,
       "GET",
       "application/json",
