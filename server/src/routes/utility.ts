@@ -1,4 +1,3 @@
-import { permissionsForUser } from "@fumix/fu-blog-common";
 import express, { Request, Response, Router } from "express";
 import fetch from "node-fetch";
 import { AppDataSource } from "../data-source.js";
@@ -80,7 +79,7 @@ router.post("/chatGptSummarize", authMiddleware, async (req, res, next) => {
     return next(new BadRequestError());
   } else if (!loggedInUser) {
     return next(new UnauthorizedError());
-  } else if (!permissionsForUser(loggedInUser.user).canCreatePost) {
+  } else if (!loggedInUser.permissions.canCreatePost) {
     return next(new ForbiddenError());
   }
 
@@ -103,7 +102,7 @@ router.post("/dallEGenerateImage", authMiddleware, async (req, res, next) => {
     return next(new BadRequestError());
   } else if (!loggedInUser) {
     return next(new UnauthorizedError());
-  } else if (!permissionsForUser(loggedInUser.user).canCreatePost) {
+  } else if (!loggedInUser.permissions.canCreatePost) {
     return next(new ForbiddenError());
   }
 

@@ -2,14 +2,14 @@
   <div class="row mb-2">
     <div class="col">
       <div class="card flex-md-row mb-4 box-shadow h-md-250">
-        <div class="card-body">
+        <div v-bind:class="{ 'card-body': true, draft: post.draft }">
           <div class="clearfix mb-4">
-            <button v-if="props.userPermissions?.canDeletePost" class="btn btn-sm btn-danger float-end" @click="$emit('deletePost', post)">
+            <button v-if="props.post.permissions.canDelete" class="btn btn-sm btn-danger float-end" @click="$emit('deletePost', post)">
               <fa-icon :icon="faTrash" />
               {{ t("app.base.delete") }}
             </button>
             <button
-              v-if="props.userPermissions?.canEditPost"
+              v-if="props.post.permissions.canEdit"
               class="btn btn-sm btn-secondary float-end mx-2"
               @click="$emit('changePost', post)"
             >
@@ -24,16 +24,16 @@
 
           <p class="card-text my-4">{{ post.description }}</p>
 
-          <div v-if="post.createdAt" class="mb-1 text-muted creator">
+          <div v-if="post.created" class="mb-1 text-muted creator">
             <fa-icon :icon="faClock" />
-            {{ $luxonDateTime.fromISO(post.createdAt.toString(), { locale: locale }).toRelativeCalendar() }}
-            <i v-if="post.createdBy">{{ post.createdBy.fullName }}</i>
+            {{ $luxonDateTime.fromISO(post.created.at.toString(), { locale: locale }).toRelativeCalendar() }}
+            <i v-if="post.created.by">{{ post.created.by }}</i>
           </div>
 
-          <div v-if="post.updatedBy && post.updatedAt" class="mb-1 text-muted editor">
+          <div v-if="post.updated" class="mb-1 text-muted editor">
             <fa-icon :icon="faEdit" />
-            {{ $luxonDateTime.fromISO(post.updatedAt.toString(), { locale: locale }).toRelativeCalendar() }}
-            <i>{{ post.updatedBy.fullName }}</i>
+            {{ $luxonDateTime.fromISO(post.updated.at.toString(), { locale: locale }).toRelativeCalendar() }}
+            <i v-if="post.updated.by">{{ post.updated.by }}</i>
           </div>
 
           <display-tags v-if="post.tags" :tags="post.tags"></display-tags>
@@ -71,7 +71,7 @@
 import DisplayTags from "@client/components/DisplayTags.vue";
 import { faClock } from "@fortawesome/free-regular-svg-icons";
 import { faBookReader, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
-import type { Post, UserRolePermissionsType } from "@fumix/fu-blog-common";
+import type { Post, PublicPost, UserRolePermissionsType } from "@fumix/fu-blog-common";
 import type { PropType } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
@@ -82,7 +82,7 @@ const locale = useI18n().locale.value;
 
 const props = defineProps({
   post: {
-    type: Object as PropType<Post>,
+    type: Object as PropType<PublicPost>,
     required: true,
   },
   userPermissions: {
