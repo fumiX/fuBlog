@@ -1,6 +1,5 @@
 <template>
-  <div class="modal fade modal-lg" id="aiModal" tabindex="-1" role="dialog" aria-labelledby="aiModalLabel"
-    aria-hidden="true">
+  <div class="modal fade modal-lg" id="aiModal" tabindex="-1" role="dialog" aria-labelledby="aiModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -8,8 +7,13 @@
         </div>
         <div class="modal-body">
           <div v-for="(d, i) in data" v-bind:key="i" class="summary-container">
-            <ai-summary :summary-data="d" @add-tag="addTag($event)" @update-description="acceptDescription($event)"
-              @remove-ai-summary="$emit('removeAiSummary', d)" @set-keyvisual="setKeyvisual($event)"></ai-summary>
+            <ai-summary
+              :summary-data="d"
+              @add-tag="addTag($event)"
+              @update-description="acceptDescription($event)"
+              @remove-ai-summary="$emit('removeAiSummary', d)"
+              @set-keyvisual="setKeyvisual($event)"
+            ></ai-summary>
           </div>
         </div>
         <div class="modal-footer">
@@ -45,7 +49,7 @@ const emits = defineEmits(["acceptDescription", "canceled", "addTag", "removeAiS
 
 watch(props, () => {
   if (modalOpen.value != props.show) {
-    const myModal = new Modal(document.getElementById("aiModal") || "", { backdrop : "static" });
+    const myModal = new Modal(document.getElementById("aiModal") || "", { backdrop: "static" });
     props.show ? myModal?.show() : myModal.hide();
     modalOpen.value = props.show || false;
   }
