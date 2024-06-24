@@ -1,5 +1,6 @@
 <template>
-  <div class="modal fade modal-lg" id="aiModal" tabindex="-1" role="dialog" aria-labelledby="aiModalLabel" aria-hidden="true">
+  <div class="modal fade modal-lg" id="aiModal" tabindex="-1" role="dialog" aria-labelledby="aiModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -7,13 +8,8 @@
         </div>
         <div class="modal-body">
           <div v-for="(d, i) in data" v-bind:key="i" class="summary-container">
-            <ai-summary
-              :summary-data="d"
-              @add-tag="addTag($event)"
-              @update-description="acceptDescription($event)"
-              @remove-ai-summary="$emit('removeAiSummary', d)"
-              @set-keyvisual="setKeyvisual($event)"
-            ></ai-summary>
+            <ai-summary :summary-data="d" @add-tag="addTag($event)" @update-description="acceptDescription($event)"
+              @remove-ai-summary="$emit('removeAiSummary', d)" @set-keyvisual="setKeyvisual($event)"></ai-summary>
           </div>
         </div>
         <div class="modal-footer">
@@ -32,7 +28,7 @@ import { t } from "@client/plugins/i18n.js";
 import type { AiSummaryData } from "@fumix/fu-blog-common";
 import { Modal } from "bootstrap";
 import type { PropType } from "vue";
-import { watch } from "vue";
+import { ref, watch } from "vue";
 
 const props = defineProps({
   show: {
@@ -43,12 +39,16 @@ const props = defineProps({
   },
 });
 
+const modalOpen = ref<boolean>(false);
+
 const emits = defineEmits(["acceptDescription", "canceled", "addTag", "removeAiSummary", "setKeyvisual"]);
 
 watch(props, () => {
-  const myModal = new Modal(document.getElementById("aiModal") || "", {});
-  const show = props.show;
-  show ? myModal?.show() : myModal.hide();
+  if (modalOpen.value != props.show) {
+    const myModal = new Modal(document.getElementById("aiModal") || "", { backdrop : "static" });
+    props.show ? myModal?.show() : myModal.hide();
+    modalOpen.value = props.show || false;
+  }
 });
 
 const acceptDescription = (description: string) => {
