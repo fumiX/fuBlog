@@ -32,7 +32,7 @@ import { t } from "@client/plugins/i18n.js";
 import type { AiSummaryData } from "@fumix/fu-blog-common";
 import { Modal } from "bootstrap";
 import type { PropType } from "vue";
-import { watch } from "vue";
+import { ref, watch } from "vue";
 
 const props = defineProps({
   show: {
@@ -43,12 +43,16 @@ const props = defineProps({
   },
 });
 
+const modalOpen = ref<boolean>(false);
+
 const emits = defineEmits(["acceptDescription", "canceled", "addTag", "removeAiSummary", "setKeyvisual"]);
 
 watch(props, () => {
-  const myModal = new Modal(document.getElementById("aiModal") || "", {});
-  const show = props.show;
-  show ? myModal?.show() : myModal.hide();
+  if (modalOpen.value != props.show) {
+    const myModal = new Modal(document.getElementById("aiModal") || "", { backdrop: "static" });
+    props.show ? myModal?.show() : myModal.hide();
+    modalOpen.value = props.show || false;
+  }
 });
 
 const acceptDescription = (description: string) => {
