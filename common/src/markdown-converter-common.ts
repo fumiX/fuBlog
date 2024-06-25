@@ -105,6 +105,9 @@ export abstract class MarkdownConverter {
         if (token.type === "image") {
           token.href = (await this.f?.(token.href).catch(() => undefined)) ?? token.href;
         }
+        if (token.type === "code") {
+          token.escaped = true;
+        }
       },
     });
     marked.use(MarkdownConverter.rendererExtension);
