@@ -11,6 +11,7 @@ import {
   OAuthUserInfoDto,
   UserInfoOAuthToken,
 } from "@fumix/fu-blog-common";
+import { sendNotificationEmailAboutNewRegistration } from "../service/email-service.js";
 import express, { Request, Response, Router } from "express";
 import fetch from "node-fetch";
 import { BaseClient, Issuer, TokenSet } from "openid-client";
@@ -232,9 +233,10 @@ router.post("/userinfo/register", async (req, res, next) => {
                     oauthId: oauthUserId,
                     user,
                   };
-                  await mgr
-                    .insert(OAuthAccountEntity, [oauthAccount])
-                    .then((it) => logger.info("New OAuth account created: " + JSON.stringify(oauthAccount)));
+                  await mgr.insert(OAuthAccountEntity, [oauthAccount]).then((it) => {
+                    sendNotificationEmailAboutNewRegistration(oauthAccount.user.username);
+                    logger.info("New OAuth account created: " + JSON.stringify(oauthAccount));
+                  });
                 })
                 .then(async () => {
                   const result: OAuthUserInfoDto = {

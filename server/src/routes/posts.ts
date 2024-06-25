@@ -6,7 +6,7 @@ import {
   NewPostRequestDto,
   PostRequestDto,
 } from "@fumix/fu-blog-common";
-import logger from "@server/logger.js";
+import logger from "../logger.js";
 import express, { NextFunction, Request, Response, Router } from "express";
 import { In } from "typeorm";
 import { AppDataSource } from "../data-source.js";
