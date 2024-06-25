@@ -4,7 +4,7 @@
   "description": "Backend Server for Blog in Node/Express",
   "main": "server.js",
   "scripts": {
-    "start": "NODE_ENV='development' NODE_EXTRA_CA_CERTS=../certs/ca.crt tsx watch -r dotenv/config ./src/server.ts",
+    "start": "NODE_ENV='development' NODE_EXTRA_CA_CERTS=../certs/ca.crt nodemon --exec node --import=../scripts/register.mjs -r dotenv/config ./src/server.ts",
     "write-app-version": "git describe --always --dirty > dist/app_version.txt",
     "build": "tsc && npm run write-app-version",
     "run-prod": "node ./dist/server.js",
@@ -23,6 +23,7 @@
     "express": "^4.18.2",
     "jose": "^5.4.1",
     "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.14",
     "openai": "^4.52.0",
     "pg": "^8.4.0",
     "reflect-metadata": "^0.2.2",
@@ -37,15 +38,16 @@
     "@types/jsdom": "^21.1.1",
     "@types/marked": "^6.0.0",
     "@types/multer": "^1.4.7",
-    "@types/node": "^20.14.6",
     "@types/node-fetch": "^2.6.2",
+    "@types/nodemailer": "^6.4.15",
     "@types/pako": "^2.0.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0-alpha.30",
     "@typescript-eslint/parser": "^8.0.0-alpha.30",
     "node-fetch": "^3.3.1",
+    "nodemon": "^3.1.4",
     "openid-client": "^5.4.0",
     "prettier": "^3.3.2",
-    "tsx": "^4.15.6",
-    "typescript": "^5.0.4"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.2"
   }
 }

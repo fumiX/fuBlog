@@ -23,9 +23,9 @@
     "buffer": "^6.0.3",
     "luxon": "^3.3.0",
     "stream-browserify": "^3.0.0",
-    "vue": "^3.2.45",
+    "vue": "^3.4.30",
     "vue-i18n": "^9.2.2",
-    "vue-router": "^4.1.5",
+    "vue-router": "^4.4.0",
     "vuejs-paginate-next": "^1.0.2",
     "wordcloud": "^1.2.2"
   },
@@ -36,7 +36,6 @@
     "@tsconfig/node20": "^20.1.4",
     "@types/bootstrap": "^5.2.10",
     "@types/luxon": "^3.4.2",
-    "@types/node": "^20.14.6",
     "@unhead/vue": "^1.1.26",
     "@vitejs/plugin-vue": "^5.0.5",
     "@vue/eslint-config-prettier": "^9.0.0",
@@ -48,7 +47,7 @@
     "typescript": "^5.0.4",
     "unplugin-fonts": "^1.0.3",
     "vite": "^5.3.1",
-    "vue-tsc": "^2.0.21"
+    "vue-tsc": "^2.0.22"
   },
   "type": "module"
 }
