@@ -49,6 +49,10 @@ function canSendEmail(): boolean {
 }
 
 function sendEmail(to: string[], subject: string, text: string) {
+  if (!(EmailSettings.SMTP_HOST ?? EmailSettings.SMTP_PORT)) {
+    throw new Error("No SMTP email server set! Cannot send email.");
+  }
+
   createTransport(EmailSettings.SMTP_OPTIONS)
     .sendMail({
       from: EmailSettings.SMTP_FROM,
