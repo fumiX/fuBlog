@@ -136,7 +136,7 @@ export abstract class MarkdownConverter {
       .then((parsedInput) =>
         this.dompurify.sanitize(parsedInput, {
           // Allowed tags and attributes inside markdown
-          ADD_TAGS: ["iframe"],
+          ADD_TAGS: ["iframe", "foreignObject"], // foreignObject is needed for SVGs that show html tags inside them like mermaid-diagrams
           ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling"],
         }),
       );
