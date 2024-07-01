@@ -105,6 +105,9 @@ export abstract class MarkdownConverter {
         if (token.type === "image") {
           token.href = (await this.f?.(token.href).catch(() => undefined)) ?? token.href;
         }
+        if (token.type === "code") {
+          token.escaped = true;
+        }
       },
     });
     marked.use(MarkdownConverter.rendererExtension);
@@ -133,7 +136,7 @@ export abstract class MarkdownConverter {
       .then((parsedInput) =>
         this.dompurify.sanitize(parsedInput, {
           // Allowed tags and attributes inside markdown
-          ADD_TAGS: ["iframe"],
+          ADD_TAGS: ["iframe", "foreignObject"], // foreignObject is needed for SVGs that show html tags inside them like mermaid-diagrams
           ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling"],
         }),
       );
