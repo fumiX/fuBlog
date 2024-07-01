@@ -142,7 +142,7 @@ export class PostEndpoints {
 
   static async findPosts(pageIndex: number, itemsPerPage = 12, search: string | undefined = undefined, operator: "and" | "or" = "and") {
     return callServer<void, JsonMimeType, { data: [PublicPost[], number | null] }>(
-      `/api/posts/page/${pageIndex}/count/${itemsPerPage}${search ? `/search/${encodeURIComponent(search)}/operator/${operator}` : ""}###`,
+      `/api/posts/page/${pageIndex}/count/${itemsPerPage}${search ? `/search/${encodeURIComponent(search)}/operator/${operator}` : ""}`,
       "GET",
       "application/json",
       null,

@@ -52,7 +52,7 @@
         </div>
       </nav>
 
-      <RouterView :userPermissions="loggedInUserInfo?.permissions" />
+      <RouterView :userPermissions="loggedInUserInfo?.permissions ?? DEFAULT_ROLE" />
     </div>
     <footer class="page-footer">
       <div class="container">
@@ -118,6 +118,7 @@ import { saveIdToken } from "@client/util/storage.js";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 import { faExternalLink } from "@fortawesome/free-solid-svg-icons";
 import type { AppSettingsDto, LoggedInUserInfo } from "@fumix/fu-blog-common";
+import { DEFAULT_ROLE } from "@fumix/fu-blog-common";
 import { onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";

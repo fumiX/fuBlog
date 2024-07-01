@@ -73,7 +73,7 @@
       "not-available": {
         "title": "Post nicht vorhanden",
         "message": "Der Post ist nicht verfügbar oder wurde gelöscht. Sie können mit dem Button zur Startseite zurück, oder nutzen sie die Suchfunktion um einen bestimmten Post zu finden."
-      } 
+      }
     }
   },
   "admin": {
@@ -105,7 +105,8 @@
         "email": "E-mail",
         "username": "Benutzername",
         "fullname": "Dein Name"
-      }
+      },
+      "username-requirements": "Der Benutzername muss zwischen {min} und {max} Zeichen lang sein (ist {length} Zeichen lang) und darf nur aus den Buchstaben a-z/A-Z, den Zahlen 0-9 und den Zeichen ._- bestehen."
     },
     "user_not_found": "Benutzer nicht gefunden."
   }
