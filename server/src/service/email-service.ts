@@ -5,8 +5,13 @@ import { UserEntity } from "../entity/User.entity.js";
 import logger from "../logger.js";
 import { ClientSettings, EmailSettings } from "../settings.js";
 
-export async function sendNotificationEmailAboutNewRegistration(newUsername: string) {
-  const admin_emails = await AppDataSource.manager
+export function sendNotificationEmailAboutNewRegistration(newUsername: string) {
+  if (!canSendEmail()) {
+    console.info("Could not send email notification about new user registration to admins. No SMTP server is configured in `.env` file.");
+    return;
+  }
+
+  AppDataSource.manager
     .getRepository(UserEntity)
     .createQueryBuilder("find all admins")
     .where("roles @> :role", { role: ["ADMIN"] }) // https://www.postgresql.org/docs/16/functions-array.html#ARRAY-OPERATORS-TABLE
@@ -18,34 +23,35 @@ export async function sendNotificationEmailAboutNewRegistration(newUsername: str
     .catch((e) => {
       console.error("Failed to get admins", e);
       return [];
-    });
+    })
+    .then((adminEmails) => {
+      if (adminEmails.length <= 0) {
+        logger.warn(`There are no admins yet. No notification email is sent about new user '${newUsername}'.`);
+      } else {
+        logger.debug(`Sending notification email about registration of new user '${newUsername}' to ${adminEmails.join(", ")}`);
 
-  if (admin_emails.length <= 0) {
-    logger.warn(`There are no admins yet. No notification email is sent about new user '${newUsername}'.`);
-  } else {
-    logger.debug(`Sending notification email about registration of new user '${newUsername}' to ${admin_emails.join(", ")}`);
-
-    await sendEmail(
-      admin_emails,
-      "New user registered",
-      `Hi admins,
+        sendEmail(
+          adminEmails,
+          "New user registered",
+          `Hi admins,
 a new user '${encodeURIComponent(newUsername)}' registered at ${ClientSettings.BASE_URL} .
 Visit ${ClientSettings.BASE_URL}/administration in order to give them some permissions.
 
 Kind regards,
 Your fuBlog`,
-    );
-  }
+        );
+      }
+    });
+}
+
+function canSendEmail(): boolean {
+  return !!(EmailSettings.SMTP_HOST && EmailSettings.SMTP_PORT && EmailSettings.SMTP_FROM);
 }
 
 function sendEmail(to: string[], subject: string, text: string) {
-  if (!(EmailSettings.SMTP_HOST ?? EmailSettings.SMTP_PORT)) {
-    throw new Error("No SMTP email server set! Cannot send email.");
-  }
-
   createTransport(EmailSettings.SMTP_OPTIONS)
     .sendMail({
-      from: "fublog@fumix.de",
+      from: EmailSettings.SMTP_FROM,
       to,
       subject,
       text,
