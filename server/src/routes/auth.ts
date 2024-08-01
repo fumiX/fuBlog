@@ -97,16 +97,6 @@ async function getAuthorizationUrl(
   }
 }
 
-router.post("/loggedInUser", authMiddleware, async (req, res) => {
-  const account = await req.loggedInUser?.();
-
-  if (account) {
-    res.status(200).json(account);
-  } else {
-    res.status(403).json({ error: "Unauthorized" });
-  }
-});
-
 /**
  * Endpoint to get a {@link OAuthUserInfoDto}.
  *

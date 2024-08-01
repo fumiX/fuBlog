@@ -90,7 +90,7 @@ export class AuthEndpoints {
   static async getLoggedInUser(): Promise<LoggedInUserInfo> {
     const token = loadIdToken();
     if (token) {
-      return callServer<null, JsonMimeType, LoggedInUserInfo>("/api/auth/loggedInUser/", "POST", "application/json");
+      return callServer<null, JsonMimeType, LoggedInUserInfo>("/api/utility/loggedInUser", "POST", "application/json");
     }
     return Promise.reject();
   }
