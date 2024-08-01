@@ -140,7 +140,7 @@ console.log(
   █ ███ █
   ██ █ ██  fuBlog
   ███████
-  ██ █ ██  ${(appData.isProduction ? appData.appVersion ?? "‹unknown›" : "development version") + "   "}
+  ██ █ ██  ${(appData.isProduction ? (appData.appVersion ?? "‹unknown›") : "development version") + "   "}
   █ ███ █
   ███████`,
   `color:#ff9c00;background:rgb(48, 48, 48);display:inline-block`,

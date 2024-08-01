@@ -21,7 +21,7 @@ import { UserEntity } from "../entity/User.entity.js";
 import { BadRequestError } from "../errors/BadRequestError.js";
 import { ForbiddenError } from "../errors/ForbiddenError.js";
 import logger from "../logger.js";
-import { authMiddleware, checkIdToken } from "../service/middleware/auth.js";
+import { checkIdToken } from "../service/middleware/auth.js";
 import { OAuthSettings } from "../settings.js";
 
 const router: Router = express.Router();
