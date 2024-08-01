@@ -45,7 +45,9 @@ router.get("/github-sharepic", async (req, res) => {
       .then((r) => {
         r.arrayBuffer()
           .then((buf) => {
-            cachedSharepic = { url, bytes: new Uint8Array(buf) };
+            if (r.status === 200) {
+              cachedSharepic = { url, bytes: new Uint8Array(buf) };
+            }
             sendCachedBytesOrNotFound();
           })
           .catch(sendCachedBytesOrNotFound);
