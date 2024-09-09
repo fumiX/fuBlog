@@ -4,7 +4,7 @@
   },
   "engineStrict": true,
   "name": "@fumix/fu-blog",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "workspaces": [
     "common",
     "client",
