@@ -11,6 +11,7 @@
     "lintfix": "prettier 'src/**/*.(ts|vue)' --write && eslint src/**/*.ts --fix"
   },
   "dependencies": {
+    "@faker-js/faker": "^8.0.1",
     "@fumix/fu-blog-server": "*",
     "typeorm": "^0.3.15"
   },
