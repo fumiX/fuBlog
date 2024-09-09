@@ -27,6 +27,7 @@ export * from "./types/public-post.js";
 export * from "./types/search-operator.js";
 export * from "./util/base64.js";
 export * from "./util/cookie-header-helpers.js";
+export * from "./util/date-util.js";
 export * from "./util/filesize.js";
 export * from "./util/markdown.js";
 export * from "./util/mimeType.js";
