@@ -109,6 +109,16 @@ export abstract class MarkdownConverter {
           token.escaped = true;
         }
       },
+      // renderer: {
+      //   image(href, title, text) {
+      //     // Check if the href is a data URL for an audio file
+      //     if (href && href.startsWith('data:audio/')) {
+      //       return `<audio controls><source src="${href}" type="${href.split(';')[0].split(':')[1]}">Your browser does not support the audio element.</audio>`;
+      //     }
+      //     // Default image rendering
+      //     return `<img src="${href}" alt="${text || ''}" title="${title || ''}">`;
+      //   }
+      // }
     });
     marked.use(MarkdownConverter.rendererExtension);
     marked.use(

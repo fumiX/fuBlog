@@ -24,9 +24,11 @@
       "cancel": "Abbrechen",
       "edit": "Bearbeiten",
       "insert_image": "Bild einfügen",
+      "insert_audio": "Audio einfügen",
       "delete": "Löschen",
       "delete_image": "Bild löschen",
-      "remove": "Bildrefernz aus Text entfernen",
+      "delete_audio": "Audio löschen",
+      "remove": "Dateireferenz aus Text entfernen",
       "read": "Lesen",
       "create_post": "Post erstellen",
       "roles": "Rollen",
@@ -62,8 +64,8 @@
         "tags": "Schlagworte",
         "enter": "Geben Sie Schlagworte ein..."
       },
-      "imageupload": "keine angehängten Bilder | ein angehängtes Bild | {count} angehängte Bilder",
-      "imageupload_hint": "(Bild per Drag & Drop in den Text ziehen)"
+      "fileupload": "keine angehängten Dateien | eine angehängte Datei | {count} angehängte Dateien",
+      "fileupload_hint": "(Datei per Drag & Drop in den Text ziehen)"
     },
     "confirm": {
       "title": "Löschen bestätigen",

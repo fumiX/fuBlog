@@ -8,7 +8,7 @@ import type {
   LoggedInUserInfo,
   NewPostRequestDto,
   PublicPost,
-  SupportedImageMimeType,
+  SupportedFileMimeType,
 } from "@fumix/fu-blog-common";
 import { HttpHeader, imageBytesToDataUrl } from "@fumix/fu-blog-common";
 
@@ -16,8 +16,8 @@ export type ApiUrl = `/api/${string}`;
 
 async function callServer<
   RequestType,
-  ResponseMimeType extends SupportedImageMimeType | JsonMimeType,
-  ResponseType = ResponseMimeType extends JsonMimeType ? any : ResponseMimeType extends SupportedImageMimeType ? ArrayBuffer : any,
+  ResponseMimeType extends SupportedFileMimeType | JsonMimeType,
+  ResponseType = ResponseMimeType extends JsonMimeType ? any : ResponseMimeType extends SupportedFileMimeType ? ArrayBuffer : any,
 >(
   url: ApiUrl,
   method: "GET" | "POST",
@@ -101,7 +101,7 @@ export class OpenAiEndpoints {
     return callServer<string, JsonMimeType, AiSummaryData>("/api/utility/chatGptSummarize", "POST", "application/json", { json: text });
   }
   static async dallEGenerateImage(prompt: string): Promise<DataUrl> {
-    return callServer<string, SupportedImageMimeType, string>("/api/utility/dallEGenerateImage", "POST", "image/png", {
+    return callServer<string, SupportedFileMimeType, string>("/api/utility/dallEGenerateImage", "POST", "image/png", {
       json: prompt,
     })
       .then((it) => {
