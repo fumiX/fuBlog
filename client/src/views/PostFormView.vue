@@ -1,139 +1,109 @@
 <template>
-  <div v-if="!postHasError" class="container">
-    <div class="row mb-2">
-      <div class="col w-50">
-        <div class="card flex-md-row mb-4 box-shadow h-md-250">
-          <div class="card-body">
-            <form @submit="submitForm($event)">
-              <div class="form-floating mb-3">
-                <input v-model="form.title" type="text" class="form-control" id="title" placeholder="Titel" required />
-                <label for="title">{{ t("posts.form.title") }}</label>
-              </div>
+  <div v-if="!postHasError" class="container-fluid">
+    <div class="row">
+      <div class="col-10 offset-1">
 
-              <div class="form-floating mb-3">
-                <textarea
-                  v-model="form.description"
-                  style="overflow-y: scroll; height: 6rem"
-                  class="form-control"
-                  id="description"
-                ></textarea>
-                <label for="description">{{ t("posts.form.description") }}</label>
-              </div>
 
-              <div class="form-floating mb-3">
-                <label for="stringTags">{{ t("posts.form.tags.tags") }}</label>
-                <vue-tags-input
-                  v-model="tag"
-                  :tags="tags"
-                  :autocomplete-items="tagList"
-                  :placeholder="t('posts.form.tags.enter')"
-                  @tags-changed="handleTagsChanged"
-                  @input="handleAutocompletion"
-                  @before-adding-tag="checkTag"
-                />
-              </div>
-
-              <div class="mb-3">
-                <ai-summaries
-                  :full-text="form.markdown"
-                  :onSetDescription="setDescription"
-                  :onAddTag="addTag"
-                  :onSetKeyvisual="setKeyvisual"
-                ></ai-summaries>
-              </div>
-
-              <div class="form-floating mb-3">
-                <textarea
-                  v-model="form.markdown"
-                  class="form-control md-area"
-                  placeholder="Blogpost"
-                  ref="markdownArea"
-                  style="height: 40vh; min-height: 200px"
-                  aria-describedby="markdownHelp"
-                  required
-                ></textarea>
-                <label for="markdown">{{ t("posts.form.message.label") }}</label>
-                <div id="markdownHelp" class="form-text">{{ t("posts.form.message.hint") }}</div>
-              </div>
-
-              <div class="form-check form-switch">
-                <input v-model="form.draft" class="form-check-input" type="checkbox" id="draft" />
-                <label class="form-check-label" for="draft">{{ t("posts.form.draft") }}</label>
-              </div>
-
-              <div class="form-floating mb-3 uploadCard">
-                <h4>
-                  {{ tc("posts.form.imageupload", Object.keys(files).length) }}
-                  <small class="text-body-secondary f-4" v-if="Object.keys(files).length > 0">
-                    ({{ convertToHumanReadableFileSize(totalBytesInFiles) }})
-                  </small>
-
-                  <span class="tiny">{{ t("posts.form.imageupload_hint") }}</span>
-                </h4>
-                <!-- Hidden file input, used to open the file dialog, when the dropzone is clicked -->
-                <input
-                  style="display: none"
-                  type="file"
-                  id="file"
-                  multiple
-                  v-on:change="handleFileChange($event)"
-                  accept=".png, .gif, .jpg, .jpeg, image/png, image/jpeg, image/gif"
-                />
-
-                <div class="imagesPreviewContaier" v-if="Object.keys(files).length">
-                  <div class="inner">
-                    <Suspense v-for="hash in Object.keys(files).reverse()" v-bind:key="hash">
-                      <ImagePreview
-                        :value="files[hash]"
-                        :hash="hash"
-                        @paste="pasteImageFileToMarkdown($event, 'afterCursor')"
-                        @delete="
-                          removeImageFileFromMarkdown(files[hash]);
-                          delete files[hash];
-                        "
-                        @softdelete="removeImageFileFromMarkdown(files[hash])"
-                      >
-                      </ImagePreview>
-                    </Suspense>
+        <div class="row mb-2">
+          <div class="col w-50 formCol">
+            <div class="card flex-md-row mb-4 box-shadow h-md-250">
+              <div class="card-body">
+                <form @submit="submitForm($event)">
+                  <div class="form-floating mb-3">
+                    <input v-model="form.title" type="text" class="form-control" id="title" placeholder="Titel"
+                      required />
+                    <label for="title">{{ t("posts.form.title") }}</label>
                   </div>
-                </div>
 
-                <div
-                  id="dropzone"
-                  v-on:click="openFileDialog()"
-                  v-on:drop="handleFileChange($event)"
-                  v-on:dragover="highlightDropzone($event, true)"
-                  v-on:dragleave="highlightDropzone($event, false)"
-                  :class="{ active: dropzoneHighlight }"
-                >
-                  <div class="plus"><fa-icon :icon="faUpload"></fa-icon></div>
-                  <span class="label" v-if="dropzoneHighlight">Dateien fallen lassen</span>
-                  <span class="label" v-else>Neue Dateien hierher ziehen oder hier klicken um Dateien auszuwählen</span>
-                </div>
+                  <div class="form-floating mb-3">
+                    <textarea v-model="form.description" style="overflow-y: scroll; height: 6rem" class="form-control"
+                      id="description"></textarea>
+                    <label for="description">{{ t("posts.form.description") }}</label>
+                  </div>
+
+                  <div class="form-floating mb-3">
+                    <label for="stringTags">{{ t("posts.form.tags.tags") }}</label>
+                    <vue-tags-input v-model="tag" :tags="tags" :autocomplete-items="tagList"
+                      :placeholder="t('posts.form.tags.enter')" @tags-changed="handleTagsChanged"
+                      @input="handleAutocompletion" @before-adding-tag="checkTag" />
+                  </div>
+
+                  <div class="mb-3">
+                    <ai-summaries :full-text="form.markdown" :onSetDescription="setDescription" :onAddTag="addTag"
+                      :onSetKeyvisual="setKeyvisual"></ai-summaries>
+                  </div>
+
+                  <div class="form-floating mb-3">
+                    <textarea v-model="form.markdown" class="form-control md-area" placeholder="Blogpost"
+                      ref="markdownArea" style="height: 40vh; min-height: 200px" aria-describedby="markdownHelp"
+                      required></textarea>
+                    <label for="markdown">{{ t("posts.form.message.label") }}</label>
+                    <div id="markdownHelp" class="form-text">{{ t("posts.form.message.hint") }}</div>
+                  </div>
+
+                  <div class="form-check form-switch">
+                    <input v-model="form.draft" class="form-check-input" type="checkbox" id="draft" />
+                    <label class="form-check-label" for="draft">{{ t("posts.form.draft") }}</label>
+                  </div>
+
+                  <div class="form-floating mb-3 uploadCard">
+                    <h4>
+                      {{ tc("posts.form.imageupload", Object.keys(files).length) }}
+                      <small class="text-body-secondary f-4" v-if="Object.keys(files).length > 0">
+                        ({{ convertToHumanReadableFileSize(totalBytesInFiles) }})
+                      </small>
+
+                      <span class="tiny">{{ t("posts.form.imageupload_hint") }}</span>
+                    </h4>
+                    <!-- Hidden file input, used to open the file dialog, when the dropzone is clicked -->
+                    <input style="display: none" type="file" id="file" multiple v-on:change="handleFileChange($event)"
+                      accept=".png, .gif, .jpg, .jpeg, .webp,image/png, image/jpeg, image/gif, image/webp" />
+
+                    <div class="imagesPreviewContaier" v-if="Object.keys(files).length">
+                      <div class="inner">
+                        <Suspense v-for="hash in Object.keys(files).reverse()" v-bind:key="hash">
+                          <ImagePreview :value="files[hash]" :hash="hash"
+                            @paste="pasteImageFileToMarkdown($event, 'afterCursor')" @delete="
+                              removeImageFileFromMarkdown(files[hash]);
+                            delete files[hash];
+                            " @softdelete="removeImageFileFromMarkdown(files[hash])">
+                          </ImagePreview>
+                        </Suspense>
+                      </div>
+                    </div>
+
+                    <div id="dropzone" v-on:click="openFileDialog()" v-on:drop="handleFileChange($event)"
+                      v-on:dragover="highlightDropzone($event, true)" v-on:dragleave="highlightDropzone($event, false)"
+                      :class="{ active: dropzoneHighlight }">
+                      <div class="plus"><fa-icon :icon="faUpload"></fa-icon></div>
+                      <span class="label" v-if="dropzoneHighlight">Dateien fallen lassen</span>
+                      <span class="label" v-else>Neue Dateien hierher ziehen oder hier klicken um Dateien
+                        auszuwählen</span>
+                    </div>
+                  </div>
+
+                  <button type="submit" class="btn btn-sm btn-primary float-end">{{ t("app.base.save") }}</button>
+                  <button type="button" class="btn btn-sm btn-secondary float-end mx-3" @click="router.go(-1)">
+                    {{ t("app.base.cancel") }}
+                  </button>
+                </form>
               </div>
-
-              <button type="submit" class="btn btn-sm btn-primary float-end">{{ t("app.base.save") }}</button>
-              <button type="button" class="btn btn-sm btn-secondary float-end mx-3" @click="router.go(-1)">
-                {{ t("app.base.cancel") }}
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <div class="col w-50">
-        <h2 class="display-6">{{ (form?.title?.length ?? 0) > 0 ? form?.title : t("posts.form.preview.title") }}</h2>
-        <div class="card flex-md-row mb-4 box-shadow h-md-250">
-          <div class="card-body" style="max-width: 100%">
-            <div v-if="loading" style="position: absolute; width: 100%; margin-top: 10vh; text-align: center" class="text-primary">
-              <loading-spinner />
             </div>
-            <mark-down
-              :markdown="md"
-              v-bind:custom-image-urls="files"
-              @loading="loading = $event"
-              :style="loading ? 'opacity:0.2' : 'opacity:1'"
-            ></mark-down>
+          </div>
+
+          <div class="col w-50 previewCol">
+            <h2 class="display-6">{{ (form?.title?.length ?? 0) > 0 ? form?.title : t("posts.form.preview.title") }}
+            </h2>
+            <div class="card flex-md-row mb-4 box-shadow h-md-250">
+              <div class="card-body" style="max-width: 100%">
+                <div v-if="loading" style="position: absolute; width: 100%; margin-top: 10vh; text-align: center"
+                  class="text-primary">
+                  <loading-spinner />
+                </div>
+                <mark-down :markdown="md" v-bind:custom-image-urls="files" @loading="loading = $event"
+                  :style="loading ? 'opacity:0.2' : 'opacity:1'"></mark-down>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -147,6 +117,7 @@
   font-size: 0.75rem;
   color: #6c757d;
 }
+
 .post-bg {
   background-image: url("@client/assets/images/post-bg.jpg");
   background-repeat: no-repeat;
@@ -156,6 +127,16 @@
 
 .w-50 {
   width: 50%;
+}
+
+.formCol {
+  overflow-y: scroll;
+  max-height: calc(100vh - 130px);
+}
+
+.previewCol {
+  overflow-y: scroll;
+  max-height: calc(100vh - 130px); // height of the navbar plus offset
 }
 
 .uploadCard {
@@ -295,6 +276,7 @@
   }
 
   @keyframes shake {
+
     10%,
     90% {
       transform: scale(0.9) translate3d(-1px, 0, 0);
