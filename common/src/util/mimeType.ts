@@ -24,10 +24,12 @@ export function determineMimeType(bytes: Uint8Array | Buffer): SupportedFileMime
     return "image/gif";
   } else if (doMagicBytesMatch(MAGIC_BMP_BYTES, bytes)) {
     return "image/bmp";
-  } else if (doMagicBytesMatch(MAGIC_MP3_BYTES_1, bytes) || 
-             doMagicBytesMatch(MAGIC_MP3_BYTES_2, bytes) || 
-             doMagicBytesMatch(MAGIC_MP3_BYTES_3, bytes) || 
-             doMagicBytesMatch(MAGIC_MP3_BYTES_4, bytes)) {
+  } else if (
+    doMagicBytesMatch(MAGIC_MP3_BYTES_1, bytes) ||
+    doMagicBytesMatch(MAGIC_MP3_BYTES_2, bytes) ||
+    doMagicBytesMatch(MAGIC_MP3_BYTES_3, bytes) ||
+    doMagicBytesMatch(MAGIC_MP3_BYTES_4, bytes)
+  ) {
     return "audio/mp3";
   } else if (doMagicBytesMatch(MAGIC_WAV_BYTES, bytes)) {
     return "audio/wav";

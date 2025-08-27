@@ -2,41 +2,58 @@
   <div v-if="!postHasError" class="container-fluid">
     <div class="row">
       <div class="col-10 offset-1">
-
-
         <div class="row mb-2">
           <div class="col w-50 formCol">
             <div class="card flex-md-row mb-4 box-shadow h-md-250">
               <div class="card-body">
                 <form @submit="submitForm($event)">
                   <div class="form-floating mb-3">
-                    <input v-model="form.title" type="text" class="form-control" id="title" placeholder="Titel"
-                      required />
+                    <input v-model="form.title" type="text" class="form-control" id="title" placeholder="Titel" required />
                     <label for="title">{{ t("posts.form.title") }}</label>
                   </div>
 
                   <div class="form-floating mb-3">
-                    <textarea v-model="form.description" style="overflow-y: scroll; height: 6rem" class="form-control"
-                      id="description"></textarea>
+                    <textarea
+                      v-model="form.description"
+                      style="overflow-y: scroll; height: 6rem"
+                      class="form-control"
+                      id="description"
+                    ></textarea>
                     <label for="description">{{ t("posts.form.description") }}</label>
                   </div>
 
                   <div class="form-floating mb-3">
                     <label for="stringTags">{{ t("posts.form.tags.tags") }}</label>
-                    <vue-tags-input v-model="tag" :tags="tags" :autocomplete-items="tagList"
-                      :placeholder="t('posts.form.tags.enter')" @tags-changed="handleTagsChanged"
-                      @input="handleAutocompletion" @before-adding-tag="checkTag" />
+                    <vue-tags-input
+                      v-model="tag"
+                      :tags="tags"
+                      :autocomplete-items="tagList"
+                      :placeholder="t('posts.form.tags.enter')"
+                      @tags-changed="handleTagsChanged"
+                      @input="handleAutocompletion"
+                      @before-adding-tag="checkTag"
+                    />
                   </div>
 
                   <div class="mb-3">
-                    <ai-summaries :full-text="form.markdown" :onSetDescription="setDescription" :onAddTag="addTag"
-                      :onSetKeyvisual="setKeyvisual"></ai-summaries>
+                    <ai-summaries
+                      :full-text="form.markdown"
+                      :onSetDescription="setDescription"
+                      :onAddTag="addTag"
+                      :onSetKeyvisual="setKeyvisual"
+                    ></ai-summaries>
                   </div>
 
                   <div class="form-floating mb-3">
-                    <textarea v-model="form.markdown" class="form-control md-area" placeholder="Blogpost"
-                      ref="markdownArea" style="height: 40vh; min-height: 200px" aria-describedby="markdownHelp"
-                      required></textarea>
+                    <textarea
+                      v-model="form.markdown"
+                      class="form-control md-area"
+                      placeholder="Blogpost"
+                      ref="markdownArea"
+                      style="height: 40vh; min-height: 200px"
+                      aria-describedby="markdownHelp"
+                      required
+                    ></textarea>
                     <label for="markdown">{{ t("posts.form.message.label") }}</label>
                     <div id="markdownHelp" class="form-text">{{ t("posts.form.message.hint") }}</div>
                   </div>
@@ -56,35 +73,57 @@
                       <span class="tiny">{{ t("posts.form.fileupload_hint") }}</span>
                     </h4>
                     <!-- Hidden file input, used to open the file dialog, when the dropzone is clicked -->
-                    <input style="display: none" type="file" id="file" multiple v-on:change="handleFileChange($event)"
-                      accept=".png, .gif, .jpg, .jpeg, .webp, .mp3, .wav, image/png, image/jpeg, image/gif, image/webp, audio/mp3, audio/wav" />
+                    <input
+                      style="display: none"
+                      type="file"
+                      id="file"
+                      multiple
+                      v-on:change="handleFileChange($event)"
+                      accept=".png, .gif, .jpg, .jpeg, .webp, .mp3, .wav, image/png, image/jpeg, image/gif, image/webp, audio/mp3, audio/wav"
+                    />
 
                     <div class="filesPreviewContainer" v-if="Object.keys(files).length">
                       <div class="inner">
                         <Suspense v-for="hash in Object.keys(files).reverse()" v-bind:key="hash">
-                          <ImagePreview v-if="isImageFile(files[hash])" :value="files[hash]" :hash="hash"
-                            @paste="pasteFileToMarkdown($event, 'afterCursor')" @delete="
+                          <ImagePreview
+                            v-if="isImageFile(files[hash])"
+                            :value="files[hash]"
+                            :hash="hash"
+                            @paste="pasteFileToMarkdown($event, 'afterCursor')"
+                            @delete="
                               removeFileFromMarkdown(files[hash]);
-                            delete files[hash];
-                            " @softdelete="removeFileFromMarkdown(files[hash])">
+                              delete files[hash];
+                            "
+                            @softdelete="removeFileFromMarkdown(files[hash])"
+                          >
                           </ImagePreview>
-                          <AudioPreview v-else-if="isAudioFile(files[hash])" :value="files[hash]" :hash="hash"
-                            @paste="pasteFileToMarkdown($event, 'afterCursor')" @delete="
+                          <AudioPreview
+                            v-else-if="isAudioFile(files[hash])"
+                            :value="files[hash]"
+                            :hash="hash"
+                            @paste="pasteFileToMarkdown($event, 'afterCursor')"
+                            @delete="
                               removeFileFromMarkdown(files[hash]);
-                            delete files[hash];
-                            " @softdelete="removeFileFromMarkdown(files[hash])">
+                              delete files[hash];
+                            "
+                            @softdelete="removeFileFromMarkdown(files[hash])"
+                          >
                           </AudioPreview>
                         </Suspense>
                       </div>
                     </div>
 
-                    <div id="dropzone" v-on:click="openFileDialog()" v-on:drop="handleFileChange($event)"
-                      v-on:dragover="highlightDropzone($event, true)" v-on:dragleave="highlightDropzone($event, false)"
-                      :class="{ active: dropzoneHighlight }">
+                    <div
+                      id="dropzone"
+                      v-on:click="openFileDialog()"
+                      v-on:drop="handleFileChange($event)"
+                      v-on:dragover="highlightDropzone($event, true)"
+                      v-on:dragleave="highlightDropzone($event, false)"
+                      :class="{ active: dropzoneHighlight }"
+                    >
                       <div class="plus"><fa-icon :icon="faUpload"></fa-icon></div>
                       <span class="label" v-if="dropzoneHighlight">Dateien fallen lassen</span>
-                      <span class="label" v-else>Neue Dateien hierher ziehen oder hier klicken um Dateien
-                        auszuwählen</span>
+                      <span class="label" v-else>Neue Dateien hierher ziehen oder hier klicken um Dateien auszuwählen</span>
                     </div>
                   </div>
 
@@ -98,16 +137,18 @@
           </div>
 
           <div class="col w-50 previewCol">
-            <h2 class="display-6">{{ (form?.title?.length ?? 0) > 0 ? form?.title : t("posts.form.preview.title") }}
-            </h2>
+            <h2 class="display-6">{{ (form?.title?.length ?? 0) > 0 ? form?.title : t("posts.form.preview.title") }}</h2>
             <div class="card flex-md-row mb-4 box-shadow h-md-250">
               <div class="card-body" style="max-width: 100%">
-                <div v-if="loading" style="position: absolute; width: 100%; margin-top: 10vh; text-align: center"
-                  class="text-primary">
+                <div v-if="loading" style="position: absolute; width: 100%; margin-top: 10vh; text-align: center" class="text-primary">
                   <loading-spinner />
                 </div>
-                <mark-down :markdown="md" v-bind:custom-file-urls="files" @loading="loading = $event"
-                  :style="loading ? 'opacity:0.2' : 'opacity:1'"></mark-down>
+                <mark-down
+                  :markdown="md"
+                  v-bind:custom-file-urls="files"
+                  @loading="loading = $event"
+                  :style="loading ? 'opacity:0.2' : 'opacity:1'"
+                ></mark-down>
               </div>
             </div>
           </div>
@@ -282,7 +323,6 @@
   }
 
   @keyframes shake {
-
     10%,
     90% {
       transform: scale(0.9) translate3d(-1px, 0, 0);
@@ -431,11 +471,11 @@ const removeFileFromMarkdown = (file: File) => {
 };
 
 const isImageFile = (file: File): boolean => {
-  return file.type.startsWith('image/');
+  return file.type.startsWith("image/");
 };
 
 const isAudioFile = (file: File): boolean => {
-  return file.type.startsWith('audio/');
+  return file.type.startsWith("audio/");
 };
 
 const openFileDialog = (): void => {

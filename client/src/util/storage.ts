@@ -80,8 +80,6 @@ export function loadCssPreference(): UserTheme {
   );
 }
 
-
-
 //
 // General purpose helper functions, should only be called indirectly
 //
