@@ -59,7 +59,7 @@ export abstract class MarkdownConverter {
   private static getKrokiDiagramTypeFromMarkdownId(markdownId: string | undefined): KrokiDiagramType | undefined {
     return markdownId === undefined //
       ? undefined
-      : this.KROKI_SVG_DIAGRAM_TYPES.find((it) => it.markdownId === markdownId) ?? undefined;
+      : (this.KROKI_SVG_DIAGRAM_TYPES.find((it) => it.markdownId === markdownId) ?? undefined);
   }
 
   private static rendererExtension: MarkedExtension = {

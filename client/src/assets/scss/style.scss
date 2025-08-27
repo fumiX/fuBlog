@@ -46,6 +46,7 @@ pre {
 
 .card-body {
   svg {
+    line-height:1.1; /* Prevent text from clipping in diagram boxes */
     max-width: 100%;
     background: transparent !important;
   }
