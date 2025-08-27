@@ -1,6 +1,6 @@
 {
   "name": "@fumix/fu-blog-server",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Backend Server for Blog in Node/Express",
   "main": "server.js",
   "scripts": {

@@ -1,5 +1,5 @@
 import type { JsonWebToken, SavedOAuthToken, UserTheme } from "@fumix/fu-blog-common";
-import { base64UrlToBuffer, isOAuthType } from "@fumix/fu-blog-common";
+import { base64UrlToBuffer, isOAuthType, isUserTheme } from "@fumix/fu-blog-common";
 
 type OAuthState = { key: string; redirect_uri?: string };
 const idTokenKey = "id_token";
@@ -67,8 +67,20 @@ export function saveCssPreference(css: UserTheme) {
 }
 
 export function loadCssPreference(): UserTheme {
-  return loadFromStorageAsString(window.localStorage, "cssTheme", "lightTheme") as UserTheme;
+  return loadFromStorage(
+    window.localStorage,
+    "cssTheme",
+    (saved) => {
+      if (isUserTheme(saved)) {
+        return saved;
+      }
+      return null;
+    },
+    "light",
+  );
 }
+
+
 
 //
 // General purpose helper functions, should only be called indirectly
