@@ -1,8 +1,8 @@
-<template>
+ <template>
   <div class="preview-container">
     <div class="erase" @click="$emit('delete')" :title="t('app.base.delete_audio')"></div>
     <div class="audio-container">
-      <div class="audio-icon">
+      <div class="audio-icon" v-on:dragstart="onDragStart($event)" :draggable="showPaste">
         <fa-icon :icon="faMusic" />
       </div>
     </div>
@@ -117,6 +117,20 @@
     font-size: 2rem;
     transition-duration: 0.3s;
 
+    &[draggable="true"] {
+      cursor: move;
+      /* fallback if grab cursor is unsupported */
+      cursor: grab;
+      cursor: -moz-grab;
+      cursor: -webkit-grab;
+
+      &:active {
+        cursor: grabbing;
+        cursor: -moz-grabbing;
+        cursor: -webkit-grabbing;
+      }
+    }
+
     &:hover {
       background-color: #dee2e6;
       border-color: #495057;
@@ -160,7 +174,15 @@ import { convertToHumanReadableFileSize, escapeMarkdownAltText } from "@fumix/fu
 import type { PropType } from "vue";
 
 const getMarkdownString = () => {
-  return `![${escapeMarkdownAltText(props.value.name)}](${props.hash})`;
+  return `![audio:${escapeMarkdownAltText(props.value.name)}](${props.hash})`;
+};
+
+const onDragStart = (event: DragEvent) => {
+  if (props.showPaste) {
+    const audioIcon = event.target as HTMLElement;
+    event.dataTransfer?.setDragImage(audioIcon, 0, 0);
+    event.dataTransfer?.setData("text/plain", getMarkdownString());
+  }
 };
 
 const props = defineProps({
