@@ -1,4 +1,4 @@
-import { determineMimeType, File, SupportedImageMimeType } from "@fumix/fu-blog-common";
+import { determineMimeType, File, SupportedFileMimeType } from "@fumix/fu-blog-common";
 import { Buffer } from "buffer";
 import * as crypto from "crypto";
 import { Column, Entity, PrimaryColumn } from "typeorm";
@@ -11,7 +11,7 @@ export class FileEntity implements File {
   sha256: string;
 
   @Column({ name: "mime_type", type: "varchar", nullable: false })
-  mimeType: SupportedImageMimeType;
+  mimeType: SupportedFileMimeType;
 
   @Column({ name: "binary_data", type: "bytea", nullable: false })
   binaryData: Buffer;
@@ -23,7 +23,7 @@ export class FileEntity implements File {
     );
   }
 
-  private constructor(sha256?: string, binaryData?: Buffer, mimeType?: SupportedImageMimeType) {
+  private constructor(sha256?: string, binaryData?: Buffer, mimeType?: SupportedFileMimeType) {
     if (sha256 === undefined && binaryData === undefined && mimeType === undefined) {
       return;
     }

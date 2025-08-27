@@ -1,4 +1,4 @@
-import { AiSummaryData, base64ToBuffer, determineMimeType, SupportedImageMimeType } from "@fumix/fu-blog-common";
+import { AiSummaryData, base64ToBuffer, determineMimeType, SupportedFileMimeType } from "@fumix/fu-blog-common";
 import console from "console";
 import OpenAI from "openai";
 import logger from "../logger.js";
@@ -8,7 +8,7 @@ const openai = new OpenAI({
   apiKey: OpenAISettings.API_KEY,
 });
 
-export async function dallEGenerateImage(prompt: string): Promise<[SupportedImageMimeType, Buffer]> {
+export async function dallEGenerateImage(prompt: string): Promise<[SupportedFileMimeType, Buffer]> {
   console.log("Create image");
   return openai.images
     .generate({

@@ -19,6 +19,11 @@
     max-width: 100% !important;
     height: auto !important;
   }
+
+  audio {
+    max-width: 100% !important;
+    margin: 10px 0 !important;
+  }
 }
 </style>
 
@@ -34,7 +39,7 @@ const props = defineProps({
   markdown: {
     type: String as PropType<string | null>,
   },
-  customImageUrls: {
+  customFileUrls: {
     type: Object as PropType<{ [sha256: string]: File }>,
     default: () => {},
   },
@@ -47,11 +52,11 @@ watch(props, async () => {
     emits("loading", true);
     sanitizedHtml.value = await MarkdownConverterClient.Instance.convert(props.markdown ?? "", async (token: string) => {
       if (!token || token.length < 10) {
-        return Promise.reject("Image hash too short");
+        return Promise.reject("File hash too short");
       }
-      const urls = Object.keys(props.customImageUrls).filter((it) => it.startsWith(token));
+      const urls = Object.keys(props.customFileUrls).filter((it) => it.startsWith(token));
       if (urls && urls.length === 1) {
-        const customFile = props.customImageUrls[urls[0]];
+        const customFile = props.customFileUrls[urls[0]];
         return blobToArray(customFile).then((it) => bytesToDataUrl(customFile.type, it));
       }
       return Promise.reject("No custom file found");

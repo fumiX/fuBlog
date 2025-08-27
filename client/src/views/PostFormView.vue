@@ -48,26 +48,32 @@
 
                   <div class="form-floating mb-3 uploadCard">
                     <h4>
-                      {{ tc("posts.form.imageupload", Object.keys(files).length) }}
+                      {{ tc("posts.form.fileupload", Object.keys(files).length) }}
                       <small class="text-body-secondary f-4" v-if="Object.keys(files).length > 0">
                         ({{ convertToHumanReadableFileSize(totalBytesInFiles) }})
                       </small>
 
-                      <span class="tiny">{{ t("posts.form.imageupload_hint") }}</span>
+                      <span class="tiny">{{ t("posts.form.fileupload_hint") }}</span>
                     </h4>
                     <!-- Hidden file input, used to open the file dialog, when the dropzone is clicked -->
                     <input style="display: none" type="file" id="file" multiple v-on:change="handleFileChange($event)"
-                      accept=".png, .gif, .jpg, .jpeg, .webp,image/png, image/jpeg, image/gif, image/webp" />
+                      accept=".png, .gif, .jpg, .jpeg, .webp, .mp3, .wav, image/png, image/jpeg, image/gif, image/webp, audio/mp3, audio/wav" />
 
-                    <div class="imagesPreviewContaier" v-if="Object.keys(files).length">
+                    <div class="filesPreviewContainer" v-if="Object.keys(files).length">
                       <div class="inner">
                         <Suspense v-for="hash in Object.keys(files).reverse()" v-bind:key="hash">
-                          <ImagePreview :value="files[hash]" :hash="hash"
-                            @paste="pasteImageFileToMarkdown($event, 'afterCursor')" @delete="
-                              removeImageFileFromMarkdown(files[hash]);
+                          <ImagePreview v-if="isImageFile(files[hash])" :value="files[hash]" :hash="hash"
+                            @paste="pasteFileToMarkdown($event, 'afterCursor')" @delete="
+                              removeFileFromMarkdown(files[hash]);
                             delete files[hash];
-                            " @softdelete="removeImageFileFromMarkdown(files[hash])">
+                            " @softdelete="removeFileFromMarkdown(files[hash])">
                           </ImagePreview>
+                          <AudioPreview v-else-if="isAudioFile(files[hash])" :value="files[hash]" :hash="hash"
+                            @paste="pasteFileToMarkdown($event, 'afterCursor')" @delete="
+                              removeFileFromMarkdown(files[hash]);
+                            delete files[hash];
+                            " @softdelete="removeFileFromMarkdown(files[hash])">
+                          </AudioPreview>
                         </Suspense>
                       </div>
                     </div>
@@ -100,7 +106,7 @@
                   class="text-primary">
                   <loading-spinner />
                 </div>
-                <mark-down :markdown="md" v-bind:custom-image-urls="files" @loading="loading = $event"
+                <mark-down :markdown="md" v-bind:custom-file-urls="files" @loading="loading = $event"
                   :style="loading ? 'opacity:0.2' : 'opacity:1'"></mark-down>
               </div>
             </div>
@@ -147,7 +153,7 @@
   background-color: #dee2e6;
 }
 
-.imagesPreviewContaier {
+.filesPreviewContainer {
   width: 100%;
   max-width: 100%;
   min-width: 100%;
@@ -309,6 +315,7 @@
 
 <script setup lang="ts">
 import AiSummaries from "@client/components/AiSummaries.vue";
+import AudioPreview from "@client/components/AudioPreview.vue";
 import ImagePreview from "@client/components/ImagePreview.vue";
 import LoadingSpinner from "@client/components/LoadingSpinner.vue";
 import MarkDown from "@client/components/MarkDown.vue";
@@ -408,6 +415,26 @@ const removeImageFileFromMarkdown = (file: File) => {
     // give the preview time to update
     form.markdown = form.markdown.split(strToRemove).join("");
   }, 0);
+};
+
+const pasteFileToMarkdown = (markdown: string, insertPosition: SupportedInsertPositionType = "afterCursor") => {
+  form.markdown = insertIntoTextarea(markdown, markdownArea.value as unknown as HTMLTextAreaElement, insertPosition);
+};
+
+const removeFileFromMarkdown = (file: File) => {
+  const strToRemove = `![${file.name}](${Object.keys(files).find((key) => files[key] === file)})`.trim();
+  setTimeout(() => {
+    // give the preview time to update
+    form.markdown = form.markdown.split(strToRemove).join("");
+  }, 0);
+};
+
+const isImageFile = (file: File): boolean => {
+  return file.type.startsWith('image/');
+};
+
+const isAudioFile = (file: File): boolean => {
+  return file.type.startsWith('audio/');
 };
 
 const openFileDialog = (): void => {

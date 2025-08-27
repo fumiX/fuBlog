@@ -24,8 +24,10 @@
       "cancel": "Cancel",
       "edit": "Edit",
       "insert_image": "Insert image",
+      "insert_audio": "Insert audio",
       "delete_image": "Delete image",
-      "remove": "Remove image reference from text",
+      "delete_audio": "Delete audio",
+      "remove": "Remove file reference from text",
       "read": "Read",
       "create_post": "Create Post",
       "roles": "Roles",
@@ -57,8 +59,8 @@
       "preview": {
         "title": "Preview"
       },
-      "imageupload": "Upload image",
-      "imageupload_hint": "(drag onto textarea to insert)",
+      "fileupload": "Upload files",
+      "fileupload_hint": "(drag onto textarea to insert)",
       "tags": "Tags"
     },
     "confirm": {
