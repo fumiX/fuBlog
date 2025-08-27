@@ -1,4 +1,4 @@
- <template>
+<template>
   <div class="preview-container">
     <div class="erase" @click="$emit('delete')" :title="t('app.base.delete_audio')"></div>
     <div class="audio-container">
