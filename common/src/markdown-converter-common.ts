@@ -109,16 +109,22 @@ export abstract class MarkdownConverter {
           token.escaped = true;
         }
       },
-      // renderer: {
-      //   image(href, title, text) {
-      //     // Check if the href is a data URL for an audio file
-      //     if (href && href.startsWith('data:audio/')) {
-      //       return `<audio controls><source src="${href}" type="${href.split(';')[0].split(':')[1]}">Your browser does not support the audio element.</audio>`;
-      //     }
-      //     // Default image rendering
-      //     return `<img src="${href}" alt="${text || ''}" title="${title || ''}">`;
-      //   }
-      // }
+      renderer: {
+        image({ href, title, text }: Tokens.Image) {
+          // Check if this is an audio file (marked with audio: prefix)
+          if (text && text.startsWith('audio:')) {
+            const audioName = text.substring(6); // Remove 'audio:' prefix
+            // Determine audio type from href if it's a data URL
+            let audioType = "audio/mpeg"; // default
+            if (href && href.startsWith('data:audio/')) {
+              audioType = href.split(';')[0].split(':')[1];
+            }
+            return `<audio controls><source src="${href}" type="${audioType}">Your browser does not support the audio element.</audio>`;
+          }
+          // Default image rendering
+          return `<img src="${href}" alt="${text || ''}" title="${title || ''}">`;
+        }
+      }
     });
     marked.use(MarkdownConverter.rendererExtension);
     marked.use(

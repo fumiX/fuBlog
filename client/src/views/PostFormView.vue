@@ -409,24 +409,25 @@ const pasteImageFileToMarkdown = (markdown: string, insertPosition: SupportedIns
   form.markdown = insertIntoTextarea(markdown, markdownArea.value as unknown as HTMLTextAreaElement, insertPosition);
 };
 
-const removeImageFileFromMarkdown = (file: File) => {
-  const strToRemove = `![${file.name}](${Object.keys(files).find((key) => files[key] === file)})`.trim();
-  setTimeout(() => {
-    // give the preview time to update
-    form.markdown = form.markdown.split(strToRemove).join("");
-  }, 0);
-};
-
 const pasteFileToMarkdown = (markdown: string, insertPosition: SupportedInsertPositionType = "afterCursor") => {
   form.markdown = insertIntoTextarea(markdown, markdownArea.value as unknown as HTMLTextAreaElement, insertPosition);
 };
 
 const removeFileFromMarkdown = (file: File) => {
-  const strToRemove = `![${file.name}](${Object.keys(files).find((key) => files[key] === file)})`.trim();
-  setTimeout(() => {
-    // give the preview time to update
-    form.markdown = form.markdown.split(strToRemove).join("");
-  }, 0);
+  const fileHash = Object.keys(files).find((key) => files[key] === file);
+  if (isImageFile(file)) {
+    const strToRemove = `![${file.name}](${fileHash})`.trim();
+    setTimeout(() => {
+      // give the preview time to update
+      form.markdown = form.markdown.split(strToRemove).join("");
+    }, 0);
+  } else if (isAudioFile(file)) {
+    const strToRemove = `![audio:${file.name}](${fileHash})`.trim();
+    setTimeout(() => {
+      // give the preview time to update
+      form.markdown = form.markdown.split(strToRemove).join("");
+    }, 0);
+  }
 };
 
 const isImageFile = (file: File): boolean => {
