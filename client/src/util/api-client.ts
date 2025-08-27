@@ -5,8 +5,9 @@ import type {
   DraftResponseDto,
   EditPostRequestDto,
   JsonMimeType,
+  LoggedInUserInfo,
   NewPostRequestDto,
-  OAuthAccount,
+  PublicPost,
   SupportedImageMimeType,
 } from "@fumix/fu-blog-common";
 import { HttpHeader, imageBytesToDataUrl } from "@fumix/fu-blog-common";
@@ -69,7 +70,10 @@ interface ApiRequestJsonPayload<T> {
   json: NonNullable<T>;
 }
 class ApiRequestJsonPayloadWithFiles<T> implements ApiRequestJsonPayload<T> {
-  constructor(public json: NonNullable<T>, public files: File[]) {}
+  constructor(
+    public json: NonNullable<T>,
+    public files: File[],
+  ) {}
 }
 
 function toFormData<T>(payload: ApiRequestJsonPayloadWithFiles<T> | null): FormData | null {
@@ -83,10 +87,10 @@ function toFormData<T>(payload: ApiRequestJsonPayloadWithFiles<T> | null): FormD
 }
 
 export class AuthEndpoints {
-  static async getLoggedInUser(): Promise<OAuthAccount> {
+  static async getLoggedInUser(): Promise<LoggedInUserInfo> {
     const token = loadIdToken();
     if (token) {
-      return callServer<null, JsonMimeType, OAuthAccount>("/api/auth/loggedInUser/", "POST", "application/json");
+      return callServer<null, JsonMimeType, LoggedInUserInfo>("/api/utility/loggedInUser", "POST", "application/json");
     }
     return Promise.reject();
   }
@@ -134,5 +138,15 @@ export class PostEndpoints {
   }
   static async deletePost(id: number): Promise<{ affected: number }> {
     return callServer<void, JsonMimeType, { affected: number }>(`/api/posts/delete/${id}`, "POST", "application/json");
+  }
+
+  static async findPosts(pageIndex: number, itemsPerPage = 12, search: string | undefined = undefined, operator: "and" | "or" = "and") {
+    return callServer<void, JsonMimeType, { data: [PublicPost[], number | null] }>(
+      `/api/posts/page/${pageIndex}/count/${itemsPerPage}${search ? `/search/${encodeURIComponent(search)}/operator/${operator}` : ""}`,
+      "GET",
+      "application/json",
+      null,
+      true,
+    );
   }
 }

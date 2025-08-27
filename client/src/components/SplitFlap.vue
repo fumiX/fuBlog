@@ -44,16 +44,19 @@ function animate() {
   if (numStepsRemaining > 0) {
     isAnimated.isAnimated = true;
     // Wait for the animation to finish
-    setTimeout(() => {
-      currentChar.value = nextChar.value;
-      // Execute immediately before the style calculations for the next frame
-      requestAnimationFrame(() => {
-        isAnimated.isAnimated = false;
-        nextChar.value = findNextChar(currentChar.value) ?? " ";
-        // Wait with continuing the animation until immediately before the style calculations for the next frame
-        requestAnimationFrame(animate);
-      });
-    }, timeout.value + Math.random() * 50);
+    setTimeout(
+      () => {
+        currentChar.value = nextChar.value;
+        // Execute immediately before the style calculations for the next frame
+        requestAnimationFrame(() => {
+          isAnimated.isAnimated = false;
+          nextChar.value = findNextChar(currentChar.value) ?? " ";
+          // Wait with continuing the animation until immediately before the style calculations for the next frame
+          requestAnimationFrame(animate);
+        });
+      },
+      timeout.value + Math.random() * 50,
+    );
   }
 }
 

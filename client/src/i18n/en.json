@@ -101,7 +101,8 @@
         "email": "Email",
         "username": "Username",
         "fullname": "Your name"
-      }
+      },
+      "username-requirements": "The username must be between 3 and 32 characters long and can only consist of letters a-z/A-Z, digits 0-9 and characters ._-"
     },
     "user_not_found": "User not found."
   }

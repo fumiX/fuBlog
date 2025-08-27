@@ -1,35 +1,24 @@
 <template>
-  <div class="badge-container">
-    <div v-for="tag in tags" :key="tag.id" class="badge me-1" @click="searchWord(tag.name)">
-      {{ tag.name }}
-    </div>
-  </div>
+  <md-chip-set>
+    <md-suggestion-chip v-for="tag in sortedTags()" v-bind:key="tag" :label="tag" @click="searchWord(tag)"></md-suggestion-chip>
+  </md-chip-set>
 </template>
 
-<style lang="scss">
-.badge-container {
-  padding: 0;
-  margin: 0;
-
-  .badge {
-    background-color: $badge-background-color;
-    color: $badge-text-color;
-    cursor: pointer;
-  }
-}
-</style>
-
 <script setup lang="ts">
-import type { Tag } from "@fumix/fu-blog-common";
 import type { PropType } from "vue";
 import { useRouter } from "vue-router";
+import "@material/web/chips/chip-set.js";
+import "@material/web/chips/filter-chip.js";
+import "@material/web/chips/suggestion-chip.js";
 
 const router = useRouter();
-const props = defineProps({ tags: { type: Array as PropType<Tag[]>, required: true } });
+const props = defineProps({ tags: { type: Array as PropType<string[]>, required: true } });
+
+const sortedTags = () => [...props.tags].sort((a, b) => a.localeCompare(b));
 
 const searchWord = (word: string): void => {
   if (word) {
-    router.push(`/posts/?search=${word}&operator=and`);
+    router.push(`/posts/?search=${encodeURIComponent(word)}&operator=and`);
   }
 };
 </script>

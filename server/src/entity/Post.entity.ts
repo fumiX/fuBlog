@@ -12,26 +12,26 @@ export class PostEntity implements Post {
   @PrimaryGeneratedColumn()
   id?: number;
 
-  @Column()
+  @Column("varchar")
   title: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: "varchar" })
   description: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: "varchar" })
   markdown: string;
 
-  @Column({ name: "sanitized_html", nullable: true })
+  @Column({ name: "sanitized_html", nullable: true, type: "varchar" })
   sanitizedHtml: string;
 
-  @Column({ name: "created_at" })
+  @Column({ name: "created_at", type: "timestamp" })
   createdAt: Date;
 
   @JoinColumn({ name: "created_by_id", referencedColumnName: "id" })
   @ManyToOne(() => UserEntity)
   createdBy?: UserEntity;
 
-  @Column({ name: "updated_at", nullable: true })
+  @Column({ name: "updated_at", nullable: true, type: "timestamp" })
   updatedAt?: Date;
 
   @JoinColumn({ name: "updated_by_id", referencedColumnName: "id" })
@@ -41,7 +41,7 @@ export class PostEntity implements Post {
   @OneToMany(() => AttachmentEntity, (attachment) => attachment.post, { nullable: true })
   attachments: AttachmentEntity[];
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, type: "boolean" })
   draft: boolean;
 
   @ManyToMany((type) => TagEntity, (tag) => tag.posts, {

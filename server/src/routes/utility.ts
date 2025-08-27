@@ -1,4 +1,3 @@
-import { permissionsForUser } from "@fumix/fu-blog-common";
 import express, { Request, Response, Router } from "express";
 import fetch from "node-fetch";
 import { AppDataSource } from "../data-source.js";
@@ -46,7 +45,9 @@ router.get("/github-sharepic", async (req, res) => {
       .then((r) => {
         r.arrayBuffer()
           .then((buf) => {
-            cachedSharepic = { url, bytes: new Uint8Array(buf) };
+            if (r.status === 200) {
+              cachedSharepic = { url, bytes: new Uint8Array(buf) };
+            }
             sendCachedBytesOrNotFound();
           })
           .catch(sendCachedBytesOrNotFound);
@@ -80,7 +81,7 @@ router.post("/chatGptSummarize", authMiddleware, async (req, res, next) => {
     return next(new BadRequestError());
   } else if (!loggedInUser) {
     return next(new UnauthorizedError());
-  } else if (!permissionsForUser(loggedInUser.user).canCreatePost) {
+  } else if (!loggedInUser.permissions.canCreatePost) {
     return next(new ForbiddenError());
   }
 
@@ -103,7 +104,7 @@ router.post("/dallEGenerateImage", authMiddleware, async (req, res, next) => {
     return next(new BadRequestError());
   } else if (!loggedInUser) {
     return next(new UnauthorizedError());
-  } else if (!permissionsForUser(loggedInUser.user).canCreatePost) {
+  } else if (!loggedInUser.permissions.canCreatePost) {
     return next(new ForbiddenError());
   }
 
@@ -113,6 +114,16 @@ router.post("/dallEGenerateImage", authMiddleware, async (req, res, next) => {
       res.end();
     })
     .catch((e) => res.status(502).json({ error: e }));
+});
+
+router.post("/loggedInUser", authMiddleware, async (req, res) => {
+  const account = await req.loggedInUser?.();
+
+  if (account) {
+    res.status(200).json(account);
+  } else {
+    res.status(403).json({ error: "Unauthorized" });
+  }
 });
 
 export default router;

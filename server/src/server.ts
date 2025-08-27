@@ -1,7 +1,7 @@
 import console from "console";
 import cors from "cors";
 import express, { Application, NextFunction, Request, Response } from "express";
-import * as fs from "fs";
+import { readFile, writeFileSync } from "fs";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import { corsOptions } from "./config/cors-config.js";
@@ -16,7 +16,6 @@ import fileRoutes from "./routes/file.js";
 import postRoutes from "./routes/posts.js";
 import utilityRoutes from "./routes/utility.js";
 import { errorHandler } from "./service/error-handler.js";
-import { generateShareImage } from "./service/opengraph.js";
 import { initDatabase } from "./service/testdata-generator.js";
 import { AppSettings, ClientSettings, DatabaseSettings, ServerSettings } from "./settings.js";
 
@@ -78,7 +77,7 @@ console.log("DTO:", AppSettings.DTO);
 // in production serve the built vue-app from static public folder:
 if (AppSettings.IS_PRODUCTION) {
   const indexResponse = (req: Request, res: Response) => {
-    fs.readFile(
+    readFile(
       path.join(__dirname, "public/index.html"), //
       { encoding: "utf-8" },
       (err, data) => {
@@ -95,13 +94,15 @@ if (AppSettings.IS_PRODUCTION) {
   app.use(express.static("./public", { redirect: false, index: false }));
   app.get("*", indexResponse);
 } else {
-  fs.writeFileSync("../client/.env.development", "VITE_APP_DATA=" + JSON.stringify(AppSettings.DTO), { encoding: "utf-8" });
+  writeFileSync("../client/.env.development", "VITE_APP_DATA=" + JSON.stringify(AppSettings.DTO), { encoding: "utf-8" });
 }
 
 app.listen(ServerSettings.PORT, () => {
-  logger.info(`fuBlog server running in ${AppSettings.RUN_MODE} mode on port: ${ServerSettings.PORT}`);
-  if (!AppSettings.IS_PRODUCTION) {
-    logger.info(`Connected to Postgres DB at ${DatabaseSettings.HOST}:${DatabaseSettings.PORT}`);
-    logger.info(`Client: ${ClientSettings.BASE_URL}`);
-  }
+  logger.info(
+    `▶️ fuBlog server${AppSettings.IS_PRODUCTION ? ` version ${AppSettings.APP_VERSION ?? "‹unknown›"}` : ""} running in ${
+      AppSettings.RUN_MODE
+    } mode on port: ${ServerSettings.PORT}`,
+  );
+  logger.info(`🗄️ Expecting Postgres DB at ${DatabaseSettings.HOST}:${DatabaseSettings.PORT}`);
+  logger.info(`🖥️ Expecting to be published at ${ClientSettings.BASE_URL}`);
 });

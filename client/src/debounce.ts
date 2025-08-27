@@ -16,9 +16,12 @@ export const debounce = <T>(callback: () => T, timeout = 500): ComputedRef<T> =>
       if (lastTimeout !== null) {
         clearTimeout(lastTimeout);
       }
-      lastTimeout = window.setTimeout(() => {
-        current.value = newValue;
-      }, Math.max(timeout, 1));
+      lastTimeout = window.setTimeout(
+        () => {
+          current.value = newValue;
+        },
+        Math.max(timeout, 1),
+      );
     }
   });
   return computed(() => current.value);

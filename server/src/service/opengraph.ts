@@ -11,16 +11,19 @@ export function generateShareImage(title: string, date: Date, image: Image | Can
   const titleWords = title.split(/\s+/).map((word) => ({ word, width: context.measureText(word).width }));
 
   const lines = titleWords
-    .reduce((acc, current) => {
-      const lastLineIndex = acc.length - 1;
-      if (lastLineIndex >= 0 && acc[lastLineIndex].width + current.width < 600) {
-        acc[lastLineIndex].line += ` ${current.word}`;
-        acc[lastLineIndex].width += current.width;
-      } else {
-        acc.push({ line: current.word, width: current.width });
-      }
-      return acc;
-    }, [] as { line: string; width: number }[])
+    .reduce(
+      (acc, current) => {
+        const lastLineIndex = acc.length - 1;
+        if (lastLineIndex >= 0 && acc[lastLineIndex].width + current.width < 600) {
+          acc[lastLineIndex].line += ` ${current.word}`;
+          acc[lastLineIndex].width += current.width;
+        } else {
+          acc.push({ line: current.word, width: current.width });
+        }
+        return acc;
+      },
+      [] as { line: string; width: number }[],
+    )
     .map((line) => line.line);
   const overlong = lines.length > 6;
   lines.length = Math.min(lines.length, 6); // max 4 lines

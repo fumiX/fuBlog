@@ -5,7 +5,7 @@
   >
     {{ appData.runMode }}
   </div>
-  <div :class="cssTheme">
+  <div>
     <div class="content">
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
         <div class="container">
@@ -29,13 +29,16 @@
               <li class="nav-item">
                 <RouterLink to="/posts" class="nav-link">{{ t("nav.posts") }}</RouterLink>
               </li>
-              <li v-if="isAdmin()" class="nav-item">
+              <li v-if="loggedInUserInfo?.permissions?.canEditUserRoles ?? false" class="nav-item">
                 <RouterLink to="/administration" class="nav-link">{{ t("nav.administration") }}</RouterLink>
+              </li>
+              <li v-if="appData.mainWebsite?.label" class="nav-item">
+                <a :href="appData.mainWebsite?.url" class="nav-link">{{ appData.mainWebsite?.label }}</a>
               </li>
             </ul>
             <div class="username">
-              <login-button v-if="!loggedInUser"></login-button>
-              <user-name v-else :user="loggedInUser" @logout="logoutUser($event)"></user-name>
+              <login-button v-if="!loggedInUserInfo"></login-button>
+              <user-name v-else :user="loggedInUserInfo.user" @logout="logoutUser($event)"></user-name>
             </div>
 
             <light-dark-toggler @theme-changed="cssTheme = $event" style="margin-right: 2.5rem"></light-dark-toggler>
@@ -49,7 +52,7 @@
         </div>
       </nav>
 
-      <RouterView :userPermissions="userPermissions" />
+      <RouterView :userPermissions="loggedInUserInfo?.permissions ?? DEFAULT_ROLE" />
     </div>
     <footer class="page-footer">
       <div class="container">
@@ -86,12 +89,18 @@ footer.page-footer {
       max-width: 16rem;
       opacity: 0.6;
       clip-path: polygon(0 5%, 100% 5%, 100% 55%, 0 55%);
-      transition: 15s ease-in opacity, 20s ease-in clip-path, 5s ease-in max-width;
+      transition:
+        15s ease-in opacity,
+        20s ease-in clip-path,
+        5s ease-in max-width;
     }
 
     &:hover img {
       opacity: 1;
-      transition: 1s ease-out opacity, 1s ease-out clip-path, 1s ease-out max-width;
+      transition:
+        1s ease-out opacity,
+        1s ease-out clip-path,
+        1s ease-out max-width;
       clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
       max-width: 25rem;
     }
@@ -108,8 +117,8 @@ import { AuthEndpoints } from "@client/util/api-client.js";
 import { saveIdToken } from "@client/util/storage.js";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 import { faExternalLink } from "@fortawesome/free-solid-svg-icons";
-import type { AppSettingsDto, User, UserRolePermissionsType } from "@fumix/fu-blog-common";
-import { permissionsForUser } from "@fumix/fu-blog-common";
+import type { AppSettingsDto, LoggedInUserInfo } from "@fumix/fu-blog-common";
+import { DEFAULT_ROLE } from "@fumix/fu-blog-common";
 import { onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
@@ -118,8 +127,7 @@ const { t } = useI18n();
 const route = useRoute();
 const searchQuery = ref<string>("");
 const router = useRouter();
-const loggedInUser = ref<User | null>(null);
-const userPermissions = ref<UserRolePermissionsType | null>(null);
+const loggedInUserInfo = ref<LoggedInUserInfo | undefined>(undefined);
 const cssTheme = ref<string | null>(null);
 
 const appData: AppSettingsDto = (JSON.parse(document.getElementById("app-data")?.textContent ?? "{}") as AppSettingsDto) ?? {
@@ -127,19 +135,28 @@ const appData: AppSettingsDto = (JSON.parse(document.getElementById("app-data")?
   runMode: "production",
 };
 
+console.log(
+  `%c  ███████
+  █ ███ █
+  ██ █ ██  fuBlog
+  ███████
+  ██ █ ██  ${(appData.isProduction ? (appData.appVersion ?? "‹unknown›") : "development version") + "   "}
+  █ ███ █
+  ███████`,
+  `color:#ff9c00;background:rgb(48, 48, 48);display:inline-block`,
+);
+
 const setOperator = (operator: string) => {
   router.replace({ query: { ...route.query, operator: operator } });
 };
 
 const setLoginUserAndPermissions = async () => {
   AuthEndpoints.getLoggedInUser()
-    .then((oauthAccount) => {
-      loggedInUser.value = oauthAccount.user;
-      userPermissions.value = permissionsForUser(oauthAccount.user);
+    .then((userInfo: LoggedInUserInfo) => {
+      loggedInUserInfo.value = userInfo;
     })
     .catch(() => {
-      loggedInUser.value = null;
-      userPermissions.value = null;
+      loggedInUserInfo.value = undefined;
     });
 };
 
@@ -155,7 +172,7 @@ watch(route, async (value) => {
 onMounted(() => {
   // listen for token-changed event to gracefully handle login/logout
   window.addEventListener("token-changed", (event) => {
-    if (!loggedInUser.value) {
+    if (!loggedInUserInfo.value) {
       setLoginUserAndPermissions();
     }
   });
@@ -173,14 +190,9 @@ const startSearch = (search: string, operator: string = "and") => {
   }
 };
 
-const isAdmin = () => {
-  return loggedInUser.value?.roles.includes("ADMIN");
-};
-
 const logoutUser = (event: Event) => {
   saveIdToken(null); // clear localStorage
-  loggedInUser.value = null;
-  userPermissions.value = null;
+  loggedInUserInfo.value = undefined;
   router.push(`/`);
 };
 </script>

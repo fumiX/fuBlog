@@ -18,6 +18,8 @@ A blog software written in Typescript, with an Express.js backend and a Vue3 fro
 * [5010](http://localhost:5010): dev client
 * [5020](http://localhost:5020): dev postgres
 * [5030](https://localhost:5030): login portal (fake OAuth)
+* [5040](https://localhost:5040): dev SMTP server (HTTP port)
+* [5041](https://localhost:5041): dev SMTP server (SMTP port)
 * [5100](http://localhost:5100): production app
 * [5120](http://localhost:5120): production postgres
 

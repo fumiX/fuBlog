@@ -8,6 +8,12 @@
   }
 }
 
+.content,
+.card,
+.jumbotron {
+  transition: .75s ease-out all;
+}
+
 .loader {
   position: fixed;
   z-index: 1031;
@@ -40,11 +46,16 @@ pre {
 
 .card-body {
   svg {
+    line-height:1.1; /* Prevent text from clipping in diagram boxes */
     max-width: 100%;
     background: transparent !important;
   }
   img {
     max-width: 100%;
+  }
+  &.draft {
+    background: repeating-linear-gradient( -45deg, #fff, #fff 10px, #eee 10px, #eee 20px );
+    filter: grayscale(.5);
   }
 }
 
@@ -76,6 +87,10 @@ pre {
   &:focus {
     outline: 0;
     box-shadow: none !important;
+  }
+
+  &::placeholder {
+    color: #888;
   }
 }
 

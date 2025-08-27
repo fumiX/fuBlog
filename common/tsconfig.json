@@ -3,7 +3,7 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./dist",
-    "module": "ESNext",
+    "module": "Node16",
     "target": "es2016",
     "moduleResolution": "Node16",
     "esModuleInterop": true,

@@ -12,7 +12,7 @@ router.post("/", (req, res) => {
       Object.assign(userInfo.profile, {
         sub: userId,
         name: userInfo.profile.fullName,
-        picture: faker.image.imageUrl(256, 256, "person,man,woman"),
+        picture: faker.image.urlLoremFlickr({ width: 256, height: 256, category: "person,man,woman" }),
       }),
     );
   } else {

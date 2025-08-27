@@ -46,7 +46,7 @@
               <i>{{ post.updatedBy.fullName }}</i>
             </div>
 
-            <display-tags v-if="post.tags" :tags="post.tags"></display-tags>
+            <display-tags v-if="post?.tags" :tags="post?.tags?.map((it) => it.name) ?? []"></display-tags>
 
             <div v-html="post.sanitizedHtml" class="mt-4"></div>
           </div>
@@ -88,7 +88,8 @@ import PostNotAvailable from "@client/components/PostNotAvailable.vue";
 import { faClock } from "@fortawesome/free-regular-svg-icons";
 import { faArrowLeft, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import type { ConfirmDialogData, Post, UserRolePermissionsType } from "@fumix/fu-blog-common";
-import { useSeoMeta } from "@unhead/vue";
+import { DateUtil } from "@fumix/fu-blog-common";
+import { useHead, useSeoMeta } from "@unhead/vue";
 import { onMounted, type PropType, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
@@ -122,7 +123,32 @@ onMounted(async () => {
     });
     const res = await fetch(`/api/posts/${id}`);
     const response = await res.json();
-    post.value = response.data;
+    const responseData: Post | null = response.data;
+    if (responseData) {
+      useHead({
+        title: responseData.title + " – " + t("posts.blogTitle"),
+        script: [
+          {
+            type: "application/json+ld",
+            textContent: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BlogPosting",
+              name: responseData.title,
+              datePublished: responseData.createdAt ? DateUtil.formatDateOnlyUtcIso(new Date(responseData.createdAt)) : undefined,
+              dateModified: responseData.updatedAt ? DateUtil.formatDateOnlyUtcIso(new Date(responseData.updatedAt)) : undefined,
+              description: responseData.description,
+              author: responseData.createdBy
+                ? {
+                    "@type": "Person",
+                    name: responseData.createdBy.fullName,
+                  }
+                : undefined,
+            }),
+          },
+        ],
+      });
+    }
+    post.value = responseData;
     loading.value = false;
   } catch (e) {
     console.log("ERROR: ", e);

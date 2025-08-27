@@ -11,6 +11,7 @@ import {
   OAuthUserInfoDto,
   UserInfoOAuthToken,
 } from "@fumix/fu-blog-common";
+import { sendNotificationEmailAboutNewRegistration } from "../service/email-service.js";
 import express, { Request, Response, Router } from "express";
 import fetch from "node-fetch";
 import { BaseClient, Issuer, TokenSet } from "openid-client";
@@ -20,7 +21,7 @@ import { UserEntity } from "../entity/User.entity.js";
 import { BadRequestError } from "../errors/BadRequestError.js";
 import { ForbiddenError } from "../errors/ForbiddenError.js";
 import logger from "../logger.js";
-import { authMiddleware, checkIdToken } from "../service/middleware/auth.js";
+import { checkIdToken } from "../service/middleware/auth.js";
 import { OAuthSettings } from "../settings.js";
 
 const router: Router = express.Router();
@@ -95,16 +96,6 @@ async function getAuthorizationUrl(
     return Promise.reject(new Error("Failed to get authorization URL for provider " + oauthProvider.getIdentifier()));
   }
 }
-
-router.post("/loggedInUser", authMiddleware, async (req, res) => {
-  const account = await req.loggedInUser?.();
-
-  if (account) {
-    res.status(200).json(account);
-  } else {
-    res.status(403).json({ error: "Unauthorized" });
-  }
-});
 
 /**
  * Endpoint to get a {@link OAuthUserInfoDto}.
@@ -232,9 +223,10 @@ router.post("/userinfo/register", async (req, res, next) => {
                     oauthId: oauthUserId,
                     user,
                   };
-                  await mgr
-                    .insert(OAuthAccountEntity, [oauthAccount])
-                    .then((it) => logger.info("New OAuth account created: " + JSON.stringify(oauthAccount)));
+                  await mgr.insert(OAuthAccountEntity, [oauthAccount]).then((it) => {
+                    sendNotificationEmailAboutNewRegistration(oauthAccount.user.username);
+                    logger.info("New OAuth account created: " + JSON.stringify(oauthAccount));
+                  });
                 })
                 .then(async () => {
                   const result: OAuthUserInfoDto = {

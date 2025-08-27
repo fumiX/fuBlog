@@ -1,3 +1,5 @@
+import { AppSettings } from "@server/settings.js";
+import process from "process";
 import winston, { createLogger, format, transports } from "winston";
 import "winston-daily-rotate-file/index.js";
 
@@ -24,6 +26,7 @@ export const logger = createLogger({
   transports: [
     new transports.Console({
       format: format.combine(format.colorize(), uncolored),
+      level: process.env.NODE_ENV !== "development" ? "info" : "debug",
     }),
     new winston.transports.DailyRotateFile({
       dirname: "logs",

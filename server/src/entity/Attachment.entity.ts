@@ -9,7 +9,7 @@ export class AttachmentEntity implements Attachment {
   @PrimaryGeneratedColumn()
   id?: number;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, type: "varchar" })
   filename: string;
 
   @JoinColumn({ name: "post_id", referencedColumnName: "id" })

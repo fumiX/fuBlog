@@ -1,11 +1,17 @@
-import { toProviderId, UserWithOAuthProviders } from "@fumix/fu-blog-common";
+import { LoggedInUserInfo, toProviderId, UserWithOAuthProviders } from "@fumix/fu-blog-common";
+import { authMiddleware } from "../service/middleware/auth.js";
 import express, { Request, Response, Router } from "express";
 import { AppDataSource } from "../data-source.js";
 import { OAuthAccountEntity } from "../entity/OAuthAccount.entity.js";
 
 const router: Router = express.Router();
 
-router.get("/users", async (req, res, next) => {
+router.get("/users", authMiddleware, async (req, res, next) => {
+  const loggedInUser: LoggedInUserInfo | undefined = await req.loggedInUser?.();
+  if (loggedInUser?.permissions?.canEditUserRoles ?? true) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
   await AppDataSource.manager
     .getRepository(OAuthAccountEntity)
     .find({ relations: { user: true }, order: { user: { id: "ASC" } } })

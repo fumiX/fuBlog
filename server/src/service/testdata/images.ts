@@ -4,7 +4,7 @@ import { Canvas, CanvasRenderingContext2D, createCanvas } from "canvas";
 import fetch from "node-fetch";
 
 export async function generateProfilePicture(seed: number, sex: SexType, width = 256, height = 256): Promise<Blob> {
-  const url = faker.image.imageUrl(width, height, sex === Sex.Male ? "boy,man" : "girl,woman", true);
+  const url = faker.image.urlLoremFlickr({ width, height, category: sex === Sex.Male ? "boy,man" : "girl,woman" });
   return fetch(url)
     .then((response) =>
       response
@@ -31,7 +31,7 @@ export async function generateRandomPng(seed?: number, width = 256, height = 256
     const canvas: Canvas = createCanvas(width, height);
     const context: CanvasRenderingContext2D = canvas.getContext("2d", { alpha: false, pixelFormat: "RGB24" });
 
-    const randomColorComponent = () => faker.datatype.number({ min: 0, max: 0xff });
+    const randomColorComponent = () => faker.number.int({ min: 0, max: 0xff });
     for (let x = 0; x < RANDOM_PNG_X; x++) {
       for (let y = 0; y < RANDOM_PNG_Y; y++) {
         context.fillStyle = `rgb(${randomColorComponent()}, ${randomColorComponent()}, ${randomColorComponent()})`;

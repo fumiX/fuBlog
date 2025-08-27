@@ -1,22 +1,25 @@
 {
   "name": "@fumix/fu-blog-portal",
-  "version": "0.2.2",
+  "version": "0.2.4",
   "private": true,
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon ./src/index.ts",
+    "start": "nodemon --exec node --import=../scripts/register.mjs ./src/index.ts",
     "build": "tsc",
     "lint": "prettier --check 'src/**/*.(ts|vue)' && eslint src/**/*.ts",
     "lintfix": "prettier 'src/**/*.(ts|vue)' --write && eslint src/**/*.ts --fix"
   },
   "dependencies": {
+    "@faker-js/faker": "^8.0.1",
     "@fumix/fu-blog-server": "*",
-    "ts-node": "^10.9.1",
     "typeorm": "^0.3.15"
   },
   "devDependencies": {
-    "bootstrap": "5.2.3",
-    "mkcert": "1.5.1"
+    "bootstrap": "5.3.3",
+    "mkcert": "3.2.0",
+    "nodemon": "^3.1.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.2"
   }
 }

@@ -1,5 +1,12 @@
-import { DraftResponseDto, EditPostRequestDto, NewPostRequestDto, permissionsForUser, PostRequestDto } from "@fumix/fu-blog-common";
-import { GoneError } from "../errors/GoneError.js";
+import {
+  createPublicPostFromPostEntity,
+  DraftResponseDto,
+  EditPostRequestDto,
+  LoggedInUserInfo,
+  NewPostRequestDto,
+  PostRequestDto,
+} from "@fumix/fu-blog-common";
+import logger from "../logger.js";
 import express, { NextFunction, Request, Response, Router } from "express";
 import { In } from "typeorm";
 import { AppDataSource } from "../data-source.js";
@@ -9,6 +16,7 @@ import { PostEntity } from "../entity/Post.entity.js";
 import { TagEntity } from "../entity/Tag.entity.js";
 import { BadRequestError } from "../errors/BadRequestError.js";
 import { ForbiddenError } from "../errors/ForbiddenError.js";
+import { GoneError } from "../errors/GoneError.js";
 import { InternalServerError } from "../errors/InternalServerError.js";
 import { NotFoundError } from "../errors/NotFoundError.js";
 import { UnauthorizedError } from "../errors/UnauthorizedError.js";
@@ -20,62 +28,89 @@ import { generateShareImage } from "../service/opengraph.js";
 const router: Router = express.Router();
 
 // search posts
-router.get("/page/:page([0-9]+)/count/:count([0-9]+)/search/:search/operator/:operator", async (req: Request, res: Response, next) => {
-  const page = +req.params.page;
-  const itemsPerPage = +req.params.count;
-  const skipEntries = page * itemsPerPage - itemsPerPage;
-  let searchTerm = "";
-  if (req.params.search) {
-    const splitSearchParams: string[] = req.params.search.trim().split(" ");
-    const operator = req.params.operator === "or" ? " | " : " & ";
+router.get(
+  "/page/:page([0-9]+)/count/:count([0-9]+)/search/:search/operator/:operator",
+  authMiddleware,
+  async (req: Request, res: Response, next) => {
+    const page = +req.params.page;
+    const itemsPerPage = +req.params.count;
+    const skipEntries = page * itemsPerPage - itemsPerPage;
+    let searchTerm = "";
+    if (req.params.search) {
+      const splitSearchParams: string[] = req.params.search.trim().split(" ");
+      const operator = req.params.operator === "or" ? " | " : " & ";
+      searchTerm = splitSearchParams.filter(Boolean).join(operator);
+    }
 
-    searchTerm = splitSearchParams
-      .map((word) => escape(word))
-      .filter(Boolean)
-      .join(operator);
-  }
+    const loggedInUser = await req.loggedInUser?.();
 
-  await AppDataSource.manager
-    .createQueryBuilder(PostEntity, "post")
-    .select(["post.id as post_id", "ts_rank_cd(sp.post_tsv, to_tsquery(:searchTerm)) as rank", "count(*) over() as count"])
-    .setParameter("searchTerm", searchTerm)
-    .leftJoin("search_posts", "sp", "sp.post_id = id")
-    .where("sp.post_tsv @@ to_tsquery(:searchTerm)", { searchTerm: searchTerm })
-    .orderBy("rank", "DESC")
-    .offset(skipEntries)
-    .limit(itemsPerPage)
-    .getRawMany()
-    .then(async (result) => {
-      const idArray = result?.map((r) => parseInt(r.post_id)) as number[];
-      const count = result?.map((r) => parseInt(r.count)) as number[];
+    await AppDataSource.manager
+      .createQueryBuilder(PostEntity, "post")
+      .select(["post.id as post_id", "ts_rank_cd(sp.post_tsv, to_tsquery(:searchTerm)) as rank", "count(*) over() as count"])
+      .setParameter("searchTerm", searchTerm)
+      .leftJoin("search_posts", "sp", "sp.post_id = id")
+      .where(
+        (loggedInUser?.permissions?.canEditPost === true ? "" : "(draft = FALSE OR created_by_id=:userId) AND ") +
+          "sp.post_tsv @@ to_tsquery(:searchTerm)",
+        {
+          searchTerm: searchTerm,
+          userId: loggedInUser?.user?.id,
+        },
+      )
+      .orderBy("rank", "DESC")
+      .offset(skipEntries)
+      .limit(itemsPerPage)
+      .getRawMany()
+      .then(async (result) => {
+        const idArray = result?.map((r) => parseInt(r.post_id)) as number[];
+        const count = result?.map((r) => parseInt(r.count)) as number[];
 
-      await AppDataSource.manager
-        .getRepository(PostEntity)
-        .find({
-          where: { id: In(idArray) },
-          relations: ["createdBy", "updatedBy", "tags"],
-        })
-        .then((result) => res.status(200).json({ data: [result, count[0]] }));
-    })
-    .catch((err) => next(err));
-});
+        await AppDataSource.manager
+          .getRepository(PostEntity)
+          .find({
+            where: { id: In(idArray) },
+            relations: ["createdBy", "updatedBy", "tags"],
+          })
+          .then((result) =>
+            res.status(200).json({ data: [result.map((it) => createPublicPostFromPostEntity(loggedInUser, it)), count[0]] }),
+          );
+      })
+      .catch((err) => next(err));
+  },
+);
 
 // get all posts with paging
-router.get("/page/:page([0-9]+)/count/:count([0-9]+)/", async (req: Request, res: Response, next) => {
+router.get("/page/:page([0-9]+)/count/:count([0-9]+)/", authMiddleware, async (req: Request, res: Response, next) => {
   const page = +req.params.page;
   const itemsPerPage = +req.params.count;
   const skipEntries = page * itemsPerPage - itemsPerPage;
+
+  const loggedInUser: LoggedInUserInfo | undefined = await req.loggedInUser?.();
+
   await AppDataSource.manager
     .getRepository(PostEntity)
     .findAndCount({
       order: {
         createdAt: "DESC",
       },
+      where:
+        loggedInUser && loggedInUser.permissions.canEditPost
+          ? {}
+          : [
+              {
+                draft: false,
+              },
+              {
+                createdBy: {
+                  id: loggedInUser?.user?.id,
+                },
+              },
+            ],
       skip: skipEntries,
       take: itemsPerPage,
       relations: ["createdBy", "updatedBy", "tags"],
     })
-    .then((result) => res.status(200).json({ data: result }))
+    .then(([posts, count]) => res.status(200).json({ data: [posts.map((it) => createPublicPostFromPostEntity(loggedInUser, it)), count] }))
     .catch((error) => {
       next(error);
     });
@@ -118,13 +153,13 @@ router.post(
   multipleFilesUpload,
   async (req: Request, res: Response<DraftResponseDto>, next: NextFunction): Promise<void> => {
     const body: NewPostRequestDto | undefined = JSON.parse(req.body?.json) as NewPostRequestDto;
-    const loggedInUser = await req.loggedInUser?.();
+    const loggedInUser: LoggedInUserInfo | undefined = await req.loggedInUser?.();
 
     if (!body) {
       return next(new BadRequestError());
     } else if (!loggedInUser) {
       return next(new UnauthorizedError());
-    } else if (!permissionsForUser(loggedInUser.user).canCreatePost) {
+    } else if (!loggedInUser.permissions.canCreatePost) {
       return next(new ForbiddenError());
     }
     AppDataSource.manager
@@ -201,7 +236,7 @@ router.post("/:id(\\d+$)", authMiddleware, multipleFilesUpload, async (req: Requ
   const account = await req.loggedInUser?.();
   if (!account) {
     return next(new UnauthorizedError());
-  } else if (!permissionsForUser(account.user).canEditPost && (account.user.id === null || account.user.id !== post.createdBy?.id)) {
+  } else if (!account.permissions.canEditPost && (account.user.id === null || account.user.id !== post.createdBy?.id)) {
     return next(new ForbiddenError());
   }
 
@@ -343,7 +378,7 @@ router.get("/:id(\\d+)/og-image", async (req: Request, res: Response, next) => {
     .findOne({ where: { id: +req.params.id } })
     .then((post) => {
       if (post && post.id) {
-        console.log("Generating share image for post", post.id);
+        logger.debug("Generating share image for post", post.id);
         res.status(200).write(generateShareImage(post.title, post.createdAt));
         res.end();
       } else {

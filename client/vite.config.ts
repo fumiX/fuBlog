@@ -15,6 +15,9 @@ export default defineConfig({
         transformAssetUrls: {
           includeAbsolute: false,
         },
+        compilerOptions: {
+          isCustomElement: (tag) => ["md-chip-set", "md-filled-tonal-button", "md-outlined-text-field", "md-suggestion-chip"].includes(tag),
+        },
       },
     }),
     VueI18nPlugin({

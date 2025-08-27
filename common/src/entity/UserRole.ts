@@ -20,6 +20,8 @@ export const UserRoles = {
   ),
 } as const;
 
+export const DEFAULT_ROLE = new UserRolePermissions("Permissions of the logged out user (basically no permissions at all)", {});
+
 export function permissionsForUser(user: User): UserRolePermissionsType {
   return mergePermissions(user.roles.map((it) => UserRoles[it]));
 }

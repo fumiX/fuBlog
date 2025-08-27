@@ -1,26 +1,24 @@
 import { AiSummaryData, base64ToBuffer, determineMimeType, SupportedImageMimeType } from "@fumix/fu-blog-common";
 import console from "console";
-import { Configuration, OpenAIApi } from "openai";
+import OpenAI from "openai";
 import logger from "../logger.js";
 import { OpenAISettings } from "../settings.js";
 
-const openai = new OpenAIApi(
-  new Configuration({
-    apiKey: OpenAISettings.API_KEY,
-  }),
-);
+const openai = new OpenAI({
+  apiKey: OpenAISettings.API_KEY,
+});
 
 export async function dallEGenerateImage(prompt: string): Promise<[SupportedImageMimeType, Buffer]> {
   console.log("Create image");
-  return openai
-    .createImage({
+  return openai.images
+    .generate({
       prompt,
       size: "512x512",
       n: 1,
       response_format: "b64_json",
     })
-    .then(({ data, status }) => {
-      const base64 = data.data[0]?.b64_json;
+    .then((it) => {
+      const base64 = it.data[0]?.b64_json;
       if (base64) {
         const buffer = base64ToBuffer(base64);
         const mimeType = determineMimeType(buffer);
@@ -34,8 +32,8 @@ export async function dallEGenerateImage(prompt: string): Promise<[SupportedImag
 }
 
 export async function chatGptSummarize(text: string): Promise<AiSummaryData> {
-  return openai
-    .createChatCompletion({
+  return openai.chat.completions
+    .create({
       model: "gpt-3.5-turbo",
       messages: [
         {
@@ -56,15 +54,15 @@ Es enthält eine knappe für Endnutzer verständliche Beschreibung, was das Prob
         },
       ],
     })
-    .then<AiSummaryData>(({ data, status }) => {
-      const answer = data.choices?.[0]?.message?.content;
+    .then<AiSummaryData>((it) => {
+      const answer = it.choices?.[0]?.message?.content;
       if (answer) {
         const dto = JSON.parse(answer) as AiSummaryData;
         if (dto) {
           return dto;
         }
       }
-      logger.error(`Could not decode ChatGPT response ${JSON.stringify(data)} (${status})`);
+      logger.error(`Could not decode ChatGPT response ${JSON.stringify(it)}`);
       return { error: `Could not decode ChatGPT response (${status})` };
     })
     .catch((error) => {

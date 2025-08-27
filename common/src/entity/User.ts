@@ -28,4 +28,9 @@ export type UserWithOAuthProviders = User & {
   oauthProviders: OAuthProviderId[];
 };
 
-export type UserTheme = "lightTheme" | "darkTheme";
+const userThemes = ["light", "dark"] as const;
+export type UserTheme = (typeof userThemes)[number];
+
+export function isUserTheme(s: string): s is UserTheme {
+  return userThemes.some((it) => it === s);
+}

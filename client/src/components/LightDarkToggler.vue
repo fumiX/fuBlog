@@ -4,15 +4,25 @@
     <label for="checkbox" class="modeswitch-label">
       <span class="emoji">🌙</span>
       <span class="emoji">☀️</span>
-      <div class="modeswitch-toggle" :class="{ 'modeswitch-toggle-checked': userTheme === 'darkTheme' }"></div>
+      <div class="modeswitch-toggle" :class="{ 'modeswitch-toggle-checked': userTheme === 'dark' }"></div>
     </label>
   </div>
 </template>
 
 <style lang="scss">
 .emoji {
-  font-family: Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, Android Emoji, EmojiSymbols, EmojiOne Mozilla, Twemoji Mozilla,
-    Segoe UI Symbol, Noto Color Emoji Compat, emoji, noto-emojipedia-fallback;
+  font-family:
+    Apple Color Emoji,
+    Segoe UI Emoji,
+    Noto Color Emoji,
+    Android Emoji,
+    EmojiSymbols,
+    EmojiOne Mozilla,
+    Twemoji Mozilla,
+    Segoe UI Symbol,
+    Noto Color Emoji Compat,
+    emoji,
+    noto-emojipedia-fallback;
   font-weight: 400;
 }
 
@@ -62,7 +72,9 @@
     height: calc(var(--element-size) * 0.4);
     width: calc(var(--element-size) * 0.4);
     transform: translateX(0);
-    transition: transform 0.3s ease, background-color 0.5s ease;
+    transition:
+      transform 0.3s ease,
+      background-color 0.5s ease;
   }
 
   .modeswitch-toggle-checked {
@@ -81,25 +93,22 @@ const emit = defineEmits(["themeChanged"]);
 const setTheme = (theme: UserTheme) => {
   saveCssPreference(theme);
   userTheme.value = theme;
+  document.documentElement.dataset.bsTheme = theme;
   emit("themeChanged", userTheme.value);
 };
 
 const toggleTheme = (): void => {
   const activeTheme = localStorage.getItem("cssTheme");
-  if (activeTheme === "lightTheme") {
-    setTheme("darkTheme");
+  if (activeTheme === "light") {
+    setTheme("dark");
   } else {
-    setTheme("lightTheme");
+    setTheme("light");
   }
 };
 
 const getMediaPreference = (): UserTheme => {
   const hasDarkPreference = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  if (hasDarkPreference) {
-    return "darkTheme";
-  } else {
-    return "lightTheme";
-  }
+  return hasDarkPreference ? "dark" : "light";
 };
 
 const userTheme = ref<UserTheme>(loadCssPreference() || getMediaPreference());

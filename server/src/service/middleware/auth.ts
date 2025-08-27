@@ -1,4 +1,5 @@
-import { Cookies, HttpHeader, OAuthProvider, OAuthType } from "@fumix/fu-blog-common";
+import type { LoggedInUserInfo } from "@fumix/fu-blog-common";
+import { Cookies, HttpHeader, OAuthProvider, OAuthType, permissionsForUser } from "@fumix/fu-blog-common";
 import { NextFunction, Request, Response } from "express";
 import { createRemoteJWKSet, JWTPayload, jwtVerify } from "jose";
 import { AppDataSource } from "../../data-source.js";
@@ -31,14 +32,21 @@ const authMiddleware = async (req: Request, res: Response, next: NextFunction) =
 
       req.loggedInUser = async () =>
         checkIdToken(jwtToken, provider, refreshTokenFun)
-          .then<OAuthAccountEntity | null>((it) => {
-            logger.debug(`ID token checked, ${it.exp ? "expires at " + new Date(it.exp * 1000) : "expired"}`);
+          .then<LoggedInUserInfo | undefined>((value: JWTPayload) => {
+            logger.debug(`ID token checked, ${value.exp ? "expires at " + new Date(value.exp * 1000) : "expired"}`);
             return AppDataSource.manager //
               .getRepository(OAuthAccountEntity)
-              .findOne({ where: { oauthId: it.sub }, relations: ["user"] });
+              .findOne({ where: { oauthId: value.sub }, relations: ["user"] })
+              .then((it): LoggedInUserInfo | undefined => {
+                if (it?.user) {
+                  return {
+                    user: it.user,
+                    permissions: permissionsForUser(it.user),
+                  };
+                }
+              });
           })
-          .then((it) => it ?? undefined)
-          .catch((x) => undefined);
+          .catch(() => undefined);
     }
   }
   next();
