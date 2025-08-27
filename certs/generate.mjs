@@ -37,7 +37,7 @@ if (!skipCaGeneration) {
     countryCode: "DE",
     state: "some state",
     locality: "somewhere",
-    validityDays: 365,
+    validity: 365,
   }).then(async (ca) => {
     writeFileSync(
       caCrtPath,
