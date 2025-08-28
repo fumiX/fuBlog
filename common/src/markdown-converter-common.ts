@@ -121,8 +121,90 @@ export abstract class MarkdownConverter {
             }
             return `<audio controls><source src="${href}" type="${audioType}">Your browser does not support the audio element.</audio>`;
           }
+
+          // Parse attributes from title attribute (format: "title|width:300px|height:200px|maxWidth:400px|maxHeight:300px|class:my-class")
+          let imgTitle = title || "";
+          let imgWidth = "";
+          let imgHeight = "";
+          let imgMaxWidth = "";
+          let imgMaxHeight = "";
+          let imgClass = "";
+
+          if (title && title.includes("|")) {
+            const parts = title.split("|");
+            imgTitle = parts[0];
+
+            for (let i = 1; i < parts.length; i++) {
+              const part = parts[i];
+              if (part.startsWith("width:")) {
+                imgWidth = part.substring(6);
+              } else if (part.startsWith("height:")) {
+                imgHeight = part.substring(7);
+              } else if (part.startsWith("maxWidth:")) {
+                imgMaxWidth = part.substring(9);
+              } else if (part.startsWith("maxHeight:")) {
+                imgMaxHeight = part.substring(10);
+              } else if (part.startsWith("class:")) {
+                imgClass = part.substring(6);
+              }
+            }
+          }
+
+          // Parse attributes from custom syntax in text (format: "alt{width=300px,height=200px,maxWidth=400px,maxHeight=300px,class=my-class}")
+          if (text && text.includes("{")) {
+            const match = text.match(/(.*?)\{([^}]+)\}/);
+            if (match) {
+              const [, altText, attributesStr] = match;
+              text = altText;
+
+              // Parse comma-separated attributes
+              const attributes = attributesStr.split(",");
+              for (const attr of attributes) {
+                const [key, value] = attr.split("=");
+                if (key === "width") {
+                  imgWidth = value;
+                } else if (key === "height") {
+                  imgHeight = value;
+                } else if (key === "maxWidth") {
+                  imgMaxWidth = value;
+                } else if (key === "maxHeight") {
+                  imgMaxHeight = value;
+                } else if (key === "class") {
+                  imgClass = value;
+                }
+              }
+            }
+          }
+
+          // Build attributes
+          const attributes = [`src="${href}"`, `alt="${text || ""}"`];
+          if (imgTitle) {
+            attributes.push(`title="${imgTitle}"`);
+          }
+          if (imgClass) {
+            attributes.push(`class="${imgClass}"`);
+          }
+
+          // Build style attribute
+          const styles = [];
+          if (imgWidth) {
+            styles.push(`width: ${imgWidth}`);
+          }
+          if (imgHeight) {
+            styles.push(`height: ${imgHeight}`);
+          }
+          if (imgMaxWidth) {
+            styles.push(`max-width: ${imgMaxWidth}`);
+          }
+          if (imgMaxHeight) {
+            styles.push(`max-height: ${imgMaxHeight}`);
+          }
+          if (styles.length > 0) {
+            attributes.push(`style="${styles.join("; ")}"`);
+          }
+
           // Default image rendering
-          return `<img src="${href}" alt="${text || ""}" title="${title || ""}">`;
+          return `<img ${attributes.join(" ")}>`;
         },
       },
     });

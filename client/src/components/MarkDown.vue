@@ -7,8 +7,8 @@
   min-height: 520px;
 
   svg {
-    max-width: 100% !important;
-    height: auto !important;
+    max-width: 100%;
+    height: auto;
 
     g > * :not(text) {
       stroke: #ccc !important;
@@ -16,13 +16,13 @@
   }
 
   img {
-    max-width: 100% !important;
-    height: auto !important;
+    max-width: 100%;
+    height: auto;
   }
 
   audio {
-    max-width: 100% !important;
-    margin: 10px 0 !important;
+    max-width: 100%;
+    margin: 10px 0;
   }
 }
 </style>
