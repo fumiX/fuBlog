@@ -14,7 +14,7 @@
   "scripts": {
     "build": "npx lerna run build",
     "clean": "ts-node scripts/clean-all.ts",
-    "check-packages": "ts-node scripts/check-packages.ts",
+    "check-packages": "ts-node scripts/check-packages.mts",
     "generate-ca": "node certs/generate.mjs",
     "lint": "npx lerna run lint",
     "lintfix": "npx lerna run lintfix",

@@ -10,8 +10,8 @@
     "test": "node --test --loader ts-node/esm tests/**/*.ts"
   },
   "dependencies": {
-    "isomorphic-dompurify": "2.26.0",
     "highlight.js": "10.7.3",
+    "isomorphic-dompurify": "2.26.0",
     "jsdom": "25.0.0",
     "marked": "14.1.2",
     "marked-highlight": "2.1.4",
