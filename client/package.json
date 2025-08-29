@@ -21,6 +21,7 @@
     "@sipec/vue3-tags-input": "^3.0.4",
     "bootstrap": "5.3.3",
     "buffer": "^6.0.3",
+    "isomorphic-dompurify": "2.26.0",
     "luxon": "^3.3.0",
     "stream-browserify": "^3.0.0",
     "vue": "^3.4.30",

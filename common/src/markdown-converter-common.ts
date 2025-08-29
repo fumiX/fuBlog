@@ -1,6 +1,6 @@
 import { DataUrl } from "@common/util/base64.js";
 import { Buffer } from "buffer";
-import { DOMPurifyI } from "dompurify";
+import { DOMPurify } from "dompurify";
 import highlightjs from "highlight.js";
 import { marked, MarkedExtension, Token, Tokens } from "marked";
 import { markedHighlight } from "marked-highlight";
@@ -91,7 +91,7 @@ export abstract class MarkdownConverter {
       };
     };
 
-  protected abstract dompurify: DOMPurifyI;
+  protected abstract dompurify: DOMPurify;
 
   /**
    *

@@ -38,10 +38,10 @@ export function determineMimeType(bytes: Uint8Array | Buffer): SupportedFileMime
   return undefined;
 }
 
-function doMagicBytesMatch(magicBytes: readonly number[], allBytes: Uint8Array | Buffer) {
+function doMagicBytesMatch(magicBytes: readonly number[], allBytes: Uint8Array) {
   if (magicBytes.length > allBytes.length) {
     return false;
   }
-  const bytes = (allBytes as Uint8Array) ?? new Uint8Array(allBytes, 0, magicBytes.length);
+  const bytes = (allBytes as Uint8Array) ?? new Uint8Array(allBytes.buffer, 0, magicBytes.length);
   return magicBytes.length < allBytes.length && magicBytes.every((it, i) => bytes[i] === it);
 }
