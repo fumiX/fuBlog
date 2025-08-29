@@ -1,6 +1,5 @@
 import { DataUrl } from "@common/util/base64.js";
 import { Buffer } from "buffer";
-import { DOMPurify } from "dompurify";
 import highlightjs from "highlight.js";
 import { marked, MarkedExtension, Token, Tokens } from "marked";
 import { markedHighlight } from "marked-highlight";
@@ -91,7 +90,7 @@ export abstract class MarkdownConverter {
       };
     };
 
-  protected abstract dompurify: DOMPurify;
+  protected abstract sanitize: (s: string, config: { ADD_TAGS: string[]; ADD_ATTR: string[] }) => string;
 
   /**
    *
@@ -232,7 +231,7 @@ export abstract class MarkdownConverter {
         async: true,
       })
       .then((parsedInput) =>
-        this.dompurify.sanitize(parsedInput, {
+        this.sanitize(parsedInput, {
           // Allowed tags and attributes inside markdown
           ADD_TAGS: ["iframe", "foreignObject"], // foreignObject is needed for SVGs that show html tags inside them like mermaid-diagrams
           ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling"],
